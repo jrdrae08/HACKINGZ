@@ -43,10 +43,15 @@
                 </ul>
             </li>
             <li class="sidebar-item">
-                <a href="../admin/manage-business-account.php" class="sidebar-link">
+                <a href="../admin/manage-business-account.php" class="sidebar-link collapsed" data-bs-target="#brgyacc" data-bs-toggle="collapse" aria-expanded="false">
                     <i class="bi bi-building-gear"></i>
                     Manage Business Accounts
                 </a>
+                <ul id="brgyacc" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
+                    <li class="sidebar-item">
+                        <a href="#" class="sidebar-link">Add Barangay Accounts</a>
+                    </li>
+                </ul>
             </li>
             <li class="sidebar-item">
                 <a href="../admin/add-business-type.php" class="sidebar-link">
