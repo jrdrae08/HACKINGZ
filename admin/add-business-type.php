@@ -188,14 +188,33 @@ $businessTypes = $stmt->fetchAll(PDO::FETCH_ASSOC);
           y: 'top',
         },
         types: [{
-          type: 'warning',
-          background: '#FFD700',
-          icon: {
-            className: 'fas fa-exclamation-triangle',
-            tagName: 'span',
-            color: '#000'
+            type: 'warning',
+            background: '#FFD700',
+            icon: {
+              className: 'fas fa-exclamation-triangle',
+              tagName: 'span',
+              color: '#000'
+            }
+          },
+          {
+            type: 'danger',
+            background: '#dc3545',
+            icon: {
+              className: 'fas fa-times-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          },
+          {
+            type: 'success',
+            background: '#28a745',
+            icon: {
+              className: 'fas fa-check-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
           }
-        }]
+        ]
       });
 
       <?php if (isset($_SESSION['message'])) : ?>
