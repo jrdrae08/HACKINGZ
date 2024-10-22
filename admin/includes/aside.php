@@ -49,7 +49,13 @@
                 </a>
                 <ul id="brgyacc" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="#" class="sidebar-link">Add Barangay Accounts</a>
+                        <a href="../../admin/add-barangay-account.php" class="sidebar-link">Add Barangay Accounts</a>
+                    </li>
+                    <li class="sidebar-item">
+                        <a href="../admin/view-barangay-accounts.php" class="sidebar-link">
+                            <i class="bi bi-list"></i>
+                            View Barangay Accounts
+                        </a>
                     </li>
                 </ul>
             </li>
