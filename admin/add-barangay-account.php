@@ -49,10 +49,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       ':qr_code' => $qrCodeFilePath,
       ':barangayId' => $lastInsertId
     ]);
+    // Redirect to the same page
+    header("Location: add-barangay-account.php");
 
     // Return the barangayId and QR code path as JSON
     header('Content-Type: application/json');
-    echo json_encode(['barangayId' => $lastInsertId, 'qrCodePath' => $qrCodeFilePath]);
     exit;
   } catch (PDOException $e) {
     header('Content-Type: application/json');
@@ -164,39 +165,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       passwordField.setAttribute('type', type);
       passwordIcon.classList.toggle('bi-eye');
       passwordIcon.classList.toggle('bi-eye-slash');
-    });
-
-    document.getElementById('barangayForm').addEventListener('submit', function(event) {
-      event.preventDefault();
-
-      let formData = new FormData(document.getElementById('barangayForm'));
-
-      fetch('add-barangay-account.php', {
-          method: 'POST',
-          body: formData
-        })
-        .then(response => response.json())
-        .then(data => {
-          if (data.error) {
-            console.error('Error:', data.error);
-            return;
-          }
-
-          let qrCodePath = data.qrCodePath;
-          let qrCodeImage = new Image();
-          qrCodeImage.src = qrCodePath;
-          document.getElementById('brgyQR').appendChild(qrCodeImage);
-
-          // Add hidden input for barangayId
-          let barangayIdInput = document.createElement('input');
-          barangayIdInput.type = 'hidden';
-          barangayIdInput.name = 'barangayId';
-          barangayIdInput.value = data.barangayId;
-          document.getElementById('barangayForm').appendChild(barangayIdInput);
-
-          document.getElementById('barangayForm').submit();
-        })
-        .catch(error => console.error('Error:', error));
     });
   </script>
 </body>
