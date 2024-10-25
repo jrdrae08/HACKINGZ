@@ -5,7 +5,6 @@ include '../includes/db.php'; // Include your database connection
 $barangayId = isset($_GET['id']) ? $_GET['id'] : null;
 $establishmentName = "Invalid barangay ID."; // Default message
 
-echo "<script>console.log('Barangay ID: " . $barangayId . "');</script>";
 
 if ($barangayId) {
   try {
