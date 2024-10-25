@@ -8,49 +8,51 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 }
 
 include '../includes/db.php'; // Include your database connection
+require '../vendor/autoload.php'; // Include Composer autoload
+
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $brgyEmail = filter_var($_POST['brgyEmail'], FILTER_SANITIZE_EMAIL);
   $brgyPassword = password_hash($_POST['brgyPassword'], PASSWORD_DEFAULT); // Hash password for security
   $brgyEstablishment = filter_var($_POST['brgyEstablishment'], FILTER_SANITIZE_STRING);
-  $qrCodeImage = $_POST['qrCodeImage'];
-
-  // Save the QR code image to the server
-  $qrCodeFileName = uniqid() . '.png';
-  $qrCodeFilePath = 'qrCode/' . $qrCodeFileName;
-
-  // Convert Base64 to an image file
-  $qrCodeImage = str_replace('data:image/png;base64,', '', $qrCodeImage);
-  $qrCodeImage = base64_decode($qrCodeImage);
-  file_put_contents($qrCodeFilePath, $qrCodeImage);
 
   try {
     // Prepare to insert into database using PDO
-    $stmt = $pdo->prepare("INSERT INTO barangay_accounts (email, password, establishment, qr_code) VALUES (:email, :password, :establishment, :qr_code)");
+    $stmt = $pdo->prepare("INSERT INTO barangay_accounts (email, password, establishment) VALUES (:email, :password, :establishment)");
 
     // Execute the statement with the provided values
     $stmt->execute([
       ':email' => $brgyEmail,
       ':password' => $brgyPassword,
-      ':establishment' => $brgyEstablishment,
-      ':qr_code' => $qrCodeFilePath
+      ':establishment' => $brgyEstablishment
     ]);
 
     // Get the last inserted ID
     $lastInsertId = $pdo->lastInsertId();
 
-    // Prepare the SELECT statement to fetch the required fields
-    $selectStmt = $pdo->prepare("SELECT barangayId, email, password, establishment, qr_code, created_at FROM barangay_accounts WHERE barangayId = :barangayId");
+    // Generate QR code
+    $qrData = "https://dd4d-136-158-66-65.ngrok-free.app/../barangay/estab-demog.php?id={$lastInsertId}";
+    $qrCode = new QrCode($qrData);
+    $writer = new PngWriter();
+    $qrCodeImage = $writer->write($qrCode)->getString();
 
-    // Execute the SELECT statement
-    $selectStmt->execute([':barangayId' => $lastInsertId]);
+    // Save the QR code image to the server
+    $qrCodeFileName = uniqid() . '.png';
+    $qrCodeFilePath = 'qrCode/' . $qrCodeFileName;
+    file_put_contents($qrCodeFilePath, $qrCodeImage);
 
-    // Fetch the result
-    $result = $selectStmt->fetch(PDO::FETCH_ASSOC);
+    // Update the database with the QR code path
+    $updateStmt = $pdo->prepare("UPDATE barangay_accounts SET qr_code = :qr_code WHERE barangayId = :barangayId");
+    $updateStmt->execute([
+      ':qr_code' => $qrCodeFilePath,
+      ':barangayId' => $lastInsertId
+    ]);
 
-    // Return the barangayId as JSON
+    // Return the barangayId and QR code path as JSON
     header('Content-Type: application/json');
-    echo json_encode(['barangayId' => $result['barangayId']]);
+    echo json_encode(['barangayId' => $lastInsertId, 'qrCodePath' => $qrCodeFilePath]);
     exit;
   } catch (PDOException $e) {
     header('Content-Type: application/json');
