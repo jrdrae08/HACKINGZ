@@ -14,8 +14,21 @@ use Endroid\QrCode\Writer\PngWriter;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $brgyEmail = filter_var($_POST['brgyEmail'], FILTER_SANITIZE_EMAIL);
-  $brgyPassword = password_hash($_POST['brgyPassword'], PASSWORD_DEFAULT); // Hash password for security
+  $brgyPassword = $_POST['brgyPassword'];
   $brgyEstablishment = filter_var($_POST['brgyEstablishment'], FILTER_SANITIZE_STRING);
+
+  // Validate input fields
+  if (empty($brgyEmail) || empty($brgyPassword) || empty($brgyEstablishment)) {
+    echo json_encode(['error' => 'All fields are required']);
+    exit;
+  }
+
+  if (!filter_var($brgyEmail, FILTER_VALIDATE_EMAIL)) {
+    echo json_encode(['error' => 'Invalid email format']);
+    exit;
+  }
+
+  $brgyPassword = password_hash($brgyPassword, PASSWORD_DEFAULT); // Hash password for security
 
   try {
     // Check if email already exists
