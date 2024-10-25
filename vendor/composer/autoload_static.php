@@ -37,6 +37,18 @@ class ComposerStaticInitddd41aba6dfbbdb8b6558cad0b553634
             'GuzzleHttp\\' => 11,
             'Greew\\OAuth2\\Client\\Provider\\' => 29,
         ),
+        'E' => 
+        array (
+            'Endroid\\QrCode\\' => 15,
+        ),
+        'D' => 
+        array (
+            'DASPRiD\\Enum\\' => 13,
+        ),
+        'B' => 
+        array (
+            'BaconQrCode\\' => 12,
+        ),
     );
 
     public static $prefixDirsPsr4 = array (
@@ -46,8 +58,8 @@ class ComposerStaticInitddd41aba6dfbbdb8b6558cad0b553634
         ),
         'Psr\\Http\\Message\\' => 
         array (
-            0 => __DIR__ . '/..' . '/psr/http-message/src',
-            1 => __DIR__ . '/..' . '/psr/http-factory/src',
+            0 => __DIR__ . '/..' . '/psr/http-factory/src',
+            1 => __DIR__ . '/..' . '/psr/http-message/src',
         ),
         'Psr\\Http\\Client\\' => 
         array (
@@ -77,6 +89,18 @@ class ComposerStaticInitddd41aba6dfbbdb8b6558cad0b553634
         'Greew\\OAuth2\\Client\\Provider\\' => 
         array (
             0 => __DIR__ . '/..' . '/greew/oauth2-azure-provider/src/Provider',
+        ),
+        'Endroid\\QrCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/endroid/qr-code/src',
+        ),
+        'DASPRiD\\Enum\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/dasprid/enum/src',
+        ),
+        'BaconQrCode\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/bacon/bacon-qr-code/src',
         ),
     );
 

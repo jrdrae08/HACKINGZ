@@ -2,11 +2,62 @@
 session_start();
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-  header('Location: ../login.php');
+  header('Content-Type: application/json');
+  echo json_encode(['error' => 'Unauthorized']);
   exit;
 }
-?>
 
+include '../includes/db.php'; // Include your database connection
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  $brgyEmail = filter_var($_POST['brgyEmail'], FILTER_SANITIZE_EMAIL);
+  $brgyPassword = password_hash($_POST['brgyPassword'], PASSWORD_DEFAULT); // Hash password for security
+  $brgyEstablishment = filter_var($_POST['brgyEstablishment'], FILTER_SANITIZE_STRING);
+  $qrCodeImage = $_POST['qrCodeImage'];
+
+  // Save the QR code image to the server
+  $qrCodeFileName = uniqid() . '.png';
+  $qrCodeFilePath = 'qrCode/' . $qrCodeFileName;
+
+  // Convert Base64 to an image file
+  $qrCodeImage = str_replace('data:image/png;base64,', '', $qrCodeImage);
+  $qrCodeImage = base64_decode($qrCodeImage);
+  file_put_contents($qrCodeFilePath, $qrCodeImage);
+
+  try {
+    // Prepare to insert into database using PDO
+    $stmt = $pdo->prepare("INSERT INTO barangay_accounts (email, password, establishment, qr_code) VALUES (:email, :password, :establishment, :qr_code)");
+
+    // Execute the statement with the provided values
+    $stmt->execute([
+      ':email' => $brgyEmail,
+      ':password' => $brgyPassword,
+      ':establishment' => $brgyEstablishment,
+      ':qr_code' => $qrCodeFilePath
+    ]);
+
+    // Get the last inserted ID
+    $lastInsertId = $pdo->lastInsertId();
+
+    // Prepare the SELECT statement to fetch the required fields
+    $selectStmt = $pdo->prepare("SELECT barangayId, email, password, establishment, qr_code, created_at FROM barangay_accounts WHERE barangayId = :barangayId");
+
+    // Execute the SELECT statement
+    $selectStmt->execute([':barangayId' => $lastInsertId]);
+
+    // Fetch the result
+    $result = $selectStmt->fetch(PDO::FETCH_ASSOC);
+
+    // Return the barangayId as JSON
+    header('Content-Type: application/json');
+    echo json_encode(['barangayId' => $result['barangayId']]);
+    exit;
+  } catch (PDOException $e) {
+    header('Content-Type: application/json');
+    echo json_encode(['error' => $e->getMessage()]);
+  }
+}
+?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
@@ -34,7 +85,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
       <main class="content px-3 py-2">
         <div class="container-fluid">
           <h1 class="mb-4">Generate Barangay Account</h1>
-          <form id="barangayForm" class="needs-validation" novalidate>
+          <form id="barangayForm" class="needs-validation" novalidate method="POST">
             <div class="mb-3">
               <label for="brgyEmail" class="form-label">Barangay Email</label>
               <input type="email" class="form-control" id="brgyEmail" name="brgyEmail" required>
@@ -53,10 +104,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
               <label for="brgyEstablishment" class="form-label">Barangay Establishment</label>
               <input type="text" class="form-control" id="brgyEstablishment" name="brgyEstablishment" required>
             </div>
+            <input type="hidden" id="qrData" name="qrData">
+            <input type="hidden" id="qrCodeImage" name="qrCodeImage">
             <div class="mb-3">
               <label for="brgyQR" class="form-label">Barangay QR Code</label>
               <div id="brgyQR" class="mb-2"></div>
-              <button type="button" class="btn btn-primary" id="generateQR">Generate QR Code</button>
             </div>
             <div class="d-flex justify-content-between mt-4">
               <button type="submit" class="btn btn-success">Submit</button>
@@ -84,38 +136,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
       const allChars = lowercase + uppercase + numbers + specialCharacters;
       let password = "";
 
-      // Ensure at least one character from each set
       password += lowercase[Math.floor(Math.random() * lowercase.length)];
       password += uppercase[Math.floor(Math.random() * uppercase.length)];
       password += numbers[Math.floor(Math.random() * numbers.length)];
       password += specialCharacters[Math.floor(Math.random() * specialCharacters.length)];
 
-      // Fill the rest of the password length with random characters
       for (let i = password.length; i < length; i++) {
         password += allChars[Math.floor(Math.random() * allChars.length)];
       }
 
-      // Shuffle the password to ensure randomness
       password = password.split('').sort(() => 0.5 - Math.random()).join('');
 
       return password;
     }
-
-    document.getElementById('generateQR').addEventListener('click', function() {
-      let brgyEmail = document.getElementById('brgyEmail').value;
-      let brgyPassword = document.getElementById('brgyPassword').value;
-      let brgyEstablishment = document.getElementById('brgyEstablishment').value;
-      let qrData = `Email: ${brgyEmail}\nPassword: ${brgyPassword}\nEstablishment: ${brgyEstablishment}`;
-
-      new QRCode(document.getElementById('brgyQR'), {
-        text: qrData,
-        width: 128,
-        height: 128,
-        colorDark: "#000000",
-        colorLight: "#ffffff",
-        correctLevel: QRCode.CorrectLevel.H
-      });
-    });
 
     document.getElementById('generatePassword').addEventListener('click', function() {
       let password = generatePassword(8);
@@ -129,6 +162,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
       passwordField.setAttribute('type', type);
       passwordIcon.classList.toggle('bi-eye');
       passwordIcon.classList.toggle('bi-eye-slash');
+    });
+
+    document.getElementById('barangayForm').addEventListener('submit', function(event) {
+      event.preventDefault();
+
+      let formData = new FormData(document.getElementById('barangayForm'));
+
+      fetch('add-barangay-account.php', {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          if (data.error) {
+            console.error('Error:', data.error);
+            return;
+          }
+
+          let qrCodePath = data.qrCodePath;
+          let qrCodeImage = new Image();
+          qrCodeImage.src = qrCodePath;
+          document.getElementById('brgyQR').appendChild(qrCodeImage);
+
+          // Add hidden input for barangayId
+          let barangayIdInput = document.createElement('input');
+          barangayIdInput.type = 'hidden';
+          barangayIdInput.name = 'barangayId';
+          barangayIdInput.value = data.barangayId;
+          document.getElementById('barangayForm').appendChild(barangayIdInput);
+
+          document.getElementById('barangayForm').submit();
+        })
+        .catch(error => console.error('Error:', error));
     });
   </script>
 </body>
