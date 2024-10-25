@@ -140,12 +140,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <input type="hidden" id="qrData" name="qrData">
             <input type="hidden" id="qrCodeImage" name="qrCodeImage">
             <div class="mb-3">
-              <label for="brgyQR" class="form-label">Barangay QR Code</label>
               <div id="brgyQR" class="mb-2"></div>
             </div>
             <div class="d-flex justify-content-between mt-4">
-              <button type="submit" class="btn btn-success" id="submitBtn">Submit</button>
-              <a href=" view-barangay-accounts.php" class="btn btn-info">View Accounts List</a>
+              <button type="submit" class="btn btn-success" id="submitBtn" disabled>Submit</button>
+              <a href="view-barangay-accounts.php" class="btn btn-info">View Accounts List</a>
             </div>
           </form>
         </div>
@@ -206,6 +205,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById('generatePassword').addEventListener('click', function() {
       let password = generatePassword(8);
       document.getElementById('brgyPassword').value = password;
+      checkFormValidity();
     });
 
     document.getElementById('togglePassword').addEventListener('click', function() {
@@ -216,6 +216,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       passwordIcon.classList.toggle('bi-eye');
       passwordIcon.classList.toggle('bi-eye-slash');
     });
+
+    document.getElementById('brgyEmail').addEventListener('input', checkFormValidity);
+    document.getElementById('brgyPassword').addEventListener('input', checkFormValidity);
+    document.getElementById('brgyEstablishment').addEventListener('input', checkFormValidity);
+
+    function checkFormValidity() {
+      const brgyEmail = document.getElementById('brgyEmail').value;
+      const brgyPassword = document.getElementById('brgyPassword').value;
+      const brgyEstablishment = document.getElementById('brgyEstablishment').value;
+      const submitBtn = document.getElementById('submitBtn');
+
+      if (brgyEmail && brgyPassword && brgyEstablishment && validateEmail(brgyEmail)) {
+        submitBtn.disabled = false;
+      } else {
+        submitBtn.disabled = true;
+      }
+    }
+
+    function validateEmail(email) {
+      const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      return re.test(email);
+    }
 
     document.getElementById('submitBtn').addEventListener('click', function(event) {
       event.preventDefault();
