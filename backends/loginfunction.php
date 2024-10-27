@@ -4,7 +4,7 @@ session_start();
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $username = filter_var($_POST['username'], FILTER_SANITIZE_STRING);
-  $password = $_POST['password'];
+  $password = filter_var($_POST['password'], FILTER_SANITIZE_STRING);
 
   if (!empty($username) && !empty($password)) {
     // Check in the admin table
@@ -21,12 +21,28 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       exit;
     }
 
+    // Check in the barangay_accounts table
+    $stmt = $pdo->prepare("SELECT * FROM barangay_accounts WHERE email = ?");
+    $stmt->execute([$username]);
+    $barangayAccount = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($barangayAccount && password_verify($password, $barangayAccount['password'])) {
+      // Debugging statement to show the decrypted password
+      $_SESSION['user_id'] = $barangayAccount['barangayId'];
+      $_SESSION['role'] = 'barangay';
+      $_SESSION['username'] = $barangayAccount['email'];
+      $_SESSION['message_type'] = 'success';
+      header("Location: ../barangay/dashboard.php");
+      echo "Decrypted password: " . htmlspecialchars($password) . "');";
+      exit;
+    }
+
     // Check in the account table for different roles
     $stmt = $pdo->prepare("SELECT a.*, bt.TypeName AS BusinessType, b.BusinessInfoID 
-                               FROM account a 
-                               LEFT JOIN businessinformationform b ON a.ApplicationID = b.ApplicationID 
-                               LEFT JOIN businesstype bt ON b.BusinessTypeID = bt.BusinessTypeID 
-                               WHERE a.Email = ?");
+                           FROM account a 
+                           LEFT JOIN businessinformationform b ON a.ApplicationID = b.ApplicationID 
+                           LEFT JOIN businesstype bt ON b.BusinessTypeID = bt.BusinessTypeID 
+                           WHERE a.Email = ?");
     $stmt->execute([$username]);
     $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
