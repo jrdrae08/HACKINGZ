@@ -115,38 +115,65 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <?php include '../admin/includes/aside.php'; ?>
     <div class="main">
       <?php include '../admin/includes/navbar.php'; ?>
-      <main class="content px-3 py-2">
-        <div class="container-fluid">
-          <h1 class="mb-4">Generate Barangay Account</h1>
-          <form id="barangayForm" class="needs-validation" novalidate method="POST">
-            <div class="mb-3">
-              <label for="brgyEmail" class="form-label">Barangay Email</label>
-              <input type="email" class="form-control" id="brgyEmail" name="brgyEmail" required>
-            </div>
-            <div class="mb-3">
-              <label for="brgyPassword" class="form-label">Barangay Password</label>
-              <div class="input-group">
-                <input type="password" class="form-control" id="brgyPassword" name="brgyPassword" required>
-                <button type="button" class="btn btn-secondary" id="generatePassword">Generate Password</button>
-                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
-                  <i class="bi bi-eye" id="togglePasswordIcon"></i>
-                </button>
+      <main class="content mt-5 px-3 py-2">
+        <div class="container-fluid d-flex justify-content-center align-items-center">
+          <div class="row d-flex justify-content-center">
+            <div class="col-lg-8 col-12">
+              <div class="card shadow">
+                <div class="card-header">
+                  <h4 class="card-title">Generate Barangay Account</h4>
+                </div>
+                <div class="card-body">
+                  <form id="barangayForm" class="needs-validation" novalidate method="POST">
+
+                    <div class="row g-2 d-flex justify-content-center">
+                      <!-- Email/Username Section -->
+                      <div class="col-12 d-flex justify-content-center">
+                        <div class="col-lg-6 col-12">
+                          <label for="brgyEmail" class="form-label">Email/Username</label>
+                          <input type="email" class="form-control shadow" id="brgyEmail" name="brgyEmail" required>
+                        </div>
+                      </div>
+
+                      <!-- Barangay Password Section -->
+                      <div class="col-12 d-flex justify-content-center">
+                        <div class="col-lg-6 col-12">
+                          <label for="brgyPassword" class="form-label">Password</label>
+                          <div class="d-flex justify-content-center">
+                            <div class="col-8 mx-2">
+                              <div class="input-group">
+                                <input type="password" class="form-control shadow" id="brgyPassword" name="brgyPassword" required>
+                                <button type="button" class="btn btn-outline-secondary" id="togglePassword">
+                                  <i class="bi bi-eye" id="togglePasswordIcon"></i>
+                                </button>
+                              </div>
+                            </div>
+                            <div class="col-4 d-grid">
+                              <button type="button" class="btn btn-secondary" id="generatePassword">Generate</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="col-12 d-flex justify-content-center">
+                        <div class="col-lg-6 col-12">
+                          <label for="brgyEstablishment" class="form-label">Barangay Establishment Name</label>
+                          <input type="text" class="form-control  shadow" id="brgyEstablishment" name="brgyEstablishment" required>
+                        </div>
+                      </div>
+
+                      <div class="col-12 mb-4 d-flex justify-content-center">
+                        <div class="col-lg-6 col-12 d-flex justify-content-between mt-4">
+                          <button type="submit" class="btn btn-success" id="submitBtn" disabled>Submit</button>
+                          <a href="view-barangay-accounts.php" class="btn btn-info">View Accounts List</a>
+                        </div>
+                      </div>
+                    </div>
+                  </form>
+                </div>
               </div>
             </div>
-            <div class="mb-3">
-              <label for="brgyEstablishment" class="form-label">Barangay Establishment</label>
-              <input type="text" class="form-control" id="brgyEstablishment" name="brgyEstablishment" required>
-            </div>
-            <input type="hidden" id="qrData" name="qrData">
-            <input type="hidden" id="qrCodeImage" name="qrCodeImage">
-            <div class="mb-3">
-              <div id="brgyQR" class="mb-2"></div>
-            </div>
-            <div class="d-flex justify-content-between mt-4">
-              <button type="submit" class="btn btn-success" id="submitBtn" disabled>Submit</button>
-              <a href="view-barangay-accounts.php" class="btn btn-info">View Accounts List</a>
-            </div>
-          </form>
+          </div>
         </div>
       </main>
       <a href="#" class="theme-toggle">

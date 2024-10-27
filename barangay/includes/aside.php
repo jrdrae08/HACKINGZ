@@ -21,7 +21,7 @@
                 </a>
                 <ul id="website" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="../businessowner/front-card.php" class="sidebar-link">Front Card Content</a>
+                        <a href="../barangay/front-card.php" class="sidebar-link">Front Card Content</a>
                     </li>
                     <li class="sidebar-item">
                         <a href="" class="sidebar-link">Contact Info Page</a>
@@ -33,7 +33,7 @@
             </li>
 
             <li class="sidebar-item">
-                <a href="../businessowner/manage-reservation.php" class="sidebar-link">
+                <a href="../barangay/visitor-list.php" class="sidebar-link">
                     <i class="bi bi-person-lines-fill pe-2"></i>
                     Tourist Demographics
                 </a>
@@ -42,6 +42,12 @@
                 <a href="#" class="sidebar-link">
                     <i class="bi bi-megaphone-fill pe-2"></i>
                     Announcements
+                </a>
+            </li>
+            <li class="sidebar-item">
+                <a href="../barangay/qr-code.php" class="sidebar-link">
+                    <i class="bi bi-qr-code pe-2"></i>
+                    QR Code
                 </a>
             </li>
         </ul>

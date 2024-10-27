@@ -45,17 +45,11 @@
             <li class="sidebar-item">
                 <a href="../admin/manage-business-account.php" class="sidebar-link collapsed" data-bs-target="#brgyacc" data-bs-toggle="collapse" aria-expanded="false">
                     <i class="bi bi-building-gear"></i>
-                    Manage Business Accounts
+                    Manage Barangay Accounts
                 </a>
                 <ul id="brgyacc" class="sidebar-dropdown list-unstyled collapse" data-bs-parent="#sidebar">
                     <li class="sidebar-item">
-                        <a href="../../admin/add-barangay-account.php" class="sidebar-link">Add Barangay Accounts</a>
-                    </li>
-                    <li class="sidebar-item">
-                        <a href="../admin/view-barangay-accounts.php" class="sidebar-link">
-                            <i class="bi bi-list"></i>
-                            View Barangay Accounts
-                        </a>
+                        <a href="../../admin/add-barangay-account.php" class="sidebar-link">Add Barangay Account</a>
                     </li>
                 </ul>
             </li>
@@ -65,6 +59,13 @@
                     Add Business Types
                 </a>
             </li>
+
+            <li class="sidebar-item">
+                <a href="../admin/view-barangay-accounts.php" class="sidebar-link">
+                    View Barangay Accounts
+                </a>
+            </li>
+
             <li class="sidebar-item">
                 <a href="../admin/manage-tourist-account.php" class="sidebar-link">
                     <i class="bi bi-person-fill-gear"></i>

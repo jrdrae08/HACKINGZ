@@ -26,202 +26,159 @@ if ($barangayId) {
 }
 ?>
 
-<!--estab-demog.php -->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Minimalist Form</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
+  <title>Majayjay Website</title>
+  <!-- External CSS -->
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Poetsen+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
+  <link rel="stylesheet" href="../../resort/new-resort-ui.css">
+
   <style>
     body {
-      background-color: #f3f4f6;
-      color: #333;
-      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      overflow-x: hidden;
+      position: relative;
+      background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('../../img/businessowner-img/majayjay falls.jpg');
+      /* background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>'); */
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+    }
+
+    .hr-1 {
+      border-top: 1px solid #000;
+      /* Adjust color and thickness as needed */
+      width: 100%;
+      /* Adjust width as needed */
+    }
+
+
+    .hr-2 {
+      border-top: 1px solid #adb5bd;
+      /* Adjust color and thickness as needed */
+      width: 100%;
+      /* Adjust width as needed */
     }
 
     .card {
-      background-color: #ffffff;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      border: none;
-      overflow: hidden;
-    }
-
-    .card-header {
-      background-color: #1E5128;
-      color: white;
-      padding: 1.25rem;
-      font-size: 1.25rem;
-      font-weight: 600;
-      text-align: center;
-    }
-
-    .card-body {
-      padding: 2rem;
-    }
-
-    .form-label {
-      font-size: 1rem;
-      font-weight: 500;
-      color: #333;
-    }
-
-    .form-control {
-      background-color: #f9fafb;
-      color: #333;
-      border-radius: 8px;
-      padding: 0.75rem;
-      border: 1px solid #e0e0e0;
-      transition: all 0.2s ease-in-out;
-    }
-
-    .form-control:focus {
-      background-color: #ffffff;
-      border-color: #1E5128;
-      box-shadow: 0 0 0.25rem rgba(30, 81, 40, 0.25);
-    }
-
-    .btn-success {
-      background-color: #1E5128;
-      border-color: #1E5128;
-      border-radius: 8px;
-      padding: 0.75rem;
-      font-size: 1rem;
-      font-weight: 500;
-      transition: background-color 0.3s ease;
-    }
-
-    .btn-success:hover {
-      background-color: #4E9F3D;
-      border-color: #4E9F3D;
-    }
-
-    .additional-fields {
-      display: none;
-      margin-top: 1.5rem;
-    }
-
-    .input-group {
-      display: flex;
-      align-items: center;
-    }
-
-    .input-group input {
-      flex: 1;
-    }
-
-    .full-name-input {
-      margin-bottom: 1rem;
+      max-width: 550px;
+      width: 100%;
     }
   </style>
 </head>
 
 <body>
-  <div class="container my-5">
-    <div class="row justify-content-center">
-      <div class="col-md-6">
-        <div class="card">
-          <div class="card-header">
-            <?php echo htmlspecialchars($establishmentName); ?>
-          </div>
-          <div class="card-body">
-            <form id="attendeesForm" onsubmit="return validateForm()">
-              <div class="mb-3">
-                <label for="numAttendees" class="form-label">Number of Attendees</label>
-                <div class="input-group">
-                  <input type="number" class="form-control" id="numAttendees" name="numAttendees" required>
-                  <button type="button" class="btn btn-success ms-2" onclick="showAdditionalFields()">Add</button>
+  <main class="content">
+    <div class="container-fluid d-flex justify-content-center align-items-center vh-100">
+      <div class="row d-flex justify-content-center">
+        <div class=" col-12 d-flex justify-content-center">
+          <form action="">
+            <div class="card ">
+              <div class="card-body">
+                <div class="row g-2">
+                  <div class="col-12 my-4 d-flex align-items-center justify-content-center">
+                    <img src="../../img/general-img/majayjay-logo.webp" class="img-fluid" alt="" height="100px" width="100px">
+                  </div>
+                  <div class="col-l2 text-center">
+                    <div class="text-center">
+                      <h3 class="fw-bold">Welcome to (<?php echo htmlspecialchars($establishmentName); ?>
+                        )!</h3>
+                    </div>
+                    <div class=" text-center" style="font-size: 15px;">
+                      <p>Please fill up the form needed before proceeding to the location.</p>
+                    </div>
+                  </div>
+                  <div class="col-12 mb-3 d-flex justify-content-center">
+                    <div class="col-lg-5 col-7 me-3">
+                      <div class="form-floating">
+                        <input type="number" class="form-control shadow" id="floatingInput" placeholder=" " required>
+                        <label for="floatingInput">Number of Attendees</label>
+                      </div>
+                    </div>
+
+                    <div class="col-lg-2 col-4 d-flex justify-content-center align-items-center">
+                      <button class="btn btn-success px-3">Add</button>
+                    </div>
+                  </div>
+
+
+                  <div class="col-12 mt-4 d-flex justify-content-center">
+                    <h4>Attendees' Information</h4>
+                  </div>
+                  <!-- additionalinfo -->
+                  <div class="hr-2"></div>
+                  <div class="col-12 mb-4 d-flex justify-content-center">
+                    <div class="row g-2">
+                      <p class="mb-0">Name of Attendee 1</p>
+                      <div class="col-lg-5 col-12">
+                        <input type="text" class="form-control shadow" id="exampleFormControlInput1" placeholder="ex. Juan Dela Cruz">
+                      </div>
+                      <div class="col-lg-7 col-md-6 col-12">
+                        <div class="btn-group  mb-3">
+                          <button id="sexButton" class="btn btn-light border dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            Sex
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('sexButton', 'Male')">Male</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('sexButton', 'Female')">Female</a></li>
+                          </ul>
+                        </div>
+
+                        <div class="btn-group  mb-3">
+                          <button id="locationButton" class="btn btn-light border dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
+                            Location
+                          </button>
+                          <ul class="dropdown-menu">
+                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'This City/Municipality')">This City/Municipality</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'Other City/Municipality')">Other City/Municipality</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'Other Province')">Other Province</a></li>
+                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'Foreign Country')">Foreign Country</a></li>
+                          </ul>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  <div class="col-12 d-flex justify-content-center">
+                    <button class="btn btn-success px-4">SUBMIT</button>
+                  </div>
                 </div>
               </div>
-
-              <div class="additional-fields" id="additionalFields">
-                <div id="fullNamePlaceholders"></div>
-
-                <div class="mb-3">
-                  <label for="numFemale" class="form-label">Number of Females</label>
-                  <input type="number" class="form-control" id="numFemale" name="numFemale" required>
-                </div>
-
-                <div class="mb-3">
-                  <label for="numMale" class="form-label">Number of Males</label>
-                  <input type="number" class="form-control" id="numMale" name="numMale" required>
-                </div>
-
-                <div class="mb-3">
-                  <label for="thisCity" class="form-label">This City/Municipality</label>
-                  <input type="text" class="form-control" id="thisCity" name="thisCity" required>
-                </div>
-
-                <div class="mb-3">
-                  <label for="otherCity" class="form-label">Other City/Municipality</label>
-                  <input type="text" class="form-control" id="otherCity" name="otherCity" required>
-                </div>
-
-                <div class="mb-3">
-                  <label for="otherProvince" class="form-label">Other Province</label>
-                  <input type="text" class="form-control" id="otherProvince" name="otherProvince" required>
-                </div>
-
-                <div class="mb-3">
-                  <label for="foreignCountry" class="form-label">Foreign Country</label>
-                  <input type="text" class="form-control" id="foreignCountry" name="foreignCountry" required>
-                </div>
-
-                <div class="d-grid mt-4">
-                  <button type="submit" class="btn btn-success">Submit</button>
-                </div>
-              </div>
-            </form>
-          </div>
+            </div>
+          </form>
         </div>
       </div>
     </div>
-  </div>
+  </main>
 
-  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function showAdditionalFields() {
-      const numAttendees = document.getElementById('numAttendees').value;
-      const additionalFields = document.getElementById('additionalFields');
-      const fullNamePlaceholders = document.getElementById('fullNamePlaceholders');
-      fullNamePlaceholders.innerHTML = '';
 
-      if (numAttendees > 0) {
-        additionalFields.style.display = 'block';
-        for (let i = 0; i < numAttendees; i++) {
-          const div = document.createElement('div');
-          div.className = 'full-name-input';
-          const label = document.createElement('label');
-          label.className = 'form-label';
-          label.innerText = `Full Name of Attendee ${i + 1}`;
-          const input = document.createElement('input');
-          input.type = 'text';
-          input.className = 'form-control';
-          input.name = `fullName${i + 1}`;
-          input.required = true;
-          div.appendChild(label);
-          div.appendChild(input);
-          fullNamePlaceholders.appendChild(div);
-        }
-      } else {
-        additionalFields.style.display = 'none';
-      }
-    }
-
-    function validateForm() {
-      const numFemale = document.getElementById('numFemale').value;
-      const numMale = document.getElementById('numMale').value;
-
-      if (!/^\d+$/.test(numFemale) || !/^\d+$/.test(numMale)) {
-        alert('Number of Females and Males must be valid numbers.');
-        return false;
-      }
-      return true;
-    }
-  </script>
 </body>
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+<script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+<script src="../homepage/homepage.js"></script>
+
+
+<script>
+  function updateButtonText(buttonId, text) {
+    const button = document.getElementById(buttonId);
+    button.innerHTML = text;
+
+    // Close the dropdown
+    const dropdown = bootstrap.Dropdown.getInstance(button);
+    dropdown.hide();
+  }
+</script>
 
 </html>
