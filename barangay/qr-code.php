@@ -1,10 +1,10 @@
 <?php
-session_start();
+// session_start();
 
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-  header('Location: ../login.php');
-  exit;
-}
+// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
+//   header('Location: ../login.php');
+//   exit;
+// }
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -46,7 +46,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 <div class="card-body text-center">
                   <p>Here is the generated QR code of your establishment. The visitors will scan this and fill up the form in order to add their demographics to the database.</p>
                   <div>
-                    <img src="../admin/qrCode/671df41ac89cf.png" alt="" height="500">
+                    <img class="img-fluid" src="../admin/qrCode/671df41ac89cf.png" alt="">
                   </div>
                   <div>
                     <button class="btn btn-secondary">Download</button>
