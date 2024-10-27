@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lastInsertId = $pdo->lastInsertId();
 
     // Generate QR code
-    $qrData = "https://dd4d-136-158-66-65.ngrok-free.app/../barangay/estab-demog.php?id={$lastInsertId}";
+    $qrData = "https://b809-136-158-66-65.ngrok-free.app/../barangay/estab-demog.php?id={$lastInsertId}";
     $qrCode = new QrCode($qrData);
     $writer = new PngWriter();
     $qrCodeImage = $writer->write($qrCode)->getString();
