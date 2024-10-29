@@ -1,10 +1,11 @@
 <?php
-include '../includes/db.php'; // Include your database connection
+include '../includes/db.php';
 
-// Get the barangayId from the URL
-$barangayId = isset($_GET['id']) ? $_GET['id'] : null;
-$establishmentName = "Invalid barangay ID."; // Default message
+// Get the barangayId from the URL and validate it
+$barangayId = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : null;
+$establishmentName = "Invalid barangay ID.";
 
+// Check if barangayId is valid
 if ($barangayId) {
   try {
     // Prepare and execute statement to retrieve the establishment information
@@ -14,18 +15,102 @@ if ($barangayId) {
     // Fetch the establishment data
     $barangay = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    if ($barangay) {
-      $establishmentName = htmlspecialchars($barangay['establishment']);
-    } else {
-      $establishmentName = "No establishment information found for this barangay.";
-    }
+    $establishmentName = $barangay ? htmlspecialchars($barangay['establishment']) : "No establishment information found for this barangay.";
   } catch (PDOException $e) {
     error_log("Database error: " . $e->getMessage());
     $establishmentName = "An error occurred. Please try again later.";
   }
 }
-?>
 
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if ($barangayId === null) {
+    echo "Invalid barangay ID.";
+    exit;
+  }
+
+  $names = $_POST['name'] ?? [];
+  $sexes = $_POST['sex'] ?? [];
+  $locations = $_POST['location'] ?? [];
+
+  // Initialize counters
+  $totalnumAttendees = count($names);
+  $totalmale = 0;
+  $totalfemale = 0;
+  $thisCity = 0;
+  $otherCity = 0;
+  $otherProvince = 0;
+  $foreignCountry = 0;
+
+  // Check that we have an equal number of names, sexes, and locations
+  if ($totalnumAttendees === count($sexes) && $totalnumAttendees === count($locations)) {
+    foreach ($names as $index => $name) {
+      $name = filter_var($name, FILTER_SANITIZE_STRING);
+      $sex = filter_var($sexes[$index] ?? '', FILTER_SANITIZE_STRING);
+      $location = filter_var($locations[$index] ?? '', FILTER_SANITIZE_STRING);
+
+      // Ensure all fields are filled
+      if (empty($name) || empty($sex) || empty($location)) {
+        echo "All fields are required.";
+        exit;
+      }
+
+      // Count by sex
+      if ($sex === 'Male') {
+        $totalmale++;
+      } elseif ($sex === 'Female') {
+        $totalfemale++;
+      }
+
+      // Count by location
+      switch ($location) {
+        case 'This City/Municipality':
+          $thisCity++;
+          break;
+        case 'Other City/Municipality':
+          $otherCity++;
+          break;
+        case 'Other Province':
+          $otherProvince++;
+          break;
+        case 'Foreign Country':
+          $foreignCountry++;
+          break;
+      }
+
+      try {
+        // Insert demographic data into the database
+        $stmt = $pdo->prepare("INSERT INTO demographics (barangayId, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:barangayId, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
+        $stmt->execute([
+          ':barangayId' => $barangayId,
+          ':name' => $name,
+          ':sex' => $sex,
+          ':location' => $location,
+          ':totalnumAttendees' => $totalnumAttendees,
+          ':totalmale' => $totalmale,
+          ':totalfemale' => $totalfemale,
+          ':thisCity' => $thisCity,
+          ':otherCity' => $otherCity,
+          ':otherProvince' => $otherProvince,
+          ':foreignCountry' => $foreignCountry
+        ]);
+      } catch (PDOException $e) {
+        echo "Error: " . $e->getMessage();
+      }
+    }
+
+    echo "<script>
+      document.getElementById('loadingSpinner').style.display = 'block';
+      setTimeout(function() {
+        window.location.href = 'estab-demog.php';
+      }, 3000);
+    </script>";
+    exit();
+  } else {
+    echo "All fields are required for each attendee.";
+  }
+  exit;
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -33,8 +118,7 @@ if ($barangayId) {
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Majayjay Website</title>
-  <!-- External CSS -->
-  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link href="https://fonts.googleapis.com/css2?family=Jaro:opsz@6..72&family=Poetsen+One&display=swap" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.css" />
@@ -43,13 +127,12 @@ if ($barangayId) {
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
   <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
   <link rel="stylesheet" href="../../resort/new-resort-ui.css">
-
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
   <style>
     body {
       overflow-x: hidden;
       position: relative;
       background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('../../img/businessowner-img/majayjay falls.jpg');
-      /* background: linear-gradient(rgba(0, 0, 0, 0.2), rgba(0, 0, 0, 0.5)), url('../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>'); */
       background-size: cover;
       background-position: center;
       background-attachment: fixed;
@@ -58,100 +141,77 @@ if ($barangayId) {
 
     .hr-1 {
       border-top: 1px solid #000;
-      /* Adjust color and thickness as needed */
       width: 100%;
-      /* Adjust width as needed */
     }
-
 
     .hr-2 {
       border-top: 1px solid #adb5bd;
-      /* Adjust color and thickness as needed */
       width: 100%;
-      /* Adjust width as needed */
     }
 
     .card {
       max-width: 550px;
       width: 100%;
     }
+
+    .loading-spinner {
+      display: none;
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      z-index: 1000;
+    }
   </style>
 </head>
 
 <body>
+  <div class="loading-spinner" id="loadingSpinner">
+    <div class="spinner-border text-primary" role="status">
+      <span class="visually-hidden">Loading...</span>
+    </div>
+  </div>
   <main class="content">
     <div class="container-fluid d-flex justify-content-center align-items-center vh-100">
       <div class="row d-flex justify-content-center">
-        <div class=" col-12 d-flex justify-content-center">
-          <form action="">
-            <div class="card ">
+        <div class="col-12 d-flex justify-content-center">
+          <form id="barangayForm" action="" method="POST">
+            <div class="card">
               <div class="card-body">
                 <div class="row g-2">
                   <div class="col-12 my-4 d-flex align-items-center justify-content-center">
                     <img src="../../img/general-img/majayjay-logo.webp" class="img-fluid" alt="" height="100px" width="100px">
                   </div>
-                  <div class="col-l2 text-center">
+                  <div class="col-12 text-center">
                     <div class="text-center">
-                      <h3 class="fw-bold">Welcome to (<?php echo htmlspecialchars($establishmentName); ?>
-                        )!</h3>
+                      <h3 class="fw-bold">Welcome to (<?php echo htmlspecialchars($establishmentName); ?>)!</h3>
                     </div>
-                    <div class=" text-center" style="font-size: 15px;">
+                    <div class="text-center" style="font-size: 15px;">
                       <p>Please fill up the form needed before proceeding to the location.</p>
                     </div>
                   </div>
                   <div class="col-12 mb-3 d-flex justify-content-center">
                     <div class="col-lg-5 col-7 me-3">
                       <div class="form-floating">
-                        <input type="number" class="form-control shadow" id="floatingInput" placeholder=" " required>
-                        <label for="floatingInput">Number of Attendees</label>
+                        <input type="number" class="form-control shadow" id="numberOfAttendeesInput" placeholder=" " required>
+                        <label for="numberOfAttendeesInput">Number of Attendees</label>
                       </div>
                     </div>
-
                     <div class="col-lg-2 col-4 d-flex justify-content-center align-items-center">
-                      <button class="btn btn-success px-3">Add</button>
+                      <button type="button" class="btn btn-success px-3" id="addAttendeesButton" disabled>Add</button>
                     </div>
                   </div>
-
 
                   <div class="col-12 mt-4 d-flex justify-content-center">
                     <h4>Attendees' Information</h4>
                   </div>
-                  <!-- additionalinfo -->
                   <div class="hr-2"></div>
-                  <div class="col-12 mb-4 d-flex justify-content-center">
-                    <div class="row g-2">
-                      <p class="mb-0">Name of Attendee 1</p>
-                      <div class="col-lg-5 col-12">
-                        <input type="text" class="form-control shadow" id="exampleFormControlInput1" placeholder="ex. Juan Dela Cruz">
-                      </div>
-                      <div class="col-lg-7 col-md-6 col-12">
-                        <div class="btn-group  mb-3">
-                          <button id="sexButton" class="btn btn-light border dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            Sex
-                          </button>
-                          <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('sexButton', 'Male')">Male</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('sexButton', 'Female')">Female</a></li>
-                          </ul>
-                        </div>
-
-                        <div class="btn-group  mb-3">
-                          <button id="locationButton" class="btn btn-light border dropdown-toggle shadow" type="button" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false">
-                            Location
-                          </button>
-                          <ul class="dropdown-menu">
-                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'This City/Municipality')">This City/Municipality</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'Other City/Municipality')">Other City/Municipality</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'Other Province')">Other Province</a></li>
-                            <li><a class="dropdown-item" href="#" onclick="updateButtonText('locationButton', 'Foreign Country')">Foreign Country</a></li>
-                          </ul>
-                        </div>
-                      </div>
-                    </div>
+                  <div id="attendeesInfoContainer" class="col-12 mb-4 d-flex justify-content-center flex-column">
+                    <!-- Attendee fields will be appended here -->
                   </div>
 
                   <div class="col-12 d-flex justify-content-center">
-                    <button class="btn btn-success px-4">SUBMIT</button>
+                    <button type="submit" class="btn btn-success px-4" id="submitButton" disabled>SUBMIT</button>
                   </div>
                 </div>
               </div>
@@ -162,23 +222,168 @@ if ($barangayId) {
     </div>
   </main>
 
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
+  <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
+  <script src="../homepage/homepage.js"></script>
 
+  <script>
+    function updateButtonText(buttonId, text) {
+      const button = document.getElementById(buttonId);
+      button.innerHTML = text;
+    }
+
+    document.getElementById('numberOfAttendeesInput').addEventListener('input', function() {
+      const addAttendeesButton = document.getElementById('addAttendeesButton');
+      addAttendeesButton.disabled = this.value <= 0;
+    });
+
+    document.getElementById('addAttendeesButton').addEventListener('click', function() {
+      const numberOfAttendees = parseInt(document.getElementById('numberOfAttendeesInput').value, 10);
+      const attendeesInfoContainer = document.getElementById('attendeesInfoContainer');
+
+      // Clear previous attendee fields
+      attendeesInfoContainer.innerHTML = '';
+
+      // Generate attendee fields
+      for (let i = 1; i <= numberOfAttendees; i++) {
+        attendeesInfoContainer.insertAdjacentHTML('beforeend', `
+      <div class="row g-2 mb-3">
+        <p class="mb-0">Name of Attendee ${i}</p>
+        <div class="col-lg-5 col-12">
+          <input type="text" class="form-control shadow" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+        </div>
+        <div class="col-lg-7 col-md-6 col-12">
+          <select name="sex[]" class="form-select shadow" required>
+            <option value="">Select Sex</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+          </select>
+          <select name="location[]" class="form-select shadow mt-2" required>
+            <option value="">Select Location</option>
+            <option value="This City/Municipality">This City/Municipality</option>
+            <option value="Other City/Municipality">Other City/Municipality</option>
+            <option value="Other Province">Other Province</option>
+            <option value="Foreign Country">Foreign Country</option>
+          </select>
+        </div>
+      </div>
+    `);
+      }
+
+      attachInputListeners();
+    });
+
+    function attachInputListeners() {
+      const names = document.querySelectorAll('input[name="name[]"]');
+      const sexes = document.querySelectorAll('select[name="sex[]"]');
+      const locations = document.querySelectorAll('select[name="location[]"]');
+      const submitButton = document.getElementById('submitButton');
+
+      names.forEach((name, index) => {
+        name.addEventListener('input', checkFields);
+        sexes[index].addEventListener('change', checkFields);
+        locations[index].addEventListener('change', checkFields);
+      });
+
+      function checkFields() {
+        let formIsValid = true;
+
+        names.forEach((name, index) => {
+          if (name.value.trim() === '' || sexes[index].value.trim() === '' || locations[index].value.trim() === '') {
+            formIsValid = false;
+          }
+        });
+
+        submitButton.disabled = !formIsValid;
+      }
+    }
+
+    document.getElementById('barangayForm').addEventListener('submit', function(event) {
+      if (!validateForm()) {
+        event.preventDefault(); // Prevent form submission if validation fails
+      }
+    });
+
+    function validateForm() {
+      const names = document.querySelectorAll('input[name="name[]"]');
+      const sexes = document.querySelectorAll('select[name="sex[]"]');
+      const locations = document.querySelectorAll('select[name="location[]"]');
+      const notyf = new Notyf({
+        duration: 5000,
+        position: {
+          x: 'right',
+          y: 'top',
+        },
+        types: [{
+            type: 'warning',
+            background: '#FFD700',
+            icon: {
+              className: 'fas fa-exclamation-triangle',
+              tagName: 'span',
+              color: '#000'
+            }
+          },
+          {
+            type: 'danger',
+            background: '#dc3545',
+            icon: {
+              className: 'fas fa-times-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          },
+          {
+            type: 'success',
+            background: '#28a745',
+            icon: {
+              className: 'fas fa-check-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          }
+        ]
+      });
+
+      let formIsValid = true;
+
+      for (let i = 0; i < names.length; i++) {
+        if (names[i].value.trim() === '') {
+          notyf.open({
+            type: 'warning',
+            message: `Name is required for Attendee ${i + 1}.`
+          });
+          formIsValid = false;
+        }
+
+        if (sexes[i].value.trim() === '') {
+          notyf.open({
+            type: 'warning',
+            message: `Sex is required for Attendee ${i + 1}.`
+          });
+          formIsValid = false;
+        }
+
+        if (locations[i].value.trim() === '') {
+          notyf.open({
+            type: 'warning',
+            message: `Location is required for Attendee ${i + 1}.`
+          });
+          formIsValid = false;
+        }
+      }
+
+      if (formIsValid) {
+        notyf.open({
+          type: 'success',
+          message: 'Record submitted successfully, Thank you!'
+        });
+      }
+
+      return formIsValid;
+    }
+  </script>
 </body>
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
-<script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
-<script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
-<script src="../homepage/homepage.js"></script>
-
-
-<script>
-  function updateButtonText(buttonId, text) {
-    const button = document.getElementById(buttonId);
-    button.innerHTML = text;
-
-    // Close the dropdown
-    const dropdown = bootstrap.Dropdown.getInstance(button);
-    dropdown.hide();
-  }
-</script>
 
 </html>

@@ -33,7 +33,7 @@
             </li>
 
             <li class="sidebar-item">
-                <a href="../barangay/visitor-list.php" class="sidebar-link">
+                <a href="../barangay/visitor-lists.php" class="sidebar-link">
                     <i class="bi bi-person-lines-fill pe-2"></i>
                     Tourist Demographics
                 </a>

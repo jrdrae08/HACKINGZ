@@ -65,7 +65,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $lastInsertId = $pdo->lastInsertId();
 
     // Generate QR code
-    $qrData = "https://b809-136-158-66-65.ngrok-free.app/../barangay/estab-demog.php?id={$lastInsertId}";
+    $qrData = "https://be3b-136-158-66-65.ngrok-free.app/../barangay/estab-demog.php?id={$lastInsertId}";
     $qrCode = new QrCode($qrData);
     $writer = new PngWriter();
     $qrCodeImage = $writer->write($qrCode)->getString();
@@ -107,7 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 
 <body>
