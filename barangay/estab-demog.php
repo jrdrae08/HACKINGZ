@@ -43,6 +43,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
   // Check that we have an equal number of names, sexes, and locations
   if ($totalnumAttendees === count($sexes) && $totalnumAttendees === count($locations)) {
+    $concatenatedNames = [];
+    $concatenatedSexes = [];
+    $concatenatedLocations = [];
+
     foreach ($names as $index => $name) {
       $name = filter_var($name, FILTER_SANITIZE_STRING);
       $sex = filter_var($sexes[$index] ?? '', FILTER_SANITIZE_STRING);
@@ -53,6 +57,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "All fields are required.";
         exit;
       }
+
+      $concatenatedNames[] = $name;
+      $concatenatedSexes[] = $sex;
+      $concatenatedLocations[] = $location;
 
       // Count by sex
       if ($sex === 'Male') {
@@ -76,30 +84,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           $foreignCountry++;
           break;
       }
-
-      try {
-        // Insert demographic data into the database
-        $stmt = $pdo->prepare("INSERT INTO demographics (barangayId, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:barangayId, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
-        $stmt->execute([
-          ':barangayId' => $barangayId,
-          ':name' => $name,
-          ':sex' => $sex,
-          ':location' => $location,
-          ':totalnumAttendees' => $totalnumAttendees,
-          ':totalmale' => $totalmale,
-          ':totalfemale' => $totalfemale,
-          ':thisCity' => $thisCity,
-          ':otherCity' => $otherCity,
-          ':otherProvince' => $otherProvince,
-          ':foreignCountry' => $foreignCountry
-        ]);
-      } catch (PDOException $e) {
-        echo "Error: " . $e->getMessage();
-      }
     }
+
+    // Concatenate the arrays into strings
+    $allNames = implode(', ', $concatenatedNames);
+    $allSexes = implode(', ', $concatenatedSexes);
+    $allLocations = implode(', ', $concatenatedLocations);
+
+    try {
+      // Insert demographic data into the database
+      $stmt = $pdo->prepare("INSERT INTO demographics (barangayId, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:barangayId, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
+      $stmt->execute([
+        ':barangayId' => $barangayId,
+        ':name' => $allNames,
+        ':sex' => $allSexes,
+        ':location' => $allLocations,
+        ':totalnumAttendees' => $totalnumAttendees,
+        ':totalmale' => $totalmale,
+        ':totalfemale' => $totalfemale,
+        ':thisCity' => $thisCity,
+        ':otherCity' => $otherCity,
+        ':otherProvince' => $otherProvince,
+        ':foreignCountry' => $foreignCountry
+      ]);
+    } catch (PDOException $e) {
+      echo "Error: " . $e->getMessage();
+    }
+
     // Wait for 5 seconds before redirecting
     sleep(5);
-    header('Location: estab-demog.php?id=' . $barangayId); 
+    header('Location: estab-demog.php?id=' . $barangayId);
   } else {
     echo "All fields are required for each attendee.";
   }
