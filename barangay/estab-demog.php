@@ -97,14 +97,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         echo "Error: " . $e->getMessage();
       }
     }
-
-    echo "<script>
-      document.getElementById('loadingSpinner').style.display = 'block';
-      setTimeout(function() {
-        window.location.href = 'estab-demog.php';
-      }, 3000);
-    </script>";
-    exit();
+    // Wait for 5 seconds before redirecting
+    sleep(5);
+    header('Location: estab-demog.php?id=' . $barangayId); 
   } else {
     echo "All fields are required for each attendee.";
   }
