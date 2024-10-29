@@ -1,8 +1,30 @@
 <?php
 session_start();
+include '../includes/db.php';
 
+// Ensure the user is logged in and has the correct role
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
   header('Location: ../login.php');
+  exit;
+}
+
+// Use the barangayId stored in the session
+$barangayId = $_SESSION['user_id'];
+
+try {
+  // Prepare and execute statement to retrieve the demographic information
+  $stmt = $pdo->prepare("SELECT demogId, created_at, totalnumAttendees, name, sex, location FROM demographics WHERE barangayId = :barangay_id");
+  $stmt->execute([':barangay_id' => $barangayId]);
+
+  // Fetch all demographic data
+  $demographics = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  if (!$demographics) {
+    echo "No demographic information found for this barangay.";
+  }
+} catch (PDOException $e) {
+  error_log("Database error: " . $e->getMessage());
+  echo "An error occurred. Please try again later.";
   exit;
 }
 ?>
@@ -18,23 +40,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="../css/admin.css">
-
-  <style>
-
-  </style>
 </head>
 
 <body>
   <div class="wrapper">
-
     <!-- aside nav -->
     <?php include '../barangay/includes/aside.php'; ?>
-
     <div class="main">
-
       <!-- navbar -->
       <?php include '../barangay/includes/navbar.php'; ?>
-
       <main class="content px-3 py-2">
         <div class="container-fluid">
           <div class="row d-flex justify-content-center">
@@ -60,14 +74,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                       </tr>
                     </thead>
                     <tbody>
-                      <tr>
-                        <th scope="row">1</th>
-                        <td>10-01-24 02:32PM</td>
-                        <td>23</td>
-                        <td>
-                          <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewaccountinfo"><i class="bi bi-eye"></i></button>
-                        </td>
-                      </tr>
+                      <?php
+                      foreach ($demographics as $demog):
+                      ?>
+                        <tr>
+                          <th scope="row"><?php echo htmlspecialchars($demog['demogId']); ?></th>
+                          <td>
+                            <?php
+                            $datetime = new DateTime($demog['created_at']);
+                            echo htmlspecialchars($datetime->format('m/d/Y h:iA'));
+                            ?>
+                          </td>
+                          <td><?php echo htmlspecialchars($demog['totalnumAttendees']); ?></td>
+                          <td>
+                            <button class="btn btn-primary m-1 view-info-btn" data-bs-toggle="modal" data-id="<?php echo htmlspecialchars($demog['demogId']); ?>">
+                              <i class="bi bi-eye"></i>
+                            </button>
+                          </td>
+                        </tr>
+                      <?php
+                      endforeach;
+                      ?>
                     </tbody>
                   </table>
                 </div>
@@ -75,7 +102,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
             </div>
           </div>
         </div>
-
         <!-- view tourist info modal -->
         <div class="modal fade" id="viewaccountinfo" tabindex="-1" aria-labelledby="viewaccountinfo" aria-hidden="true">
           <div class="modal-dialog modal-dialog-centered ">
@@ -86,16 +112,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
               </div>
               <div class="modal-body">
                 <p class="mt-2 fs-6 fw-bold text-center">Tourists Information</p>
-                <ul>
-                  <li>Total Number of Attendees: </li>
-
-                  <li>Total Male: </li>
-                  <li>Total Female: </li>
-                  <li class="mt-4">Locations</li>
-                  <li>This City/Municipality:</li>
-                  <li>Other City/Municipality:</li>
-                  <li>Other Province:</li>
-                  <li>Foreign Country:</li>
+                <ul id="demographics-details">
+                  <!-- Content will be injected by JavaScript -->
                 </ul>
                 <p class="mt-2 fs-6 fw-bold text-center">Information Table</p>
                 <table class="table">
@@ -106,15 +124,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                       <th scope="col">Location</th>
                     </tr>
                   </thead>
-                  <tbody>
-                    <tr>
-                      <td>John Rev Baliton</td>
-                      <td>Male</td>
-                      <td>Other City/Municipality</td>
-                    </tr>
+                  <tbody id="modal-body-content">
+                    <!-- Content will be injected by JavaScript -->
                   </tbody>
                 </table>
-
               </div>
             </div>
           </div>
@@ -157,6 +170,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
   </div>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../js/admin.js"></script>
+  <!-- Include jQuery for simplicity -->
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <script>
+    $(document).ready(function() {
+      $('.view-info-btn').on('click', function() {
+        var demogId = $(this).data('id');
+        $.ajax({
+          url: '../../backends/barangay/fetch_demographics.php', // Create this PHP file to fetch demographics based on demogId
+          type: 'POST',
+          data: {
+            demogId: demogId
+          },
+          success: function(response) {
+            var res = JSON.parse(response);
+            $('#demographics-details').html(res.details);
+            $('#modal-body-content').html(res.table);
+            $('#viewaccountinfo').modal('show');
+          }
+        });
+      });
+    });
+  </script>
 </body>
 
 </html>
