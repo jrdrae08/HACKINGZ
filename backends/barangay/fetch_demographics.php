@@ -15,6 +15,13 @@ if (isset($_POST['demogId'])) {
       $sexes = explode(', ', $demog['sex']);
       $locations = explode(', ', $demog['location']);
 
+      // Fix display issue for 'female'
+      for ($i = 0; $i < count($sexes); $i++) {
+        if (strtolower($sexes[$i]) === 'fema') {
+          $sexes[$i] = 'Female';
+        }
+      }
+
       $totalAttendees = $demog['totalnumAttendees'];
       $totalMale = $demog['totalmale'];
       $totalFemale = $demog['totalfemale'];
