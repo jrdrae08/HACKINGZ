@@ -1,11 +1,25 @@
 <?php
-// session_start();
+session_start();
 
-// if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
-//   header('Location: ../login.php');
-//   exit;
-// }
+if (!isset($_SESSION['user_id'])) {
+  echo "Unauthorized";
+  exit;
+}
+
+include '../includes/db.php'; // Database connection
+
+try {
+  // Fetch the QR code path from the database based on the user's barangayId
+  $stmt = $pdo->prepare("SELECT qr_code FROM barangay_accounts WHERE barangayId = :barangayId");
+  $stmt->execute([':barangayId' => $_SESSION['user_id']]);
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  $qrCodePath = $result && !empty($result['qr_code']) ? '../admin/' . htmlspecialchars($result['qr_code']) : '../admin/qrCode/default.png';
+} catch (PDOException $e) {
+  $qrCodePath = '../admin/qrCode/default.png';
+}
 ?>
+
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
 
@@ -46,13 +60,11 @@
                 <div class="card-body text-center">
                   <p>Here is the generated QR code of your establishment. The visitors will scan this and fill up the form in order to add their demographics to the database.</p>
                   <div>
-                    <img class="img-fluid" src="../admin/qrCode/671df41ac89cf.png" alt="">
+                    <img class="img-fluid" src="<?php echo $qrCodePath; ?>" alt="QR Code">
                   </div>
                   <div>
                     <button class="btn btn-secondary">Download</button>
                   </div>
-
-
                 </div>
               </div>
             </div>
