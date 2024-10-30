@@ -1,6 +1,10 @@
 <?php
 session_start();
 
+if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
+  header('Location: ../login.php');
+  exit;
+}
 if (!isset($_SESSION['user_id'])) {
   echo "Unauthorized";
   exit;
@@ -63,7 +67,7 @@ try {
                     <img class="img-fluid" src="<?php echo $qrCodePath; ?>" alt="QR Code">
                   </div>
                   <div>
-                    <button class="btn btn-secondary">Download</button>
+                    <a href="<?php echo $qrCodePath; ?>" download="QRCode.png" class="btn btn-secondary">Download</a>
                   </div>
                 </div>
               </div>
