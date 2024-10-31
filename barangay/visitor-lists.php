@@ -41,6 +41,8 @@ try {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
   <link rel="stylesheet" href="../css/admin.css">
+  <!-- DataTables CSS -->
+  <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
 </head>
 
 <body>
@@ -65,7 +67,7 @@ try {
                   </h4>
                 </div>
                 <div class="card-body">
-                  <table class="table table-striped">
+                  <table id="demographicsTable" class="table table-striped">
                     <thead>
                       <tr>
                         <th scope="col">ID</th>
@@ -173,8 +175,22 @@ try {
   <script src="../js/admin.js"></script>
   <!-- Include jQuery for simplicity -->
   <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- DataTables JS -->
+  <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
   <script>
     $(document).ready(function() {
+      $('#demographicsTable').DataTable({
+        "columnDefs": [{
+            "orderable": false,
+            "targets": 3
+          } // Disable sorting on the Actions column
+        ],
+        "pageLength": 10,
+        "lengthMenu": [10, 25, 50, 75, 100],
+        "paging": <?php echo count($demographics) > 10 ? 'true' : 'false'; ?>,
+        "searching": false // Disable the search functionality
+      });
+
       $('.view-info-btn').on('click', function() {
         var demogId = $(this).data('id');
         console.log('Button clicked, demogId:', demogId);
@@ -203,6 +219,72 @@ try {
       });
     });
   </script>
+  <style>
+    /* Minimalist but formal design for the modal */
+    .modal-content {
+      border-radius: 10px;
+      border: none;
+      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+
+    .modal-header {
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+    .modal-title {
+      font-size: 1.5rem;
+      font-weight: bold;
+    }
+
+    .modal-body {
+      padding-top: 0;
+    }
+
+    .modal-body p {
+      margin-bottom: 1rem;
+    }
+
+    .modal-body ul {
+      list-style-type: none;
+      padding: 0;
+    }
+
+    .modal-body ul li {
+      padding: 0.5rem 0;
+      border-bottom: 1px solid #e9ecef;
+    }
+
+    .modal-body table {
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    .modal-body table th,
+    .modal-body table td {
+      padding: 0.75rem;
+      text-align: left;
+    }
+
+    .modal-body table th {
+      background-color: #f8f9fa;
+      font-weight: bold;
+    }
+
+    .modal-body table tr:nth-child(even) {
+      background-color: #f8f9fa;
+    }
+
+    .btn-close {
+      background: none;
+      border: none;
+      font-size: 1.25rem;
+    }
+
+    .btn-close:hover {
+      color: #dc3545;
+    }
+  </style>
 </body>
 
 </html>
