@@ -1,11 +1,12 @@
 <?php
+//fetch_demographics.php
 include '../../includes/db.php';
 
 if (isset($_POST['demogId'])) {
   $demogId = $_POST['demogId'];
 
   try {
-    $stmt = $pdo->prepare("SELECT name, sex, location, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry FROM demographics WHERE demogId = :demogId");
+    $stmt = $pdo->prepare("SELECT name, sex, location, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry FROM demographics WHERE demogId = :demogId ORDER BY created_at DESC");
     $stmt->execute([':demogId' => $demogId]);
 
     $demog = $stmt->fetch(PDO::FETCH_ASSOC);
@@ -43,11 +44,15 @@ if (isset($_POST['demogId'])) {
 
       // Prepare table rows
       $table = "";
-      for ($i = 0; $i < count($names); $i++) {
+      $maxCount = max(count($names), count($sexes), count($locations));
+      for ($i = 0; $i < $maxCount; $i++) {
+        $name = isset($names[$i]) ? htmlspecialchars($names[$i]) : '';
+        $sex = isset($sexes[$i]) ? htmlspecialchars($sexes[$i]) : '';
+        $location = isset($locations[$i]) ? htmlspecialchars($locations[$i]) : '';
         $table .= "<tr>";
-        $table .= "<td>" . htmlspecialchars($names[$i]) . "</td>";
-        $table .= "<td>" . htmlspecialchars($sexes[$i]) . "</td>";
-        $table .= "<td>" . htmlspecialchars($locations[$i]) . "</td>";
+        $table .= "<td>$name</td>";
+        $table .= "<td>$sex</td>";
+        $table .= "<td>$location</td>";
         $table .= "</tr>";
       }
 

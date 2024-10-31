@@ -1,4 +1,5 @@
 <?php
+//visitor-lists.php
 session_start();
 include '../includes/db.php';
 
@@ -20,7 +21,7 @@ try {
   $demographics = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   if (!$demographics) {
-    echo "No demographic information found for this barangay.";
+    // echo "No demographic information found for this barangay.";
   }
 } catch (PDOException $e) {
   error_log("Database error: " . $e->getMessage());
@@ -176,17 +177,27 @@ try {
     $(document).ready(function() {
       $('.view-info-btn').on('click', function() {
         var demogId = $(this).data('id');
+        console.log('Button clicked, demogId:', demogId);
+
+        // Clear previous modal content
+        $('#demographics-details').html('');
+        $('#modal-body-content').html('');
+
         $.ajax({
-          url: '../../backends/barangay/fetch_demographics.php', // Create this PHP file to fetch demographics based on demogId
+          url: '../../backends/barangay/fetch_demographics.php',
           type: 'POST',
           data: {
             demogId: demogId
           },
           success: function(response) {
+            console.log('AJAX response:', response);
             var res = JSON.parse(response);
             $('#demographics-details').html(res.details);
             $('#modal-body-content').html(res.table);
             $('#viewaccountinfo').modal('show');
+          },
+          error: function(xhr, status, error) {
+            console.error('AJAX error:', status, error);
           }
         });
       });
