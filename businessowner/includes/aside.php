@@ -50,6 +50,21 @@
                     Manage Customers
                 </a>
             </li>
+
+            <li class="sidebar-item">
+                <a href="../businessowner/visitor-lists.php" class="sidebar-link">
+                    <i class="bi bi-person-lines-fill pe-2"></i>
+                    Tourist Demographics
+                </a>
+            </li>
+
+            <li class="sidebar-item">
+                <a href="../businessowner/qr-code.php" class="sidebar-link">
+                    <i class="bi bi-qr-code pe-2"></i>
+                    QR Code
+                </a>
+            </li>
+
             <li class="sidebar-item">
                 <a href="#" class="sidebar-link">
                     <i class="bi bi-megaphone-fill pe-2"></i>
