@@ -1,10 +1,17 @@
 <?php
+// Include Composer autoload
+require '../../vendor/autoload.php'; // Adjust the path as necessary
+
 // Include database connection
 include '../../includes/db.php';
 
 // Include PHPMailer
 use PHPMailer\PHPMailer\PHPMailer;
 use PHPMailer\PHPMailer\Exception;
+
+// Include QR Code library
+use Endroid\QrCode\QrCode;
+use Endroid\QrCode\Writer\PngWriter;
 
 define('PHPMAILER_PATH', 'E:/HACKINGZ/phpmailer/src/');
 require PHPMAILER_PATH . 'Exception.php';
@@ -25,8 +32,8 @@ $rejectReasons = $data['RejectReasons'] ?? [];
 // Default response
 $response = ['success' => false];
 
-if ($applicationID && $status) {
-  try {
+try {
+  if ($applicationID && $status) {
     $pdo->beginTransaction();
 
     // Update the status and IsReject fields
@@ -55,6 +62,28 @@ if ($applicationID && $status) {
         $stmt->bindParam(':applicationID', $applicationID, PDO::PARAM_INT);
         $stmt->bindParam(':email', $email, PDO::PARAM_STR);
         $stmt->bindParam(':passwordHash', $passwordHash, PDO::PARAM_STR);
+        $stmt->execute();
+
+        // Get the last inserted AccountID
+        $accountID = $pdo->lastInsertId();
+
+        // Generate QR code
+        $qrData = "https://bb54-136-158-66-65.ngrok-free.app/../businessowner/estab-demog.php?id={$applicationID}";
+        $qrCode = new QrCode($qrData);
+        $writer = new PngWriter();
+        $qrCodeImage = $writer->write($qrCode)->getString();
+
+        // Save the QR code image to the server
+        $qrCodeFileName = uniqid() . '.png';
+        $qrCodeFilePath = '../../businessowner/qrCode/' . $qrCodeFileName;
+        if (file_put_contents($qrCodeFilePath, $qrCodeImage) === false) {
+          throw new Exception('Failed to save QR code image.');
+        }
+
+        // Update the account table with the QR code path
+        $stmt = $pdo->prepare('UPDATE account SET qr_code = :qr_code WHERE AccountID = :accountID');
+        $stmt->bindParam(':qr_code', $qrCodeFilePath, PDO::PARAM_STR);
+        $stmt->bindParam(':accountID', $accountID, PDO::PARAM_INT);
         $stmt->execute();
 
         // Commit the transaction
@@ -147,12 +176,14 @@ if ($applicationID && $status) {
       $pdo->rollBack();
       $response['error'] = 'Failed to retrieve email for ApplicationID ' . $applicationID;
     }
-  } catch (Exception $e) {
-    $pdo->rollBack();
-    $response['error'] = 'Failed to update status: ' . $e->getMessage();
+  } else {
+    $response['error'] = 'Invalid ApplicationID or Status';
   }
-} else {
-  $response['error'] = 'Invalid ApplicationID or Status';
+} catch (Exception $e) {
+  if ($pdo->inTransaction()) {
+    $pdo->rollBack();
+  }
+  $response['error'] = 'Failed to update status: ' . $e->getMessage();
 }
 
 // Return JSON response

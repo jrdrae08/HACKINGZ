@@ -1,124 +1,124 @@
 <?php
 include '../includes/db.php';
 
-// Get the barangayId from the URL and validate it
-$barangayId = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : null;
-$establishmentName = "Invalid barangay ID.";
+// Get the ApplicationID from the URL and validate it
+$applicationID = isset($_GET['id']) && is_numeric($_GET['id']) ? (int)$_GET['id'] : null;
+$businessName = "Invalid Application ID.";
 
-// Check if barangayId is valid
-if ($barangayId) {
+// Check if ApplicationID is valid
+if ($applicationID) {
   try {
-    // Prepare and execute statement to retrieve the establishment information
-    $stmt = $pdo->prepare("SELECT establishment FROM barangay_accounts WHERE barangayId = :barangay_id");
-    $stmt->execute([':barangay_id' => $barangayId]);
+    // Prepare and execute statement to retrieve the business information
+    $stmt = $pdo->prepare("SELECT BusinessName FROM businessinformationform WHERE ApplicationID = :application_id");
+    $stmt->execute([':application_id' => $applicationID]);
 
-    // Fetch the establishment data
-    $barangay = $stmt->fetch(PDO::FETCH_ASSOC);
+    // Fetch the business data
+    $business = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    $establishmentName = $barangay ? htmlspecialchars($barangay['establishment']) : "No establishment information found for this barangay.";
+    $businessName = $business ? htmlspecialchars($business['BusinessName']) : "No business information found for this Application ID.";
   } catch (PDOException $e) {
     error_log("Database error: " . $e->getMessage());
-    $establishmentName = "An error occurred. Please try again later.";
+    $businessName = "An error occurred. Please try again later.";
   }
 }
 
-if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-  if ($barangayId === null) {
-    echo "Invalid barangay ID.";
-    exit;
-  }
+// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+//   if ($barangayId === null) {
+//     echo "Invalid barangay ID.";
+//     exit;
+//   }
 
-  $names = $_POST['name'] ?? [];
-  $sexes = $_POST['sex'] ?? [];
-  $locations = $_POST['location'] ?? [];
+//   $names = $_POST['name'] ?? [];
+//   $sexes = $_POST['sex'] ?? [];
+//   $locations = $_POST['location'] ?? [];
 
-  // Initialize counters
-  $totalnumAttendees = count($names);
-  $totalmale = 0;
-  $totalfemale = 0;
-  $thisCity = 0;
-  $otherCity = 0;
-  $otherProvince = 0;
-  $foreignCountry = 0;
+//   // Initialize counters
+//   $totalnumAttendees = count($names);
+//   $totalmale = 0;
+//   $totalfemale = 0;
+//   $thisCity = 0;
+//   $otherCity = 0;
+//   $otherProvince = 0;
+//   $foreignCountry = 0;
 
-  // Check that we have an equal number of names, sexes, and locations
-  if ($totalnumAttendees === count($sexes) && $totalnumAttendees === count($locations)) {
-    $concatenatedNames = [];
-    $concatenatedSexes = [];
-    $concatenatedLocations = [];
+//   // Check that we have an equal number of names, sexes, and locations
+//   if ($totalnumAttendees === count($sexes) && $totalnumAttendees === count($locations)) {
+//     $concatenatedNames = [];
+//     $concatenatedSexes = [];
+//     $concatenatedLocations = [];
 
-    foreach ($names as $index => $name) {
-      $name = filter_var($name, FILTER_SANITIZE_STRING);
-      $sex = filter_var($sexes[$index] ?? '', FILTER_SANITIZE_STRING);
-      $location = filter_var($locations[$index] ?? '', FILTER_SANITIZE_STRING);
+//     foreach ($names as $index => $name) {
+//       $name = filter_var($name, FILTER_SANITIZE_STRING);
+//       $sex = filter_var($sexes[$index] ?? '', FILTER_SANITIZE_STRING);
+//       $location = filter_var($locations[$index] ?? '', FILTER_SANITIZE_STRING);
 
-      // Ensure all fields are filled
-      if (empty($name) || empty($sex) || empty($location)) {
-        echo "All fields are required.";
-        exit;
-      }
+//       // Ensure all fields are filled
+//       if (empty($name) || empty($sex) || empty($location)) {
+//         echo "All fields are required.";
+//         exit;
+//       }
 
-      $concatenatedNames[] = $name;
-      $concatenatedSexes[] = $sex;
-      $concatenatedLocations[] = $location;
+//       $concatenatedNames[] = $name;
+//       $concatenatedSexes[] = $sex;
+//       $concatenatedLocations[] = $location;
 
-      // Count by sex
-      if ($sex === 'Male') {
-        $totalmale++;
-      } elseif ($sex === 'Female') {
-        $totalfemale++;
-      }
+//       // Count by sex
+//       if ($sex === 'Male') {
+//         $totalmale++;
+//       } elseif ($sex === 'Female') {
+//         $totalfemale++;
+//       }
 
-      // Count by location
-      switch ($location) {
-        case 'This City/Municipality':
-          $thisCity++;
-          break;
-        case 'Other City/Municipality':
-          $otherCity++;
-          break;
-        case 'Other Province':
-          $otherProvince++;
-          break;
-        case 'Foreign Country':
-          $foreignCountry++;
-          break;
-      }
-    }
+//       // Count by location
+//       switch ($location) {
+//         case 'This City/Municipality':
+//           $thisCity++;
+//           break;
+//         case 'Other City/Municipality':
+//           $otherCity++;
+//           break;
+//         case 'Other Province':
+//           $otherProvince++;
+//           break;
+//         case 'Foreign Country':
+//           $foreignCountry++;
+//           break;
+//       }
+//     }
 
-    // Concatenate the arrays into strings
-    $allNames = implode(', ', $concatenatedNames);
-    $allSexes = implode(', ', $concatenatedSexes);
-    $allLocations = implode(', ', $concatenatedLocations);
+//     // Concatenate the arrays into strings
+//     $allNames = implode(', ', $concatenatedNames);
+//     $allSexes = implode(', ', $concatenatedSexes);
+//     $allLocations = implode(', ', $concatenatedLocations);
 
-    try {
-      // Insert demographic data into the database
-      $stmt = $pdo->prepare("INSERT INTO demographics (barangayId, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:barangayId, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
-      $stmt->execute([
-        ':barangayId' => $barangayId,
-        ':name' => $allNames,
-        ':sex' => $allSexes,
-        ':location' => $allLocations,
-        ':totalnumAttendees' => $totalnumAttendees,
-        ':totalmale' => $totalmale,
-        ':totalfemale' => $totalfemale,
-        ':thisCity' => $thisCity,
-        ':otherCity' => $otherCity,
-        ':otherProvince' => $otherProvince,
-        ':foreignCountry' => $foreignCountry
-      ]);
-    } catch (PDOException $e) {
-      echo "Error: " . $e->getMessage();
-    }
+//     try {
+//       // Insert demographic data into the database
+//       $stmt = $pdo->prepare("INSERT INTO demographics (barangayId, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:barangayId, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
+//       $stmt->execute([
+//         ':barangayId' => $barangayId,
+//         ':name' => $allNames,
+//         ':sex' => $allSexes,
+//         ':location' => $allLocations,
+//         ':totalnumAttendees' => $totalnumAttendees,
+//         ':totalmale' => $totalmale,
+//         ':totalfemale' => $totalfemale,
+//         ':thisCity' => $thisCity,
+//         ':otherCity' => $otherCity,
+//         ':otherProvince' => $otherProvince,
+//         ':foreignCountry' => $foreignCountry
+//       ]);
+//     } catch (PDOException $e) {
+//       echo "Error: " . $e->getMessage();
+//     }
 
-    // Wait for 5 seconds before redirecting
-    sleep(5);
-    header('Location: estab-demog.php?id=' . $barangayId);
-  } else {
-    echo "All fields are required for each attendee.";
-  }
-  exit;
-}
+//     // Wait for 5 seconds before redirecting
+//     sleep(5);
+//     header('Location: estab-demog.php?id=' . $barangayId);
+//   } else {
+//     echo "All fields are required for each attendee.";
+//   }
+//   exit;
+// }
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -193,7 +193,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   </div>
                   <div class="col-12 text-center">
                     <div class="text-center">
-                      <h3 class="fw-bold">Welcome to (<?php echo htmlspecialchars($establishmentName); ?>)!</h3>
+                      <h3 class="fw-bold">Welcome to (<?php echo htmlspecialchars($businessName); ?>)!</h3>
                     </div>
                     <div class="text-center" style="font-size: 15px;">
                       <p>Please fill up the form needed before proceeding to the location.</p>
