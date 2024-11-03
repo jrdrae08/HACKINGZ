@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         header("Location: ../login.php");
         exit;
       } else {
+        $_SESSION['bowner_id'] = $account['ApplicationID'];
         $_SESSION['user_id'] = $account['AccountID'];
         $_SESSION['role'] = $account['role'];
         $_SESSION['username'] = $account['Email'];

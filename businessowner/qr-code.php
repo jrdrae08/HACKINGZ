@@ -21,8 +21,8 @@ try {
   $qrCodePath = $result && !empty($result['qr_code']) ? '../businessowner/qrCode/' . htmlspecialchars($result['qr_code']) : '../businessowner/qrCode/default.png';
 
   // Echo the AccountID and QR code path for debugging purposes
-  echo "AccountID: " . htmlspecialchars($_SESSION['user_id']) . "<br>";
-  echo "QR Code Path: " . htmlspecialchars($qrCodePath) . "<br>";
+  // echo "AccountID: " . htmlspecialchars($_SESSION['user_id']) . "<br>";
+  // echo "QR Code Path: " . htmlspecialchars($qrCodePath) . "<br>";
 } catch (PDOException $e) {
   $qrCodePath = '../businessowner/qrCode/default.png';
   echo "Error: " . $e->getMessage();

@@ -220,7 +220,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                   </div>
 
                   <div class="col-12 d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success px-4" id="submitButton" disabled>SUBMIT</button>
+                    <button type="button" class="btn btn-success px-4" id="submitButton" disabled>SUBMIT</button>
                   </div>
                 </div>
               </div>
@@ -230,6 +230,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       </div>
     </div>
   </main>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Submission</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to submit the form?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="confirmSubmitButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -309,10 +328,56 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       }
     }
 
-    document.getElementById('barangayForm').addEventListener('submit', function(event) {
-      if (!validateForm()) {
-        event.preventDefault(); // Prevent form submission if validation fails
+    document.getElementById('submitButton').addEventListener('click', function() {
+      if (validateForm()) {
+        const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        confirmationModal.show();
       }
+    });
+
+    document.getElementById('confirmSubmitButton').addEventListener('click', function() {
+      const notyf = new Notyf({
+        duration: 5000,
+        position: {
+          x: 'right',
+          y: 'top',
+        },
+        types: [{
+            type: 'warning',
+            background: '#FFD700',
+            icon: {
+              className: 'fas fa-exclamation-triangle',
+              tagName: 'span',
+              color: '#000'
+            }
+          },
+          {
+            type: 'danger',
+            background: '#dc3545',
+            icon: {
+              className: 'fas fa-times-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          },
+          {
+            type: 'success',
+            background: '#28a745',
+            icon: {
+              className: 'fas fa-check-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          }
+        ]
+      });
+
+      notyf.open({
+        type: 'success',
+        message: 'Record submitted successfully, Thank you!'
+      });
+
+      document.getElementById('barangayForm').submit();
     });
 
     function validateForm() {
@@ -381,13 +446,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           });
           formIsValid = false;
         }
-      }
-
-      if (formIsValid) {
-        notyf.open({
-          type: 'success',
-          message: 'Record submitted successfully, Thank you!'
-        });
       }
 
       return formIsValid;

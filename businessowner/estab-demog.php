@@ -22,103 +22,103 @@ if ($applicationID) {
   }
 }
 
-// if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-//   if ($barangayId === null) {
-//     echo "Invalid barangay ID.";
-//     exit;
-//   }
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+  if ($applicationID === null) {
+    echo "Invalid Application ID.";
+    exit;
+  }
 
-//   $names = $_POST['name'] ?? [];
-//   $sexes = $_POST['sex'] ?? [];
-//   $locations = $_POST['location'] ?? [];
+  $names = $_POST['name'] ?? [];
+  $sexes = $_POST['sex'] ?? [];
+  $locations = $_POST['location'] ?? [];
 
-//   // Initialize counters
-//   $totalnumAttendees = count($names);
-//   $totalmale = 0;
-//   $totalfemale = 0;
-//   $thisCity = 0;
-//   $otherCity = 0;
-//   $otherProvince = 0;
-//   $foreignCountry = 0;
+  // Initialize counters
+  $totalnumAttendees = count($names);
+  $totalmale = 0;
+  $totalfemale = 0;
+  $thisCity = 0;
+  $otherCity = 0;
+  $otherProvince = 0;
+  $foreignCountry = 0;
 
-//   // Check that we have an equal number of names, sexes, and locations
-//   if ($totalnumAttendees === count($sexes) && $totalnumAttendees === count($locations)) {
-//     $concatenatedNames = [];
-//     $concatenatedSexes = [];
-//     $concatenatedLocations = [];
+  // Check that we have an equal number of names, sexes, and locations
+  if ($totalnumAttendees === count($sexes) && $totalnumAttendees === count($locations)) {
+    $concatenatedNames = [];
+    $concatenatedSexes = [];
+    $concatenatedLocations = [];
 
-//     foreach ($names as $index => $name) {
-//       $name = filter_var($name, FILTER_SANITIZE_STRING);
-//       $sex = filter_var($sexes[$index] ?? '', FILTER_SANITIZE_STRING);
-//       $location = filter_var($locations[$index] ?? '', FILTER_SANITIZE_STRING);
+    foreach ($names as $index => $name) {
+      $name = filter_var($name, FILTER_SANITIZE_STRING);
+      $sex = filter_var($sexes[$index] ?? '', FILTER_SANITIZE_STRING);
+      $location = filter_var($locations[$index] ?? '', FILTER_SANITIZE_STRING);
 
-//       // Ensure all fields are filled
-//       if (empty($name) || empty($sex) || empty($location)) {
-//         echo "All fields are required.";
-//         exit;
-//       }
+      // Ensure all fields are filled
+      if (empty($name) || empty($sex) || empty($location)) {
+        echo "All fields are required.";
+        exit;
+      }
 
-//       $concatenatedNames[] = $name;
-//       $concatenatedSexes[] = $sex;
-//       $concatenatedLocations[] = $location;
+      $concatenatedNames[] = $name;
+      $concatenatedSexes[] = $sex;
+      $concatenatedLocations[] = $location;
 
-//       // Count by sex
-//       if ($sex === 'Male') {
-//         $totalmale++;
-//       } elseif ($sex === 'Female') {
-//         $totalfemale++;
-//       }
+      // Count by sex
+      if ($sex === 'Male') {
+        $totalmale++;
+      } elseif ($sex === 'Female') {
+        $totalfemale++;
+      }
 
-//       // Count by location
-//       switch ($location) {
-//         case 'This City/Municipality':
-//           $thisCity++;
-//           break;
-//         case 'Other City/Municipality':
-//           $otherCity++;
-//           break;
-//         case 'Other Province':
-//           $otherProvince++;
-//           break;
-//         case 'Foreign Country':
-//           $foreignCountry++;
-//           break;
-//       }
-//     }
+      // Count by location
+      switch ($location) {
+        case 'This City/Municipality':
+          $thisCity++;
+          break;
+        case 'Other City/Municipality':
+          $otherCity++;
+          break;
+        case 'Other Province':
+          $otherProvince++;
+          break;
+        case 'Foreign Country':
+          $foreignCountry++;
+          break;
+      }
+    }
 
-//     // Concatenate the arrays into strings
-//     $allNames = implode(', ', $concatenatedNames);
-//     $allSexes = implode(', ', $concatenatedSexes);
-//     $allLocations = implode(', ', $concatenatedLocations);
+    // Concatenate the arrays into strings
+    $allNames = implode(', ', $concatenatedNames);
+    $allSexes = implode(', ', $concatenatedSexes);
+    $allLocations = implode(', ', $concatenatedLocations);
 
-//     try {
-//       // Insert demographic data into the database
-//       $stmt = $pdo->prepare("INSERT INTO demographics (barangayId, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:barangayId, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
-//       $stmt->execute([
-//         ':barangayId' => $barangayId,
-//         ':name' => $allNames,
-//         ':sex' => $allSexes,
-//         ':location' => $allLocations,
-//         ':totalnumAttendees' => $totalnumAttendees,
-//         ':totalmale' => $totalmale,
-//         ':totalfemale' => $totalfemale,
-//         ':thisCity' => $thisCity,
-//         ':otherCity' => $otherCity,
-//         ':otherProvince' => $otherProvince,
-//         ':foreignCountry' => $foreignCountry
-//       ]);
-//     } catch (PDOException $e) {
-//       echo "Error: " . $e->getMessage();
-//     }
+    try {
+      // Insert demographic data into the database
+      $stmt = $pdo->prepare("INSERT INTO bOwnerdemographics (ApplicationID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:applicationID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
+      $stmt->execute([
+        ':applicationID' => $applicationID,
+        ':name' => $allNames,
+        ':sex' => $allSexes,
+        ':location' => $allLocations,
+        ':totalnumAttendees' => $totalnumAttendees,
+        ':totalmale' => $totalmale,
+        ':totalfemale' => $totalfemale,
+        ':thisCity' => $thisCity,
+        ':otherCity' => $otherCity,
+        ':otherProvince' => $otherProvince,
+        ':foreignCountry' => $foreignCountry
+      ]);
+    } catch (PDOException $e) {
+      echo "Error: " . $e->getMessage();
+    }
 
-//     // Wait for 5 seconds before redirecting
-//     sleep(5);
-//     header('Location: estab-demog.php?id=' . $barangayId);
-//   } else {
-//     echo "All fields are required for each attendee.";
-//   }
-//   exit;
-// }
+    // Wait for 5 seconds before redirecting
+    sleep(5);
+    header('Location: estab-demog.php?id=' . $applicationID);
+  } else {
+    echo "All fields are required for each attendee.";
+  }
+  exit;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -184,7 +184,7 @@ if ($applicationID) {
     <div class="container-fluid d-flex justify-content-center align-items-center vh-100">
       <div class="row d-flex justify-content-center">
         <div class="col-12 d-flex justify-content-center">
-          <form id="barangayForm" action="" method="POST">
+          <form id="businessOwnerForm" action="estab-demog.php?id=<?php echo $applicationID; ?>" method="POST">
             <div class="card">
               <div class="card-body">
                 <div class="row g-2">
@@ -220,7 +220,7 @@ if ($applicationID) {
                   </div>
 
                   <div class="col-12 d-flex justify-content-center">
-                    <button type="submit" class="btn btn-success px-4" id="submitButton" disabled>SUBMIT</button>
+                    <button type="button" class="btn btn-success px-4" id="submitButton" disabled>SUBMIT</button>
                   </div>
                 </div>
               </div>
@@ -230,6 +230,25 @@ if ($applicationID) {
       </div>
     </div>
   </main>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Submission</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to submit the form?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="confirmSubmitButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
@@ -309,10 +328,56 @@ if ($applicationID) {
       }
     }
 
-    document.getElementById('barangayForm').addEventListener('submit', function(event) {
-      if (!validateForm()) {
-        event.preventDefault(); // Prevent form submission if validation fails
+    document.getElementById('submitButton').addEventListener('click', function() {
+      if (validateForm()) {
+        const confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+        confirmationModal.show();
       }
+    });
+
+    document.getElementById('confirmSubmitButton').addEventListener('click', function() {
+      const notyf = new Notyf({
+        duration: 5000,
+        position: {
+          x: 'right',
+          y: 'top',
+        },
+        types: [{
+            type: 'warning',
+            background: '#FFD700',
+            icon: {
+              className: 'fas fa-exclamation-triangle',
+              tagName: 'span',
+              color: '#000'
+            }
+          },
+          {
+            type: 'danger',
+            background: '#dc3545',
+            icon: {
+              className: 'fas fa-times-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          },
+          {
+            type: 'success',
+            background: '#28a745',
+            icon: {
+              className: 'fas fa-check-circle',
+              tagName: 'span',
+              color: '#fff'
+            }
+          }
+        ]
+      });
+
+      notyf.open({
+        type: 'success',
+        message: 'Record submitted successfully, Thank you!'
+      });
+
+      document.getElementById('businessOwnerForm').submit();
     });
 
     function validateForm() {
@@ -381,13 +446,6 @@ if ($applicationID) {
           });
           formIsValid = false;
         }
-      }
-
-      if (formIsValid) {
-        notyf.open({
-          type: 'success',
-          message: 'Record submitted successfully, Thank you!'
-        });
       }
 
       return formIsValid;

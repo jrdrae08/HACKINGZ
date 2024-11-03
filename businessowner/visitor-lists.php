@@ -1,27 +1,27 @@
 <?php
-//visitor-lists.php
+// visitor-lists.php
 session_start();
 include '../includes/db.php';
 
 // Ensure the user is logged in and has the correct role
-if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['bowner_id']) || $_SESSION['role'] !== 'businessowner') {
   header('Location: ../login.php');
   exit;
 }
 
-// Use the barangayId stored in the session
-$barangayId = $_SESSION['user_id'];
+// Use the bowner_id stored in the session
+$bowner_id = $_SESSION['bowner_id'];
 
 try {
   // Prepare and execute statement to retrieve the demographic information
-  $stmt = $pdo->prepare("SELECT demogId, created_at, totalnumAttendees, name, sex, location FROM demographics WHERE barangayId = :barangay_id");
-  $stmt->execute([':barangay_id' => $barangayId]);
+  $stmt = $pdo->prepare("SELECT bOwnerId, created_at, totalnumAttendees, name, sex, location FROM bOwnerdemographics WHERE ApplicationID = :application_id");
+  $stmt->execute([':application_id' => $bowner_id]);
 
   // Fetch all demographic data
   $demographics = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   if (!$demographics) {
-    // echo "No demographic information found for this barangay.";
+    echo "No demographic information found for this application.";
   }
 } catch (PDOException $e) {
   error_log("Database error: " . $e->getMessage());
@@ -78,25 +78,29 @@ try {
                     </thead>
                     <tbody>
                       <?php
-                      foreach ($demographics as $demog):
+                      if ($demographics) {
+                        foreach ($demographics as $demog):
                       ?>
-                        <tr>
-                          <th scope="row"><?php echo htmlspecialchars($demog['demogId']); ?></th>
-                          <td>
-                            <?php
-                            $datetime = new DateTime($demog['created_at']);
-                            echo htmlspecialchars($datetime->format('m/d/Y h:iA'));
-                            ?>
-                          </td>
-                          <td><?php echo htmlspecialchars($demog['totalnumAttendees']); ?></td>
-                          <td>
-                            <button class="btn btn-primary m-1 view-info-btn" data-bs-toggle="modal" data-id="<?php echo htmlspecialchars($demog['demogId']); ?>">
-                              <i class="bi bi-eye"></i>
-                            </button>
-                          </td>
-                        </tr>
+                          <tr>
+                            <th scope="row"><?php echo htmlspecialchars($demog['bOwnerId']); ?></th>
+                            <td>
+                              <?php
+                              $datetime = new DateTime($demog['created_at']);
+                              echo htmlspecialchars($datetime->format('m/d/Y h:iA'));
+                              ?>
+                            </td>
+                            <td><?php echo htmlspecialchars($demog['totalnumAttendees']); ?></td>
+                            <td>
+                              <button class="btn btn-primary m-1 view-info-btn" data-bs-toggle="modal" data-id="<?php echo htmlspecialchars($demog['bOwnerId']); ?>">
+                                <i class="bi bi-eye"></i>
+                              </button>
+                            </td>
+                          </tr>
                       <?php
-                      endforeach;
+                        endforeach;
+                      } else {
+                        echo "<tr><td colspan='4'>No demographic information found for this application.</td></tr>";
+                      }
                       ?>
                     </tbody>
                   </table>
@@ -192,18 +196,18 @@ try {
       });
 
       $('.view-info-btn').on('click', function() {
-        var demogId = $(this).data('id');
-        console.log('Button clicked, demogId:', demogId);
+        var bOwnerId = $(this).data('id');
+        console.log('Button clicked, bOwnerId:', bOwnerId);
 
         // Clear previous modal content
         $('#demographics-details').html('');
         $('#modal-body-content').html('');
 
         $.ajax({
-          url: '../../backends/barangay/fetch_demographics.php',
+          url: '../../backends/subadmin/fetch_demographics.php',
           type: 'POST',
           data: {
-            demogId: demogId
+            bOwnerId: bOwnerId
           },
           success: function(response) {
             console.log('AJAX response:', response);
