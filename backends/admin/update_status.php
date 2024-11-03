@@ -89,6 +89,13 @@ try {
         // Commit the transaction
         $pdo->commit();
 
+        // Retrieve the QR code path
+        $stmt = $pdo->prepare('SELECT qr_code FROM account WHERE AccountID = :accountID');
+        $stmt->bindParam(':accountID', $accountID, PDO::PARAM_INT);
+        $stmt->execute();
+        $account = $stmt->fetch(PDO::FETCH_ASSOC);
+        $qrCodeFilePath = $account['qr_code'];
+
         // Send an email with the account details
         $mail = new PHPMailer(true);
         $mail->isSMTP();
@@ -118,9 +125,13 @@ try {
     <p>Email: ' . $email . '</p>
     <p>Password: ' . $password . '</p>
     <p>We encourage you to log in and start posting your amenities to attract more visitors. If you have any questions, feel free to contact our support team.</p>
+    <p>Here is the generated QR code of your establishment. The visitors will scan this and fill up the form in order to add their demographics to the database.</p>
     <p>Best regards,<br>Majayjay Tourist Admin</p>
   </body>
 </html>';
+
+        // Attach the QR code image
+        $mail->addAttachment($qrCodeFilePath);
 
         $mail->send();
 
