@@ -13,16 +13,22 @@ if (!isset($_SESSION['user_id'])) {
 include '../includes/db.php'; // Database connection
 
 try {
-  // Fetch the QR code path from the database based on the user's barangayId
-  $stmt = $pdo->prepare("SELECT qr_code FROM barangay_accounts WHERE barangayId = :barangayId");
-  $stmt->execute([':barangayId' => $_SESSION['user_id']]);
+  // Fetch the QR code path from the database based on the user's AccountID
+  $stmt = $pdo->prepare("SELECT qr_code FROM account WHERE AccountID = :accountID");
+  $stmt->execute([':accountID' => $_SESSION['user_id']]);
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
-  $qrCodePath = $result && !empty($result['qr_code']) ? '../admin/' . htmlspecialchars($result['qr_code']) : '../admin/qrCode/default.png';
+  $qrCodePath = $result && !empty($result['qr_code']) ? '../businessowner/qrCode/' . htmlspecialchars($result['qr_code']) : '../businessowner/qrCode/default.png';
+
+  // Echo the AccountID and QR code path for debugging purposes
+  echo "AccountID: " . htmlspecialchars($_SESSION['user_id']) . "<br>";
+  echo "QR Code Path: " . htmlspecialchars($qrCodePath) . "<br>";
 } catch (PDOException $e) {
-  $qrCodePath = '../admin/qrCode/default.png';
+  $qrCodePath = '../businessowner/qrCode/default.png';
+  echo "Error: " . $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
