@@ -9,9 +9,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.7.0.slim.min.js"></script>
+  <script src="../wordcounter/jquery.word-and-character-counter.js"></script>
   <link rel="stylesheet" href="../css/admin.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
-
 </head>
 
 <body>
@@ -38,6 +39,7 @@
                   <div class="col-lg-10 mb-4">
                     <label for="exampleFormControlTextarea1" class="form-label fw-bold">Text Content</label>
                     <textarea class="form-control shadow" name="description" id="description" placeholder="(Minimum of 50 words)" rows="5" required readonly></textarea>
+                    <div id="description-word-count" class="text-end text-muted"></div>
                   </div>
                 </div>
               </div>
@@ -67,6 +69,7 @@
                           <input type="text" name="slider_title_1" id="slider_title_1" placeholder="Slider Title 1" class="form-control shadow my-2" required readonly>
                           <label for="" class="fw-bold mt-3">Short Description</label>
                           <textarea name="slider_content_1" id="slider_content_1" placeholder="Slider Content 1 (Minimum of 25 words)" class="form-control shadow my-2" rows="6" required readonly></textarea>
+                          <div id="slider_content_1-word-count" class="text-end text-muted"></div>
                         </div>
                       </div>
                     </div>
@@ -90,6 +93,7 @@
                           <input type="text" name="slider_title_2" id="slider_title_2" placeholder="Slider Title 2" class="form-control shadow my-2 mb-4" required readonly>
                           <label for="" class="fw-bold">Short Description</label>
                           <textarea name="slider_content_2" id="slider_content_2" placeholder="Slider Content 2 (Minimum of 25 words)" class="form-control shadow my-2" rows="6" required readonly></textarea>
+                          <div id="slider_content_2-word-count" class="text-end text-muted"></div>
                         </div>
                       </div>
                     </div>
@@ -113,6 +117,7 @@
                           <input type="text" name="slider_title_3" id="slider_title_3" placeholder="Slider Title 3" class="form-control shadow my-2" required readonly>
                           <label for="" class="fw-bold">Short Description</label>
                           <textarea name="slider_content_3" id="slider_content_3" placeholder="Slider Content 3 (Minimum of 25 words)" class="form-control shadow my-2" rows="6" required readonly></textarea>
+                          <div id="slider_content_3-word-count" class="text-end text-muted"></div>
                         </div>
                       </div>
                     </div>
@@ -132,7 +137,7 @@
         <i class="fa-regular fa-sun"></i>
         <i class="fa-regular fa-moon"></i>
       </a>
-      
+
       <footer class="footer">
         <div class="container-fluid">
           <div class="row text-muted">
@@ -319,10 +324,44 @@
       document.querySelector('.btn-success').disabled = true;
     }
 
-    document.addEventListener('DOMContentLoaded', fetchData);
+    document.addEventListener('DOMContentLoaded', function() {
+      fetchData();
+
+      // Initialize word counters
+      $('#description').counter({
+        type: 'word',
+        count: 'up',
+        goal: 50,
+        target: '#description-word-count',
+        text: true,
+        translation: 'word left max'
+      });
+      $('#slider_content_1').counter({
+        type: 'word',
+        count: 'up',
+        goal: 25,
+        target: '#slider_content_1-word-count',
+        text: true,
+        translation: 'word left max'
+      });
+      $('#slider_content_2').counter({
+        type: 'word',
+        count: 'up',
+        goal: 25,
+        target: '#slider_content_2-word-count',
+        text: true,
+        translation: 'word left max'
+      });
+      $('#slider_content_3').counter({
+        type: 'word',
+        count: 'up',
+        goal: 25,
+        target: '#slider_content_3-word-count',
+        text: true,
+        translation: 'word left max'
+      });
+    });
   </script>
-
-
 </body>
 
 </html>
