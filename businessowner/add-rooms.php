@@ -87,6 +87,7 @@ $errors = $_SESSION['errors'] ?? [];
                                                             <textarea id="roomdesc" name="roomdesc" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo htmlspecialchars($formData['roomdesc'] ?? ''); ?></textarea>
                                                             <label for="roomdesc">Room Descriptions</label>
                                                             <span id="error-roomdesc" class="text-danger"><?php echo $errors['roomdesc'] ?? ''; ?></span>
+                                                            <div id="roomdesc-word-count" class="text-end text-muted"></div>
                                                         </div>
                                                     </div>
 
@@ -434,6 +435,20 @@ $errors = $_SESSION['errors'] ?? [];
                 });
 
                 validateForm(); // Initial validation check
+            });
+        </script>
+
+        <script src="../wordcounter/jquery.word-and-character-counter.js"></script>
+        <script>
+            $(document).ready(function() {
+                $('#roomdesc').counter({
+                    type: 'word',
+                    count: 'up',
+                    goal: 50,
+                    target: '#roomdesc-word-count',
+                    text: true,
+                    translation: 'word left max'
+                });
             });
         </script>
 
