@@ -12,6 +12,7 @@ session_start()
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
+    <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
     <link rel="stylesheet" href="../css/registration.css">
 
     <style>
@@ -252,6 +253,7 @@ session_start()
                                                     <textarea class="form-control shadow" name="bdesc" placeholder="Leave a comment here" id="floatingTextarea" style="height: 100px" required><?php echo isset($_SESSION['form_data']['bdesc']) ? htmlspecialchars($_SESSION['form_data']['bdesc']) : ''; ?></textarea>
                                                     <label for="floatingTextarea">Business Descriptions</label>
                                                     <p class="note-text text-secondary m-0">(Maximum of 50 words)</p>
+                                                    <div id="bdesc-word-count" class="text-end text-muted"></div>
                                                 </div>
                                             </div>
 
@@ -431,6 +433,31 @@ session_start()
         });
     </script>
 
+    <script src="../wordcounter/jquery.word-and-character-counter.js"></script>
+    <script>
+        $(document).ready(function() {
+            $('#floatingTextarea').counter({
+                type: 'word',
+                count: 'up',
+                goal: 50,
+                target: '#bdesc-word-count',
+                text: true,
+                translation: 'word left max',
+                onGoal: function() {
+                    $('#floatingTextarea').on('keydown', function(event) {
+                        if (event.key !== 'Backspace' && event.key !== 'Delete') {
+                            event.preventDefault();
+                        }
+                    });
+                },
+                onCountChange: function(currentCount) {
+                    if (currentCount < 50) {
+                        $('#floatingTextarea').off('keydown');
+                    }
+                }
+            });
+        });
+    </script>
 
 </body>
 
