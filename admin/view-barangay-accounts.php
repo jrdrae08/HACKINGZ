@@ -10,8 +10,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 // Include database connection
 require '../includes/db.php';
 
-// Fetch Barangay accounts from the database in descending order by created_at
-$query = "SELECT email, password, establishment, qr_code, DATE(created_at) as created_at FROM barangay_accounts ORDER BY created_at DESC";
+// Fetch Barangay accounts from the database in descending order by created_at (date and time)
+$query = "SELECT email, password, establishment, qr_code, created_at FROM barangay_accounts ORDER BY created_at DESC";
 $result = $pdo->query($query);
 ?>
 <!DOCTYPE html>
