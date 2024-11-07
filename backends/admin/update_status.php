@@ -68,7 +68,7 @@ try {
         $accountID = $pdo->lastInsertId();
 
         // Generate QR code
-        $qrData = "https://bb54-136-158-66-65.ngrok-free.app/../businessowner/estab-demog.php?id={$applicationID}";
+        $qrData = "https://majayjaytourism.ngrok.io/../businessowner/estab-demog.php?id={$applicationID}";
         $qrCode = new QrCode($qrData);
         $writer = new PngWriter();
         $qrCodeImage = $writer->write($qrCode)->getString();
