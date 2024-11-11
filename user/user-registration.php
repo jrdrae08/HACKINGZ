@@ -174,7 +174,7 @@
                         <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
                       </div>
                       <div class="d-grid col-6 mx-auto">
-                        <button type="submit" class="btn btn-success" id="registerButton" disabled>REGISTER</button>
+                        <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Submit</button>
                       </div>
                     </div>
                     <div class="col-lg-12 text-center">
@@ -190,6 +190,79 @@
       </div>
     </form>
   </main>
+
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Submission</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to submit this form?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" id="confirmSubmitButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function showConfirmationModal() {
+      var confirmationModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
+      confirmationModal.show();
+    }
+
+    $(document).ready(function() {
+      // Initialize notyf
+      var notyf = new Notyf({
+        duration: 3000,
+        position: {
+          x: 'right',
+          y: 'top',
+        }
+      });
+
+      $('#confirmSubmitButton').on('click', function() {
+        var confirmationModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
+        confirmationModal.hide(); // Hide the modal
+        $('#registrationForm').submit();
+      });
+
+      $('#registrationForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        var formData = new FormData(this);
+
+        $.ajax({
+          url: '../backends/user/user-regfunction.php',
+          type: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(response) {
+            var res = JSON.parse(response);
+            if (res.status === 'success') {
+              notyf.success(res.message);
+              setTimeout(function() {
+                window.location.href = '../backends/user/success.php';
+              }, 3000);
+            } else {
+              notyf.error(res.message);
+            }
+          },
+          error: function() {
+            notyf.error('An error occurred while processing your request.');
+          }
+        });
+      });
+    });
+  </script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
 
   <!-- JavaScript for section navigation -->
   <script>
@@ -332,46 +405,6 @@
     <?php endif; ?>
   </script>
 
-  <script>
-    $(document).ready(function() {
-      // Initialize notyf
-      var notyf = new Notyf({
-        duration: 3000,
-        position: {
-          x: 'right',
-          y: 'top',
-        }
-      });
-
-      $('#registrationForm').on('submit', function(e) {
-        e.preventDefault(); // Prevent the default form submission
-
-        var formData = new FormData(this);
-
-        $.ajax({
-          url: '../backends/user/user-regfunction.php',
-          type: 'POST',
-          data: formData,
-          contentType: false,
-          processData: false,
-          success: function(response) {
-            var res = JSON.parse(response);
-            if (res.status === 'success') {
-              notyf.success(res.message);
-              setTimeout(function() {
-                window.location.href = '../backends/user/success.php';
-              }, 3000);
-            } else {
-              notyf.error(res.message);
-            }
-          },
-          error: function() {
-            notyf.error('An error occurred while processing your request.');
-          }
-        });
-      });
-    });
-  </script>
 
   <style>
     .progress-container {
