@@ -139,7 +139,7 @@
                     <!-- Dropdown for selecting valid ID type -->
                     <div class="col-lg-12 mb-3">
                       <label for="id_type" class="mb-1 d-block text-start">Select ID Type</label>
-                      <select name="id_type" id="id_type" class="form-control shadow" required>
+                      <select name="id_type" id="id_type" class="form-control shadow" required onchange="checkSection2Fields()">
                         <option value="" disabled selected>Select ID Type</option>
                         <option value="passport">Passport</option>
                         <option value="driver_license">Driver's License</option>
@@ -160,7 +160,7 @@
                     <!-- Front ID Upload -->
                     <div class="col-lg-12 mb-3">
                       <label for="front_id" class="mb-1 d-block text-start">Upload Front of Valid ID</label>
-                      <input type="file" name="front_id" id="front_id" class="form-control shadow" accept="image/*" required>
+                      <input type="file" name="front_id" id="front_id" class="form-control shadow" accept="image/*" required onchange="checkSection2Fields()">
                     </div>
 
                     <!-- Back ID Upload -->
@@ -169,12 +169,29 @@
                       <input type="file" name="back_id" id="back_id" class="form-control shadow" accept="image/*">
                     </div>
 
+                    <script>
+                      function checkSection2Fields() {
+                        const idType = document.getElementById('id_type').value;
+                        const frontId = document.getElementById('front_id').files.length > 0;
+                        const nextButton = document.getElementById('nextButton');
+                        const submitButton = document.getElementById('submitButton');
+
+                        if (idType && frontId) {
+                          nextButton.disabled = false;
+                          submitButton.disabled = false;
+                        } else {
+                          nextButton.disabled = true;
+                          submitButton.disabled = true;
+                        }
+                      }
+                    </script>
+
                     <div class="col-lg-12 d-flex mt-3">
                       <div class="d-grid col-6 mx-auto">
                         <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
                       </div>
                       <div class="d-grid col-6 mx-auto">
-                        <button type="button" class="btn btn-primary" onclick="showConfirmationModal()">Submit</button>
+                        <button type="button" class="btn btn-success" id="submitButton" onclick="showConfirmationModal()" disabled>Register</button>
                       </div>
                     </div>
                     <div class="col-lg-12 text-center">
