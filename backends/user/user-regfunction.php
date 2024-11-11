@@ -44,6 +44,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $id_type = $_POST['id_type'] === 'other' ? $_POST['other_id_type'] : $_POST['id_type'];
 
   try {
+    // Check if email already exists
+    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE u_email = ?");
+    $stmt->execute([$u_email]);
+    $emailExists = $stmt->fetchColumn();
+
+    if ($emailExists) {
+      echo json_encode(['status' => 'error', 'message' => 'Email already exists.']);
+      exit();
+    }
+
     // Insert user data into the database
     $stmt = $pdo->prepare("INSERT INTO users (full_name, u_email, u_contact, u_address, locationType, sex, id_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([$full_name, $u_email, $u_contact, $u_address, $locationType, $sex, $id_type]);
@@ -66,9 +76,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $back_id = isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0 ? uploadFile($_FILES['back_id'], $userDir, $back_id_filename) : null;
 
     if ($front_id === false || ($back_id === false && isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0)) {
-      $_SESSION['message'] = 'File upload failed.';
-      $_SESSION['type'] = 'danger';
-      header('Location: ../user-registration.php');
+      echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
       exit();
     }
 
@@ -76,13 +84,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $stmt = $pdo->prepare("UPDATE users SET front_id = ?, back_id = ? WHERE userId = ?");
     $stmt->execute([$front_id, $back_id, $userId]);
 
-    $_SESSION['message'] = 'Registration successful!';
-    $_SESSION['type'] = 'success';
+    echo json_encode(['status' => 'success', 'message' => 'Registration successful!']);
   } catch (PDOException $e) {
-    $_SESSION['message'] = 'Registration failed: ' . $e->getMessage();
-    $_SESSION['type'] = 'danger';
+    echo json_encode(['status' => 'error', 'message' => 'Registration failed: ' . $e->getMessage()]);
   }
 
-  header('Location: ../user-registration.php');
   exit();
 }

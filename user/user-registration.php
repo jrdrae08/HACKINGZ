@@ -8,6 +8,10 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+  <!-- Notyf library -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
   <link rel="stylesheet" href="../css/registration.css">
 </head>
 
@@ -29,16 +33,6 @@
                   <img src="../img/general-img/majayjay-logo.webp" alt="" height="50" width="50">
                   <h4 class="text-center">User Registration</h4>
                 </div>
-
-                <!-- Notification Message -->
-                <?php if (isset($_SESSION['message'])) : ?>
-                  <div class="alert alert-<?php echo htmlspecialchars($_SESSION['type']); ?> alert-dismissible fade show" role="alert">
-                    <?php echo htmlspecialchars($_SESSION['message']); ?>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                  </div>
-                  <?php unset($_SESSION['message']); ?>
-                  <?php unset($_SESSION['type']); ?>
-                <?php endif; ?>
 
                 <!-- Progress bar -->
                 <div class="progress-container mx-5">
@@ -83,7 +77,7 @@
                     <!-- Contact Number -->
                     <div class="col-lg-6">
                       <div class="form-floating mb-3">
-                        <input type="number" name="u_contact" id="u_contact" class="form-control shadow" required>
+                        <input type="text" name="u_contact" id="u_contact" class="form-control shadow" required>
                         <label>Contact Number</label>
                       </div>
                     </div>
@@ -125,7 +119,7 @@
 
                     <div class="col-lg-12 d-flex justify-content-end mt-3">
                       <div class="d-grid col-6">
-                        <button type="button" class="btn btn-success" id="nextButton" onclick="nextSection()">NEXT</button>
+                        <button type="button" class="btn btn-success" id="nextButton" onclick="nextSection()" disabled>NEXT</button>
                       </div>
                     </div>
                     <div class="col-lg-12 text-center">
@@ -180,7 +174,7 @@
                         <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
                       </div>
                       <div class="d-grid col-6 mx-auto">
-                        <button type="submit" class="btn btn-success" id="registerButton">REGISTER</button>
+                        <button type="submit" class="btn btn-success" id="registerButton" disabled>REGISTER</button>
                       </div>
                     </div>
                     <div class="col-lg-12 text-center">
@@ -199,24 +193,103 @@
 
   <!-- JavaScript for section navigation -->
   <script>
-    const nextButton = document.getElementById("nextButton");
-    const registerButton = document.getElementById("registerButton");
-    const progressBar = document.getElementById("progress-bar");
+    document.getElementById('id_type').addEventListener('change', function() {
+      if (this.value === 'other') {
+        document.getElementById('other_id_type_container').style.display = 'block';
+      } else {
+        document.getElementById('other_id_type_container').style.display = 'none';
+      }
+    });
+
+    function handleContactInput(event) {
+      let value = event.target.value;
+      if (!value.startsWith('+63')) {
+        value = '+63' + value.replace(/\D/g, '');
+      } else {
+        value = '+63' + value.slice(3).replace(/\D/g, '');
+      }
+      if (value.length > 13) {
+        value = value.slice(0, 13);
+      }
+      event.target.value = value;
+    }
+
+    function validateFields() {
+      const fname = document.getElementById('fname').value.trim();
+      const lname = document.getElementById('lname').value.trim();
+      const u_contact = document.getElementById('u_contact').value.trim();
+      const u_email = document.getElementById('u_email').value.trim();
+      const u_address = document.getElementById('u_address').value.trim();
+      const locationType = document.getElementById('locationType').value;
+      const sex = document.getElementById('sex').value;
+      const id_type = document.getElementById('id_type').value;
+      const front_id = document.getElementById('front_id').files.length;
+
+      const isValidEmail = email => {
+        const re = /^(([^<>()[\]\\.,;:\s@"]+(\.[^<>()[\]\\.,;:\s@"]+)*)|(".+"))@(([^<>()[\]\\.,;:\s@"]+\.)+[^<>()[\]\\.,;:\s@"]{2,})$/i;
+        return re.test(String(email).toLowerCase());
+      }
+
+      const section1Valid = fname && lname && u_contact.length === 13 && isValidEmail(u_email) && u_address && locationType && sex;
+      const section2Valid = id_type && front_id > 0;
+
+      if (section1Valid) {
+        document.getElementById('nextButton').removeAttribute('disabled');
+      } else {
+        document.getElementById('nextButton').setAttribute('disabled', 'true');
+      }
+
+      if (section2Valid) {
+        document.getElementById('registerButton').removeAttribute('disabled');
+      } else {
+        document.getElementById('registerButton').setAttribute('disabled', 'true');
+      }
+    }
+
+    document.getElementById('u_contact').addEventListener('input', handleContactInput);
+    document.querySelectorAll('#fname, #lname, #u_contact, #u_email, #u_address, #locationType, #sex, #id_type, #front_id').forEach(element => {
+      element.addEventListener('input', validateFields);
+      element.addEventListener('change', validateFields);
+    });
+
+    document.addEventListener('DOMContentLoaded', function() {
+      const formData = JSON.parse(sessionStorage.getItem('formData'));
+      if (formData) {
+        document.getElementById('fname').value = formData.fname;
+        document.getElementById('lname').value = formData.lname;
+        document.getElementById('u_email').value = formData.u_email;
+        document.getElementById('u_contact').value = formData.u_contact;
+        document.getElementById('u_address').value = formData.u_address;
+        document.getElementById('locationType').value = formData.locationType;
+        document.getElementById('sex').value = formData.sex;
+        document.getElementById('id_type').value = formData.id_type;
+        document.getElementById('other_id_type').value = formData.other_id_type;
+
+        if (formData.id_type === 'other') {
+          document.getElementById('other_id_type_container').style.display = 'block';
+        }
+      } else {
+        document.getElementById('u_contact').value = '+63';
+      }
+      validateFields();
+    });
 
     function nextSection() {
       saveFormData();
       document.getElementById("section1").classList.remove("active");
       document.getElementById("section2").classList.add("active");
-      progressBar.style.width = "100%";
+      document.getElementById("progress-bar").style.width = "100%";
       updateProgressStep(2);
+      validateFields();
     }
 
     function previousSection() {
       saveFormData();
       document.getElementById("section2").classList.remove("active");
       document.getElementById("section1").classList.add("active");
-      progressBar.style.width = "50%";
+      document.getElementById("progress-bar").style.width = "50%";
       updateProgressStep(1);
+      validateFields();
     }
 
     function updateProgressStep(step) {
@@ -241,34 +314,63 @@
       sessionStorage.setItem('formData', JSON.stringify(formData));
     }
 
-    function loadFormData() {
-      const formData = JSON.parse(sessionStorage.getItem('formData'));
-      if (formData) {
-        document.getElementById('fname').value = formData.fname;
-        document.getElementById('lname').value = formData.lname;
-        document.getElementById('u_email').value = formData.u_email;
-        document.getElementById('u_contact').value = formData.u_contact;
-        document.getElementById('u_address').value = formData.u_address;
-        document.getElementById('locationType').value = formData.locationType;
-        document.getElementById('sex').value = formData.sex;
-        document.getElementById('id_type').value = formData.id_type;
-        document.getElementById('other_id_type').value = formData.other_id_type;
-
-        if (formData.id_type === 'other') {
-          document.getElementById('other_id_type_container').style.display = 'block';
-        }
-      }
+    function clearFormData() {
+      sessionStorage.removeItem('formData');
+      document.getElementById('registrationForm').reset();
+      document.getElementById('other_id_type_container').style.display = 'none';
+      document.getElementById("progress-bar").style.width = "50%";
+      updateProgressStep(1);
+      document.getElementById("section1").classList.add("active");
+      document.getElementById("section2").classList.remove("active");
+      validateFields();
+      document.getElementById('u_contact').value = '+63';
     }
 
-    document.getElementById('id_type').addEventListener('change', function() {
-      if (this.value === 'other') {
-        document.getElementById('other_id_type_container').style.display = 'block';
-      } else {
-        document.getElementById('other_id_type_container').style.display = 'none';
-      }
-    });
+    // Clear form data if registration is successful
+    <?php if (isset($_SESSION['message']) && $_SESSION['type'] === 'success') : ?>
+      clearFormData();
+    <?php endif; ?>
+  </script>
 
-    document.addEventListener('DOMContentLoaded', loadFormData);
+  <script>
+    $(document).ready(function() {
+      // Initialize notyf
+      var notyf = new Notyf({
+        duration: 3000,
+        position: {
+          x: 'right',
+          y: 'top',
+        }
+      });
+
+      $('#registrationForm').on('submit', function(e) {
+        e.preventDefault(); // Prevent the default form submission
+
+        var formData = new FormData(this);
+
+        $.ajax({
+          url: '../backends/user/user-regfunction.php',
+          type: 'POST',
+          data: formData,
+          contentType: false,
+          processData: false,
+          success: function(response) {
+            var res = JSON.parse(response);
+            if (res.status === 'success') {
+              notyf.success(res.message);
+              setTimeout(function() {
+                window.location.href = '../backends/user/success.php';
+              }, 3000);
+            } else {
+              notyf.error(res.message);
+            }
+          },
+          error: function() {
+            notyf.error('An error occurred while processing your request.');
+          }
+        });
+      });
+    });
   </script>
 
   <style>
