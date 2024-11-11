@@ -192,7 +192,10 @@ try {
         "pageLength": 10,
         "lengthMenu": [10, 25, 50, 75, 100],
         "paging": <?php echo count($demographics) > 10 ? 'true' : 'false'; ?>,
-        "searching": false // Disable the search functionality
+        "searching": false,
+        "order": [
+          [1, 'desc']
+        ]
       });
 
       $('.view-info-btn').on('click', function() {

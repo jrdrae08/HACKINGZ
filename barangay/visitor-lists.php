@@ -181,14 +181,16 @@ try {
     $(document).ready(function() {
       $('#demographicsTable').DataTable({
         "columnDefs": [{
-            "orderable": false,
-            "targets": 3
-          } // Disable sorting on the Actions column
-        ],
+          "orderable": false,
+          "targets": 3 // Disable sorting on the Actions column
+        }],
         "pageLength": 10,
         "lengthMenu": [10, 25, 50, 75, 100],
         "paging": <?php echo count($demographics) > 10 ? 'true' : 'false'; ?>,
-        "searching": false // Disable the search functionality
+        "searching": false, // Disable the search functionality
+        "order": [
+          [1, 'desc']
+        ] // Sort by the 'Date and Time' column (index 1) in descending order
       });
 
       $('.view-info-btn').on('click', function() {
