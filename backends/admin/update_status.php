@@ -133,7 +133,7 @@ try {
           <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; padding: 24px;">
             <tr>
               <td style="padding: 24px;">
-                <img src="https://majayjaytourism.ngrok.io/img/general-img/majayjay-logo.webp" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
+                <img src="https://majayjaytourism.ngrok.io/login.php/img/general-img/majayjay-logo.webp" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
                 <p style="margin: 0 0 16px; font-size: 18px; color: #333;">Dear Business Owner,</p>
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;">Congratulations! Your business application has been approved. You can now log in with the following details:</p>
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;"><strong>Email:</strong> <span style="color: #333;">' . $email . '</span></p>
