@@ -27,13 +27,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $barangayAccount = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($barangayAccount && password_verify($password, $barangayAccount['password'])) {
-      // Debugging statement to show the decrypted password
       $_SESSION['user_id'] = $barangayAccount['barangayId'];
       $_SESSION['role'] = 'barangay';
       $_SESSION['username'] = $barangayAccount['email'];
       $_SESSION['message_type'] = 'success';
       header("Location: ../barangay/dashboard.php");
-      echo "Decrypted password: " . htmlspecialchars($password) . "');";
       exit;
     }
 
@@ -47,7 +45,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $account = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($account && password_verify($password, $account['PasswordHash'])) {
-      // Check if the account is inactive and the role is subadmin
       if ($account['role'] == 'subadmin' && $account['BusinessStatus'] == 'Inactive') {
         $_SESSION['message'] = 'Your account is inactive. Please contact the system administrator to reactivate your account.';
         $_SESSION['message_type'] = 'warning';
@@ -66,13 +63,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         $_SESSION['business_info_id'] = $account['BusinessInfoID'];
         $_SESSION['message_type'] = 'success';
 
-        // Check if first login is required
         if ($account['FirstLoginRequired'] == 1) {
           header("Location: ../../businessowner/changepass.php");
           exit;
         }
 
-        // Determine the appropriate dashboard based on role and business type
         if ($account['role'] == 'subadmin') {
           if ($account['BusinessType'] === 'Falls') {
             $_SESSION['role'] = 'barangay';
@@ -84,6 +79,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           exit;
         }
       }
+    }
+
+    // Check in the useraccount table
+    $stmt = $pdo->prepare("SELECT * FROM useraccount WHERE email = ?");
+    $stmt->execute([$username]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user && password_verify($password, $user['passcode'])) {
+      $_SESSION['user_id'] = $user['userID'];
+      $_SESSION['role'] = 'user';
+      $_SESSION['username'] = $user['email'];
+      $_SESSION['message_type'] = 'success';
+      header("Location: ../user/dashboard.php");
+      exit;
     } else {
       $_SESSION['message'] = 'Invalid username or password.';
       $_SESSION['message_type'] = 'danger';

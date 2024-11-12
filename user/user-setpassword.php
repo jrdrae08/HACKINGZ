@@ -10,9 +10,27 @@ $message_type = '';
 // Fetch user email if userId is provided
 if ($userId) {
   try {
+    // Fetch user email from users table
     $stmt = $pdo->prepare("SELECT u_email FROM users WHERE userId = ?");
     $stmt->execute([$userId]);
     $userEmail = $stmt->fetchColumn();
+  } catch (PDOException $e) {
+    die('Database error: ' . $e->getMessage());
+  }
+
+  try {
+    // Fetch email and confirmation status from userAccount table
+    $stmt = $pdo->prepare("SELECT email, IsConfirm FROM useraccount WHERE userAccID = ?");
+    $stmt->execute([$userId]);
+    $user = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($user) {
+      $userEmail = $user['email'];
+      if ($user['IsConfirm'] == 1) {
+        header("Location: already-verif.php");
+        exit();
+      }
+    }
   } catch (PDOException $e) {
     die('Database error: ' . $e->getMessage());
   }
@@ -42,6 +60,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       // Set success message
       $_SESSION['message'] = 'Password setup successful. You can now log in.';
       $_SESSION['message_type'] = 'success';
+
+      // Update IsConfirm to 1 after inserting the new account
+      $stmt = $pdo->prepare("UPDATE userAccount SET IsConfirm = 1 WHERE userID = ?");
+      $stmt->execute([$userId]);
 
       // Clear userEmail and userId after successful insertion
       unset($userId);

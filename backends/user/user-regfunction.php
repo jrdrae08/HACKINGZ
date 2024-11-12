@@ -42,18 +42,30 @@ function uploadFile($file, $targetDir, $newFileName)
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-  $fname = $_POST['fname'];
-  $lname = $_POST['lname'];
+  // Sanitize input data
+  $fname = filter_var(trim($_POST['fname']), FILTER_SANITIZE_STRING);
+  $lname = filter_var(trim($_POST['lname']), FILTER_SANITIZE_STRING);
   $full_name = $fname . ' ' . $lname;
-  $u_email = $_POST['u_email'];
-  $u_contact = $_POST['u_contact'];
-  $u_address = $_POST['u_address'];
-  $locationType = $_POST['locationType'];
-  $sex = $_POST['sex'];
-  $id_type = $_POST['id_type'] === 'other' ? $_POST['other_id_type'] : $_POST['id_type'];
+
+  $u_email = filter_var(trim($_POST['u_email']), FILTER_SANITIZE_EMAIL);
+  $u_contact = filter_var(trim($_POST['u_contact']), FILTER_SANITIZE_STRING);
+  $u_address = filter_var(trim($_POST['u_address']), FILTER_SANITIZE_STRING);
+  $locationType = filter_var(trim($_POST['locationType']), FILTER_SANITIZE_STRING);
+  $sex = filter_var(trim($_POST['sex']), FILTER_SANITIZE_STRING);
+
+  // Sanitize and handle ID type safely
+  $id_type = $_POST['id_type'] === 'other'
+    ? filter_var(trim($_POST['other_id_type']), FILTER_SANITIZE_STRING)
+    : filter_var(trim($_POST['id_type']), FILTER_SANITIZE_STRING);
 
   try {
-    // Check if email already exists
+    // Check if the email is valid after sanitization
+    if (!filter_var($u_email, FILTER_VALIDATE_EMAIL)) {
+      echo json_encode(['status' => 'error', 'message' => 'Invalid email format.']);
+      exit();
+    }
+
+    // Check if email already exists securely
     $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE u_email = ?");
     $stmt->execute([$u_email]);
     $emailExists = $stmt->fetchColumn();
@@ -63,7 +75,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       exit();
     }
 
-    // Insert user data into the database
+    // Insert sanitized user data into the database
     $stmt = $pdo->prepare("INSERT INTO users (full_name, u_email, u_contact, u_address, locationType, sex, id_type) VALUES (?, ?, ?, ?, ?, ?, ?)");
     $stmt->execute([$full_name, $u_email, $u_contact, $u_address, $locationType, $sex, $id_type]);
 
@@ -92,6 +104,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Update the user record with the file paths
     $stmt = $pdo->prepare("UPDATE users SET front_id = ?, back_id = ? WHERE userId = ?");
     $stmt->execute([$front_id, $back_id, $userId]);
+
+    // Insert into useraccount table
+    $stmt = $pdo->prepare("INSERT INTO useraccount (userID, email, passcode, created_at, IsConfirm) VALUES (?, ?, ?, NOW(), 0)");
+    $stmt->execute([$userId, $u_email, '']);
 
     // Send confirmation email
     $mail = new PHPMailer(true);
@@ -136,7 +152,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                                 <tbody>
                                   <tr>
                                     <td align="center" style="background-color: #198754; border: solid 2px #198754; border-radius: 4px;">
-                                      <a href="https://majayjaytourism.ngrok.io/../../user/user-setpassword.php?userID=' . $userId . '" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; text-transform: capitalize; background-color: #198754; border-color: #198754;">Verify Now</a>
+                                      <a href="https://majayjaytourism.ngrok.io/backends/user/verify.php?userID=' . $userId . '" target="_blank" style="display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: bold; color: #ffffff; text-decoration: none; text-transform: capitalize; background-color: #198754; border-color: #198754;">Verify Now</a>
                                     </td>
                                   </tr> 
                                 </tbody> 

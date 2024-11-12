@@ -22,43 +22,17 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
     <link rel="stylesheet" href="../homepage/homepage.css">
+    <style>
+        .no-caret::after {
+            display: none !important;
+        }
+    </style>
 </head>
 
 <body>
     <main class="content">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <a class="navbar-brand ms-5 text-light" href="#">
-                    <img src="../img/general-img/majayjay-logo.webp" alt="Majayjay Logo" height="50">
-                    <span class="cormorant-text">Majayjay,Laguna</span>
-                </a>
-                <button class="navbar-toggler shadow" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-light  btn btn-nav shadow" href="#">HOME</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav shadow" href="#service">SERVICES</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav shadow" href="#about">ABOUT</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav shadow" href="#contact">CONTACT</a>
-                        </li>
-                        <li class="nav-item">
-                            <a href="../login.php" class="btn btn-login text-light shadow">
-                                <i class="bi bi-person-circle me-1"></i>
-                                SIGN IN
-                            </a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <!-- aside nav -->
+        <?php include '../homepage/includes/main-nav.php'; ?>
 
         <section id="home" class="homepage-container">
             <div class="container-fluid">
@@ -160,19 +134,19 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <section id="about" class="about-container">
             <div class="container-fluid p-5 bg-secondary-subtle">
-                <div class="row mx-lg-5 mx-sm-0 d-flex justify-content-center">
-                    <div class="col-lg-4 mb-5 mb-lg-0" style="min-height: 500px;">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-lg-4 col-md-5 col-12 mb-5 mb-lg-0" style="min-height: 500px;">
                         <div class=" h-100 text-center">
-                            <img class=" w-100 h-100 rounded shadow border border-dark" src="../img/general-img/majayjay-church.jpg" style="object-fit: cover;">
+                            <img class=" w-100 h-100 shadow" src="../img/general-img/majayjay-church.jpg" style="object-fit: cover;">
                         </div>
                     </div>
-                    <div class="col-lg-5 d-flex align-items-center">
+                    <div class="col-lg-5 col-md-6 col-12 d-flex align-items-center">
                         <div class="row">
                             <div class="col-12">
-                                <h5 class="text-color-1 fw-bold text-start mx-lg-5 mx-sm-0">ABOUT US</h5>
+                                <h5 class="text-color-1 fw-bold text-start">ABOUT US</h5>
                             </div>
                             <div class="col-12">
-                                <p class="about-content text-dark mx-lg-5 mx-sm-0">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
+                                <p class="about-content text-dark ">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
                                     aperiam sed sint quisquam culpa ut nostrum rem iusto doloribus fuga voluptate, debitis quod placeat earum neque officia
                                     eaque rerum eos iure? Reiciendis suscipit harum voluptas vel totam aperiam illo deleniti ipsa nihil unde sequi, illum velit
                                     voluptatem quod est incidunt? Dolores neque facere odit deleniti veniam error esse, porro at ea minima, minus aliquam expedita
@@ -191,26 +165,26 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
         <section id="service" class="service-container">
             <div class="container-fluid p-5">
                 <h5 class="text-center text-color-1 fw-bold">OUR SERVICES</h5>
-                <div class="service-cards d-flex justify-content-center align-items-center">
-                    <div class="row">
-                        <div class="col-lg-6">
+                <div class="service-cards">
+                    <div class="row d-flex justify-content-center">
+                        <div class="col-lg-4 d-flex justify-content-center">
                             <a href="../businessowner/business-registration.php" class="text-decoration-none">
-                                <div class="card mx-3 mb-3 rounded-0 shadow" style="width: 18rem;">
+                                <div class="card mb-3 rounded-0 shadow" style="width: 18rem;">
                                     <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
                                     <div class="card-body">
-                                        <p class="text-color-1 text-start fw-bold">Business Registration ></p>
+                                        <p class="text-color-1 text-start fw-bold">Business Registration</p>
                                         <p class="card-text text-dark text-start">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
                             </a>
                         </div>
 
-                        <div class="col-lg-6 mb-sm-3">
+                        <div class="col-lg-4  d-flex justify-content-center mb-sm-3">
                             <a href="../Resort/page-0.php" class="text-decoration-none">
-                                <div class="card mx-3 rounded-0 shadow" style="width: 18rem;">
+                                <div class="card rounded-0 shadow" style="width: 18rem;">
                                     <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
                                     <div class="card-body">
-                                        <p class="text-color-1 text-start fw-bold">Online Reservation ></p>
+                                        <p class="text-color-1 text-start fw-bold">Online Reservation</p>
                                         <p class="card-text text-dark text-start">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -224,7 +198,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
         <section id="contact" class="contact-container">
             <div class="container-fluid p-5 bg-color-6">
                 <div class="row justify-content-evenly">
-                    <div class="col-lg-4 col-sm-5 gx-5 mb-4">
+                    <div class="col-lg-4 col-sm-12 gx-5 mb-4">
                         <div class="col-12">
                             <h5 class="text-start text-color-1 fw-bold">CONTACT US</h5>
                         </div>
@@ -252,7 +226,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                         </div>
                     </div>
 
-                    <div class="col-lg-4 col-sm-5 gx-5 bg-light">
+                    <div class="col-lg-4 col-sm-12 bg-light">
                         <div id="googleMap" style="width:100%;height:400px;"></div>
                         <script>
                             function myMap() {
