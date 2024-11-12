@@ -275,15 +275,20 @@ $totalInActive = getTotalInactive($pdo);
                                                                     <input type="checkbox" id="checkbox1" name="checkbox1">
                                                                     <label for="checkbox1">Business Permit is Expired</label>
                                                                 </div>
-
                                                                 <div>
                                                                     <input type="checkbox" id="checkbox2" name="checkbox2">
                                                                     <label for="checkbox2">Your Image is Not clear</label>
                                                                 </div>
-
                                                                 <div>
                                                                     <input type="checkbox" id="checkbox3" name="checkbox3">
                                                                     <label for="checkbox3">Not a legit business</label>
+                                                                </div>
+                                                                <div>
+                                                                    <input type="checkbox" id="checkbox4" name="checkbox4">
+                                                                    <label for="checkbox4">Others</label>
+                                                                </div>
+                                                                <div id="otherReasonDiv" style="display: none;">
+                                                                    <textarea id="otherReasonText" placeholder="Please specify the reason" style="width: 100%; height: 100px;"></textarea>
                                                                 </div>
                                                             </div>
                                                         </div>
@@ -313,7 +318,6 @@ $totalInActive = getTotalInactive($pdo);
 
                                                         paginatedBusinesses.forEach(business => {
                                                             let status = '';
-                                                            // Check if isReapply is 1 and IsRead is 0
                                                             if (business.isReapply == 1) {
                                                                 status = 'Reapply';
                                                             } else if (business.IsRead == 0) {
@@ -322,34 +326,29 @@ $totalInActive = getTotalInactive($pdo);
                                                                 status = ' ';
                                                             }
 
-                                                            console.log("Status assigned: ", status); // Debugging
-
                                                             const row = document.createElement('tr');
-                                                            // Apply a custom highlight class if the status is "New" or "Reapply"
                                                             if ((status === 'New' || status === 'Reapply') && business.IsRead == 0) {
                                                                 row.classList.add('highlight-new');
                                                             }
 
                                                             row.innerHTML = `
-            <td>${business['Date Registered']}</td>
-            <td>${business['BusinessType']}</td>
-            <td>${business['BusinessName']}</td>
-            <td>
-                <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-application-id="${business.ApplicationID}" data-business='${JSON.stringify(business)}'>
-                    <i class="bi bi-eye"></i>
-                </button>
-                <button class="btn btn-success m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-check-lg"></i></button>
-                <button class="btn btn-danger m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-x-lg"></i></button>
-            </td>
-            <td class="status">${status}</td>
-        `;
+                <td>${business['Date Registered']}</td>
+                <td>${business['BusinessType']}</td>
+                <td>${business['BusinessName']}</td>
+                <td>
+                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-application-id="${business.ApplicationID}" data-business='${JSON.stringify(business)}'>
+                        <i class="bi bi-eye"></i>
+                    </button>
+                    <button class="btn btn-success m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-check-lg"></i></button>
+                    <button class="btn btn-danger m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-x-lg"></i></button>
+                </td>
+                <td class="status">${status}</td>
+            `;
                                                             table.appendChild(row);
                                                         });
 
-                                                        // Reattach event listeners for the new elements
                                                         attachEventListeners();
                                                     }
-
 
                                                     function setupPagination(pageCount, paginationId, pageFunction) {
                                                         const pagination = document.getElementById(paginationId);
@@ -382,16 +381,15 @@ $totalInActive = getTotalInactive($pdo);
                                                                 actionType = 'approve';
                                                                 confirmationMessagePending.innerText = 'Are you sure you want to approve this business?';
                                                                 rejectReasonsDiv.style.display = 'none';
-                                                                confirmButtonPending.disabled = false; // Enable confirm button for approval
+                                                                confirmButtonPending.disabled = false;
                                                                 confirmationModalPending.show();
                                                             } else if (button.classList.contains('btn-danger')) {
                                                                 actionType = 'reject';
                                                                 confirmationMessagePending.innerText = 'Are you sure you want to reject this business?';
                                                                 rejectReasonsDiv.style.display = 'block';
-                                                                confirmButtonPending.disabled = true; // Disable confirm button initially for rejection
+                                                                confirmButtonPending.disabled = true;
                                                                 confirmationModalPending.show();
                                                             } else if (button.classList.contains('view-details')) {
-                                                                // Update read status
                                                                 $.ajax({
                                                                     url: '../../backends/admin/update_read_status.php',
                                                                     method: 'POST',
@@ -399,7 +397,6 @@ $totalInActive = getTotalInactive($pdo);
                                                                         applicationID: applicationId
                                                                     },
                                                                     success: function(response) {
-                                                                        console.log('AJAX success response:', response); // Debugging line
                                                                         if (response.success) {
                                                                             button.closest('tr').querySelector('.status').textContent = 'Read';
                                                                         } else {
@@ -413,13 +410,16 @@ $totalInActive = getTotalInactive($pdo);
                                                             }
                                                         });
 
-                                                        // Add event listeners to checkboxes to update confirm button state
                                                         document.querySelectorAll('#rejectReasons input[type="checkbox"]').forEach(checkbox => {
-                                                            checkbox.addEventListener('change', updateConfirmButtonState);
+                                                            checkbox.addEventListener('change', function() {
+                                                                if (checkbox.id === 'checkbox4') {
+                                                                    document.getElementById('otherReasonDiv').style.display = checkbox.checked ? 'block' : 'none';
+                                                                }
+                                                                updateConfirmButtonState();
+                                                            });
                                                         });
                                                     }
 
-                                                    // Function to check if any checkbox is selected
                                                     function updateConfirmButtonState() {
                                                         const checkboxes = document.querySelectorAll('#rejectReasons input[type="checkbox"]');
                                                         const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
@@ -446,7 +446,14 @@ $totalInActive = getTotalInactive($pdo);
                                                             const rejectReasons = [];
                                                             checkboxes.forEach(checkbox => {
                                                                 if (checkbox.checked) {
-                                                                    rejectReasons.push(checkbox.nextElementSibling.textContent);
+                                                                    if (checkbox.id === 'checkbox4') {
+                                                                        const otherReasonText = document.getElementById('otherReasonText').value;
+                                                                        if (otherReasonText) {
+                                                                            rejectReasons.push(otherReasonText);
+                                                                        }
+                                                                    } else {
+                                                                        rejectReasons.push(checkbox.nextElementSibling.textContent);
+                                                                    }
                                                                 }
                                                             });
 
