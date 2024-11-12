@@ -1,3 +1,75 @@
+<?php
+session_start();
+require_once '../includes/db.php';
+
+$userId = isset($_GET['userID']) ? $_GET['userID'] : null;
+$userEmail = '';
+$message = '';
+$message_type = '';
+
+// Fetch user email if userId is provided
+if ($userId) {
+  try {
+    $stmt = $pdo->prepare("SELECT u_email FROM users WHERE userId = ?");
+    $stmt->execute([$userId]);
+    $userEmail = $stmt->fetchColumn();
+  } catch (PDOException $e) {
+    die('Database error: ' . $e->getMessage());
+  }
+}
+
+if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+  $new_password = $_POST['new_password'];
+  $confirm_password = $_POST['confirm_password'];
+  $userEmail = $_POST['userEmail'];
+
+  // Validate password
+  if ($new_password !== $confirm_password) {
+    $_SESSION['message'] = 'Passwords do not match.';
+    $_SESSION['message_type'] = 'danger';
+  } elseif (strlen($new_password) < 8 || !preg_match('/[A-Z]/', $new_password) || !preg_match('/[a-z]/', $new_password) || !preg_match('/[0-9]/', $new_password) || !preg_match('/[\W]/', $new_password)) {
+    $_SESSION['message'] = 'Password should be at least 8 characters long and must contain at least one uppercase letter, one lowercase letter, one number, and one special character.';
+    $_SESSION['message_type'] = 'danger';
+  } else {
+    // Hash the password
+    $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
+
+    try {
+      // Insert the new account into the userAccount table
+      $stmt = $pdo->prepare("INSERT INTO userAccount (userID, email, passcode, created_at) VALUES (?, ?, ?, NOW())");
+      $stmt->execute([$userId, $userEmail, $hashed_password]);
+
+      // Set success message
+      $_SESSION['message'] = 'Password setup successful. You can now log in.';
+      $_SESSION['message_type'] = 'success';
+
+      // Clear userEmail and userId after successful insertion
+      unset($userId);
+      unset($userEmail);
+
+      // Redirect with delay
+      echo '<script>
+          setTimeout(function() {
+            window.location.href = "../login.php";
+          }, 3000);
+        </script>';
+    } catch (PDOException $e) {
+      $_SESSION['message'] = 'Database error: ' . $e->getMessage();
+      $_SESSION['message_type'] = 'danger';
+    }
+  }
+}
+
+// Retrieve message from session and then unset it
+if (isset($_SESSION['message'])) {
+  $message = $_SESSION['message'];
+  $message_type = $_SESSION['message_type'];
+  unset($_SESSION['message']);
+  unset($_SESSION['message_type']);
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -28,17 +100,19 @@
             </div>
             <div class="col-lg-6 mx-2">
               <h4 class="mt-2 mb-4">Setup your password</h4>
-              <div class="form-floating mt-3">
-                <input type="text" class="form-control shadow " id="userEmail" name="userEmail" autocomplete="off" required>
-                <label for="userEmail">Email</label>
-              </div>
               <?php if (!empty($message)) : ?>
                 <div class="alert alert-<?= htmlspecialchars($message_type) ?> alert-dismissible fade show" role="alert">
                   <?= htmlspecialchars($message) ?>
                   <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
                 </div>
               <?php endif; ?>
-              <form action="changepass.php" method="POST">
+              <form action="" method="POST">
+                <div class="form-floating mt-3">
+                  <?php if (!empty($userEmail)): ?>
+                    <input type="text" class="form-control shadow" id="userEmail" name="userEmail" value="<?= htmlspecialchars($userEmail) ?>" readonly>
+                    <label for="userEmail">Email</label>
+                  <?php endif; ?>
+                </div>
                 <div class="form-floating my-3">
                   <input type="password" class="form-control shadow" id="floatingPassword" name="new_password" autocomplete="off" required>
                   <label for="floatingPassword">New Password</label>
@@ -47,7 +121,7 @@
                   <input type="password" class="form-control shadow " id="floatingConfirmPassword" name="confirm_password" autocomplete="off" required>
                   <label for="floatingConfirmPassword">Confirm Password</label>
                 </div>
-                <p class="text-secondary mt-2 mx-2" style="text-align:justify; font-size: 13px"> Password Should be at least 8 characters long and must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
+                <p class="text-secondary mt-2 mx-2" style="text-align:justify; font-size: 13px"> Password should be at least 8 characters long and must contain at least one uppercase letter, one lowercase letter, one number, and one special character.
                 </p>
                 <div class="d-grid gap-1 my-3">
                   <button type="submit" class="btn btn-success">Confirm</button>
@@ -64,11 +138,11 @@
   <script>
     document.addEventListener('DOMContentLoaded', function() {
       const alertBox = document.querySelector('.alert');
-      if (alertBox) {
+      if (alertBox && '<?= $message_type ?>' === 'success') {
         setTimeout(() => {
           alertBox.classList.add('fade-out');
           setTimeout(() => {
-            alertBox.style.display = 'none';
+            alertBox.remove();
           }, 1000); // Match the CSS transition duration
         }, 5000); // Wait 5 seconds before starting the fade out
       }
