@@ -109,29 +109,60 @@ try {
         $mail->setFrom('majayjaytourist4005@gmail.com', 'Majayjay Tourist Admin');
         $mail->addAddress($email);
 
+        // Attach the QR code image
+        $mail->addAttachment($qrCodeFilePath);
+
         $mail->isHTML(true);
         $mail->Subject = 'Business Application Approved';
         $mail->Body = '
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Business Application Approved</title>
-  </head>
-  <body>
-    <p>Dear Business Owner,</p>
-    <p>Congratulations! Your business application has been approved. You can now log in with the following details:</p>
-    <p>Email: ' . $email . '</p>
-    <p>Password: ' . $password . '</p>
-    <p>We encourage you to log in and start posting your amenities to attract more visitors. If you have any questions, feel free to contact our support team.</p>
-    <p>Here is the generated QR code of your establishment. The visitors will scan this and fill up the form in order to add their demographics to the database.</p>
-    <p>Best regards,<br>Majayjay Tourist Admin</p>
-  </body>
-</html>';
 
-        // Attach the QR code image
-        $mail->addAttachment($qrCodeFilePath);
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Application Approval</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; font-size: 16px; line-height: 1.4; background-color: #f4f5f6; padding: 0; margin: 0;">
+  <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f4f5f6; margin: 0; padding: 20px;">
+
+    <tr>
+      <td align="center">
+        <div style="max-width: 600px; background: #ffffff; border: 1px solid #eaebed; border-radius: 16px; overflow: hidden;">
+          <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="width: 100%; padding: 24px;">
+            <tr>
+              <td style="padding: 24px;">
+                <img src="https://majayjaytourism.ngrok.io/img/general-img/majayjay-logo.webp" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
+                <p style="margin: 0 0 16px; font-size: 18px; color: #333;">Dear Business Owner,</p>
+                <p style="margin: 0 0 16px; font-size: 16px; color: #333;">Congratulations! Your business application has been approved. You can now log in with the following details:</p>
+                <p style="margin: 0 0 16px; font-size: 16px; color: #333;"><strong>Email:</strong> <span style="color: #333;">' . $email . '</span></p>
+                <p style="margin: 0 0 16px; font-size: 16px; color: #333;"><strong>Password:</strong> <span style="color: #333;">' . $password . '</span></p>
+                <a href="your-login-page-link" style="display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px; border: 2px solid #007bff; text-align: center;">Log In</a>
+
+                <p style="margin: 0 0 16px; font-size: 16px; color: #333;">We encourage you to log in and start posting your amenities to attract more visitors. If you have any questions, feel free to contact our support team.</p>
+                <p style="margin: 0 0 16px; font-size: 16px; color: #333;">Here is the generated QR code of your establishment. The visitors will scan this and fill up the form in order to add their demographics to the database.</p>
+                <p style="margin: 0 0 16px; font-size: 16px; color: #333;">Best regards,<br><strong>Majayjay Tourist Admin</strong></p>
+                <table role="presentation" border="0" cellpadding="0" cellspacing="0" style="margin-top: 16px; text-align: center;">
+                  <tr>
+                    <td align="center">
+                    </td>
+                  </tr>
+                </table>
+              </td>
+            </tr>
+          </table>
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div style="text-align: center; font-size: 14px; color: #9a9ea6; margin-top: 20px;">
+    <p style="font-size: 14px; color: #9a9ea6;">Majayjay, Laguna, Philippines</p>
+    <p>Powered By: HaKingz</p>
+  </div>
+</body>
+
+</html>';
 
         $mail->send();
 
@@ -156,26 +187,44 @@ try {
         $mail->isHTML(true);
         $mail->Subject = 'Business Application Rejected';
         $mail->Body = '
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
-  <head>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    <title>Business Application Rejected</title>
-  </head>
-  <body>
-    <p>Dear Business Owner,</p>
-    <p>We regret to inform you that your business application has been rejected for the following reasons:</p>
-    <ul>';
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Business Application Rejected</title>
+</head>
+
+<body style="font-family: Arial, sans-serif; background-color: #f4f5f6; margin: 0; padding: 0;">
+  <table role="presentation" cellpadding="0" cellspacing="0" style="width: 100%; background-color: #f4f5f6; padding: 20px;">
+    <tr>
+      <td>
+        <div style="max-width: 600px; background-color: #ffffff; border: 1px solid #eaebed; border-radius: 16px; margin: 20px auto; padding: 24px;">
+          <img src="https://majayjaytourism.ngrok.io/../../img/general-img/majayjay-logo.webp" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Dear Business Owner,</p>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">We regret to inform you that your business application has been rejected for the following reasons:</p>
+          <ul style="font-size: 16px; color: #333; margin: 0 0 16px; padding-left: 20px;">';
         foreach ($rejectReasons as $reason) {
-          $mail->Body .= '<li>' . htmlspecialchars($reason) . '</li>';
+          $mail->Body .= '<li style="margin: 0 0 8px;">' . htmlspecialchars($reason) . '</li>';
         }
         $mail->Body .= '</ul>
-    <p>You can use the following reference number to re-apply your application:</p>
-    <p>Reference Number: ' . htmlspecialchars($refNum) . '</p>
-    <p>If you have any questions, feel free to contact our support team.</p>
-    <p>Best regards,<br>Majayjay Tourist Admin</p>
-  </body>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">You can use the following reference number to re-apply your application:</p>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;"><strong>Reference Number:</strong> ' . htmlspecialchars($refNum) . '</p>
+          <a href="your-support-page-link" style="display: inline-block; padding: 12px 24px; margin-bottom: 20px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px; border: 2px solid #007bff; text-align: center;">Re-apply Now</a>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">If you have any questions, feel free to contact our support team.</p>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Best regards,<br><strong>Majayjay Tourist Admin</strong></p>
+
+        </div>
+      </td>
+    </tr>
+  </table>
+  <div style="text-align: center; font-size: 14px; color: #9a9ea6; margin-top: 20px;">
+    <p style="font-size: 14px; color: #9a9ea6;">Majayjay, Laguna, Philippines</p>
+    <p>Powered By: HaKingz</p>
+  </div>
+</body>
+
 </html>';
 
         $mail->send();
