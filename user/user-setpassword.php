@@ -20,7 +20,7 @@ if ($userId) {
 
   try {
     // Fetch email and confirmation status from userAccount table
-    $stmt = $pdo->prepare("SELECT email, IsConfirm FROM useraccount WHERE userAccID = ?");
+    $stmt = $pdo->prepare("SELECT email, IsConfirm FROM useraccount WHERE userID = ?");
     $stmt->execute([$userId]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -53,19 +53,15 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $hashed_password = password_hash($new_password, PASSWORD_DEFAULT);
 
     try {
-      // Insert the new account into the userAccount table
-      $stmt = $pdo->prepare("INSERT INTO userAccount (userID, email, passcode, created_at) VALUES (?, ?, ?, NOW())");
-      $stmt->execute([$userId, $userEmail, $hashed_password]);
+      // Update the user account with the new password and set IsConfirm to 1
+      $stmt = $pdo->prepare("UPDATE useraccount SET passcode = ?, IsConfirm = 1 WHERE userID = ?");
+      $stmt->execute([$hashed_password, $userId]);
 
       // Set success message
       $_SESSION['message'] = 'Password setup successful. You can now log in.';
       $_SESSION['message_type'] = 'success';
 
-      // Update IsConfirm to 1 after inserting the new account
-      $stmt = $pdo->prepare("UPDATE userAccount SET IsConfirm = 1 WHERE userID = ?");
-      $stmt->execute([$userId]);
-
-      // Clear userEmail and userId after successful insertion
+      // Clear userEmail and userId after successful update
       unset($userId);
       unset($userEmail);
 
@@ -89,7 +85,6 @@ if (isset($_SESSION['message'])) {
   unset($_SESSION['message']);
   unset($_SESSION['message_type']);
 }
-
 ?>
 
 <!DOCTYPE html>

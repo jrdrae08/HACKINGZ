@@ -91,7 +91,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $_SESSION['role'] = 'user';
       $_SESSION['username'] = $user['email'];
       $_SESSION['message_type'] = 'success';
-      header("Location: ../user/dashboard.php");
+      header("Location: ../homepage/homepage.php");
       exit;
     } else {
       $_SESSION['message'] = 'Invalid username or password.';
