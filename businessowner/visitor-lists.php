@@ -21,7 +21,7 @@ try {
   $demographics = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   if (!$demographics) {
-    echo "No demographic information found for this application.";
+    // echo "No demographic information found for this application.";
   }
 } catch (PDOException $e) {
   error_log("Database error: " . $e->getMessage());
