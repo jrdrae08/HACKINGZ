@@ -171,25 +171,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     </div>
   </div>
 
-  <!-- Toggle Confirmation Modal -->
-  <div class="modal fade" id="confirmToggleFacilityModal" tabindex="-1" aria-labelledby="confirmToggleFacilityModalLabel" aria-hidden="true">
-    <div class="modal-dialog">
-      <div class="modal-content">
-        <div class="modal-header">
-          <h5 class="modal-title" id="confirmToggleFacilityModalLabel">Confirm Toggle Facility</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="modal-body">
-          Are you sure you want to change the status of this facility?
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-          <button type="button" class="btn btn-primary" onclick="confirmToggleFacility()">Confirm</button>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../js/businessowner.js"></script>
   <script>
@@ -203,8 +184,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
       });
 
       let facilityToDelete = null;
-      let facilityToToggle = null;
-      let previousToggleState = null;
 
       function fetchFacilities() {
         fetch('../../backends/subadmin/fetch_facilities.php')
@@ -212,7 +191,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
           .then(data => {
             if (data.status === 'success') {
               data.facilities.forEach(facility => {
-                addFacilityToTable(facility.FacilityID, facility.FacilityName, facility.IsEnable);
+                addFacilityToTable(facility.FacilityID, facility.FacilityName);
               });
             } else {
               notyf.error(data.message);
@@ -264,7 +243,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
             if (data.status === 'success') {
               notyf.success('Facility added successfully');
               facilityNameInput.value = ''; // Clear the input field
-              addFacilityToTable(data.facilityID, facilityName, 0);
+              addFacilityToTable(data.facilityID, facilityName);
             } else {
               notyf.error(data.message);
             }
@@ -278,22 +257,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
           });
       }
 
-      function addFacilityToTable(facilityID, facilityName, isEnable) {
+      function addFacilityToTable(facilityID, facilityName) {
         const facilityTableBody = document.getElementById('facilityTableBody');
         const newRow = document.createElement('tr');
         newRow.id = `facilityRow${facilityID}`;
         newRow.innerHTML = `
-          <td scope="row">${facilityName}</td>
-          <td>
-            <div class="d-flex align-items-center">
-              <div class="form-check form-switch me-2">
-                <input class="form-check-input toggle-switch-lg" type="checkbox" id="facilityToggle${facilityID}" ${isEnable ? 'checked' : ''} onclick="showToggleConfirmationModal(${facilityID}, this)">
-                <label class="form-check-label" for="facilityToggle${facilityID}">Enable</label>
-              </div>
-              <button class="btn btn-danger" type="button" onclick="showDeleteConfirmationModal(${facilityID})"><i class="bi bi-x"></i></button>
-            </div>
-          </td>
-        `;
+      <td scope="row">${facilityName}</td>
+      <td>
+        <div class="d-flex align-items-center">
+          <button class="btn btn-danger" type="button" onclick="showDeleteConfirmationModal(${facilityID})"><i class="bi bi-x"></i></button>
+        </div>
+      </td>
+    `;
         facilityTableBody.appendChild(newRow);
       }
 
@@ -342,57 +317,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
         }
       }
 
-      function showToggleConfirmationModal(facilityID, toggleElement) {
-        facilityToToggle = facilityID;
-        previousToggleState = toggleElement.checked;
-        const confirmModal = new bootstrap.Modal(document.getElementById('confirmToggleFacilityModal'));
-        confirmModal.show();
-      }
-
-      function confirmToggleFacility() {
-        const toggleElement = document.getElementById(`facilityToggle${facilityToToggle}`);
-        const isEnable = toggleElement.checked ? 1 : 0;
-
-        fetch('../../backends/subadmin/update_facility_status.php', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              facilityID: facilityToToggle,
-              isEnable: isEnable
-            })
-          })
-          .then(response => response.json())
-          .then(data => {
-            // Hide the modal before showing the notification
-            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmToggleFacilityModal'));
-            confirmModal.hide();
-
-            if (data.status === 'success') {
-              notyf.success('Facility status updated successfully');
-            } else {
-              notyf.error(data.message);
-              toggleElement.checked = !isEnable; // Revert the toggle state
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            // Hide the modal before showing the error notification
-            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmToggleFacilityModal'));
-            confirmModal.hide();
-            notyf.error('An error occurred while updating the facility status');
-            toggleElement.checked = !isEnable; // Revert the toggle state
-          });
-      }
-
       fetchFacilities();
       window.showConfirmationModal = showConfirmationModal;
       window.confirmAddFacility = confirmAddFacility;
       window.showDeleteConfirmationModal = showDeleteConfirmationModal;
       window.confirmDeleteFacility = confirmDeleteFacility;
-      window.showToggleConfirmationModal = showToggleConfirmationModal;
-      window.confirmToggleFacility = confirmToggleFacility;
     });
   </script>
 </body>
