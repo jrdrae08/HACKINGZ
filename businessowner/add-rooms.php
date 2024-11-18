@@ -24,6 +24,7 @@ $errors = $_SESSION['errors'] ?? [];
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
     <link rel="stylesheet" href="../css/businessowner.css">
+
 </head>
 
 <body>
@@ -41,7 +42,7 @@ $errors = $_SESSION['errors'] ?? [];
                 </div>
                 <div class="container-fluid ">
                     <div class="row d-flex justify-content-center">
-                        <div class="col-lg-10">
+                        <div class="col-lg-11">
                             <div class="card border-0 shadow">
                                 <div class="card-header">
                                     <h4>Add Room</h4>
@@ -49,9 +50,9 @@ $errors = $_SESSION['errors'] ?? [];
                                 <div class="card-body">
                                     <form method="POST" action="../../backends/subadmin/save_room_info.php" enctype="multipart/form-data" onsubmit="return validateForm()">
                                         <input type="hidden" id="session-images" value='<?php echo json_encode($_SESSION['temp_images'] ?? []); ?>'>
-                                        <div class="row">
+                                        <div class="row d-flex justify-content-evenly">
                                             <h5 class="fw-bold mb-4">Room Information</h5>
-                                            <div class="col-lg-5 col-sm-12 ">
+                                            <div class="col-xl-5 col-lg-10 col-12">
                                                 <div class="row d-flex justify-content-center align-items-center">
                                                     <div class="col-lg-5 col-md-6 col-sm-12">
                                                         <div class="form-floating mb-3">
@@ -82,16 +83,80 @@ $errors = $_SESSION['errors'] ?? [];
                                                             <span id="error-childrenmax" class="text-danger"><?php echo $errors['childrenmax'] ?? ''; ?></span>
                                                         </div>
                                                     </div>
-                                                    <div class="col-lg-10 mb-3">
+                                                    <hr>
+
+                                                    <h5 class="fw-bold mb-3">Time Scheduling</h5>
+                                                    <div class="col-lg-10">
+                                                        <div class="row mb-3 d-flex justify-content-center">
+                                                            <div class="col-lg-5 col-md-6 col-sm-12">
+                                                                <div class="form-floating mb-3">
+                                                                    <input type="time" class="form-control shadow" placeholder="">
+                                                                    <label for="">Time Start</label>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-5 col-md-6 col-sm-12">
+                                                                <div class="form-floating mb-3">
+                                                                    <input type="time" class="form-control shadow" placeholder="">
+                                                                    <label for="">Time End</label>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                    <hr>
+                                                    <!-- <div class="col-lg-10 mb-3">
                                                         <div class="form-floating">
                                                             <textarea id="roomdesc" name="roomdesc" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo htmlspecialchars($formData['roomdesc'] ?? ''); ?></textarea>
                                                             <label for="roomdesc">Room Descriptions</label>
                                                             <span id="error-roomdesc" class="text-danger"><?php echo $errors['roomdesc'] ?? ''; ?></span>
                                                             <div id="roomdesc-word-count" class="text-end text-muted"></div>
                                                         </div>
+                                                    </div> -->
+
+                                                    <!-- payment method -->
+                                                    <div class="col-lg-10 col-10 text-center border bg-info-subtle rounded shadow py-2 mb-3">
+                                                        <h5 class="fw-bold">Payment Options</h5>
+                                                        <p>Do you want to add a down payment for this specific room?</p>
+                                                        <div class="col-lg-12 d-flex justify-content-around align-items-center mb-2">
+                                                            <div class="form-check form-switch form-check-reverse me-2">
+                                                                <input class="form-check-input shadow" type="checkbox" id="flexSwitchCheckReverse">
+                                                                <label class="form-check-label" for="flexSwitchCheckReverse">Payment Method (G-Cash)</label>
+                                                            </div>
+                                                            <div class="col-lg-5 d-flex justify-content-center" id="paymentField" style="display: none;">
+                                                                <input type="number" class="form-control shadow" placeholder="Enter amount" disabled id="paymentAmount">
+                                                            </div>
+                                                        </div>
                                                     </div>
 
-                                                    <div class="col-lg-10 mb-5">
+                                                    <hr>
+                                                    <!-- Hidden input field for payment number -->
+
+
+                                                    <script>
+                                                        document.addEventListener("DOMContentLoaded", function() {
+                                                            const paymentField = document.getElementById("paymentField");
+                                                            const switchCheckbox = document.getElementById("flexSwitchCheckReverse");
+                                                            const paymentAmount = document.getElementById("paymentAmount");
+
+                                                            // Add event listener for the checkbox
+                                                            switchCheckbox.addEventListener("change", function() {
+                                                                console.log("Checkbox is checked:", switchCheckbox.checked);
+
+                                                                // Toggle visibility and enable/disable the input based on the checkbox state
+                                                                if (switchCheckbox.checked) {
+                                                                    paymentField.style.display = "block"; // Show the input field
+                                                                    paymentAmount.disabled = false; // Enable the input field
+                                                                } else {
+                                                                    paymentField.style.display = "none"; // Hide the input field
+                                                                    paymentAmount.disabled = true; // Disable the input field
+                                                                }
+                                                            });
+                                                        });
+                                                    </script>
+
+
+
+
+                                                    <div class="col-lg-10 mb-3">
                                                         <h5 class="fw-bold">Facilities</h5>
                                                         <div class="form-check form-check-inline">
                                                             <input class="form-check-input" type="checkbox" id="facilities1" value="Bedroom">
@@ -111,7 +176,7 @@ $errors = $_SESSION['errors'] ?? [];
                                                         </div>
                                                     </div>
 
-                                                    <div class="col-lg-10 mb-5">
+                                                    <div class="col-lg-10 mb-3">
                                                         <h5 class="fw-bold">Features</h5>
                                                         <div class="form-check form-check-inline">
                                                             <input class="form-check-input" type="checkbox" id="features1" value="Aircon">
@@ -134,26 +199,31 @@ $errors = $_SESSION['errors'] ?? [];
                                             </div>
 
 
-                                            <div class="col-lg-7 col-sm-12 d-flex justify-content-evenly align-items-center">
+                                            <div class="col-xl-6 col-lg-10 col-md-10 col-sm-12">
                                                 <div class="row">
-                                                    <div class="d-flex align-items-center">
+                                                    <div class="col-lg-12 d-flex align-items-center mb-3">
                                                         <i class="bi bi-plus-circle fs-3" id="add-image-icon"></i>
-                                                        <span class="ms-2">Click this button to add image (maximum of 6)</span>
+                                                        <span class="ms-2">Click this button to add images (maximum of 6)</span>
                                                     </div>
                                                     <?php for ($i = 1; $i <= 6; $i++): ?>
-                                                        <div class="col-lg-4 col-md-6 mb-3 text-center image-input-section" style="display: <?php echo isset($images["image$i"]) ? 'block' : 'none'; ?>;">
-                                                            <div class="d-flex justify-content-end">
+                                                        <div class="col-lg-4 col-md-4 col-sm-6 mb-3 text-center image-input-section"
+                                                            style="display: <?php echo isset($images["image$i"]) ? 'block' : 'none'; ?>;">
+                                                            <div class="d-flex flex-column align-items-center">
+                                                                <input name="image<?php echo $i; ?>" type="file"
+                                                                    id="room-image-input-<?php echo $i; ?>" style="display: none;"
+                                                                    accept="image/*" onchange="uploadImage('room-image-input-<?php echo $i; ?>', 'room-image-<?php echo $i; ?>')" value="">
+                                                                <label for="room-image-input-<?php echo $i; ?>" class="image-container mb-2" style="cursor: pointer;">
+                                                                    <img src="<?php echo isset($images["image$i"]) ? htmlspecialchars($images["image$i"]) : '../img/general-img/upload-image.png'; ?>"
+                                                                        class="rounded img-fluid shadow border" alt="Room Image"
+                                                                        id="room-image-<?php echo $i; ?>" style="width: 100%; height: auto; max-width: 250px; max-height: 170px; object-fit: cover;">
+                                                                </label>
                                                                 <i class="bi bi-x-circle remove-image-icon"></i>
                                                             </div>
-                                                            <p>Image <?php echo $i; ?></p>
-                                                            <input name="image<?php echo $i; ?>" type="file" id="room-image-input-<?php echo $i; ?>" style="display: none;" accept="image/*" onchange="uploadImage('room-image-input-<?php echo $i; ?>', 'room-image-<?php echo $i; ?>')" value="">
-                                                            <label for="room-image-input-<?php echo $i; ?>" class="image-container">
-                                                                <img src="<?php echo isset($images["image$i"]) ? htmlspecialchars($images["image$i"]) : '../img/general-img/insert.png'; ?>" class="rounded img-fluid shadow border" alt="Room Image" id="room-image-<?php echo $i; ?>">
-                                                            </label>
                                                         </div>
                                                     <?php endfor; ?>
                                                 </div>
                                             </div>
+
 
                                         </div>
                                         <div class="d-flex justify-content-end">
@@ -225,7 +295,7 @@ $errors = $_SESSION['errors'] ?? [];
                         const section = imageInputSections[index];
                         section.style.display = 'none';
                         section.querySelector('input[type="file"]').value = '';
-                        section.querySelector('img').src = '../img/general-img/insert.png';
+                        section.querySelector('img').src = '../img/general-img/upload-image.png';
                     });
                 });
             });
