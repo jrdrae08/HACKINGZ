@@ -46,11 +46,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                   <button type="button" class="btn btn-warning px-4" onclick="showEditConfirmationModal()">Edit</button>
                 </div>
                 <form id="gcashForm" enctype="multipart/form-data">
+                  <input type="hidden" name="isUpdate" id="isUpdate" value="0">
                   <div class="card-body">
                     <div class="row d-flex justify-content-center">
                       <div class="col-lg-6 col-8 text-center">
                         <h5 class="">G-Cash QR Code</h5>
-                        <input name="qrimage1" type="file" id="qr-image-input-1" style="display: none;" accept="image/*" onchange="uploadImage('qr-image-input-1', 'qr-image-1')" required>
+                        <input name="qrimage1" type="file" id="qr-image-input-1" style="display: none;" accept="image/*" onchange="uploadImage('qr-image-input-1', 'qr-image-1')">
                         <label for="qr-image-input-1" class="image-container">
                           <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="QR Image 1" id="qr-image-1" width="300" height="300">
                         </label>
@@ -169,7 +170,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
       // Fetch existing data
       $.ajax({
-        url: '../backends/subadmin/add-gcashinfo.php',
+        url: '../backends/subadmin/fetch-gcashinfo.php',
         type: 'GET',
         success: function(response) {
           var res = JSON.parse(response);
@@ -179,6 +180,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
             $('#qr-image-1').attr('src', res.data.bgcashQrImage);
             $('input[name="qrimage1"]').prop('disabled', true);
             $('#saveButton').prop('disabled', true); // Disable the SAVE button if a record exists
+            $('#isUpdate').val('1'); // Indicate that this is an update
           }
         },
         error: function() {
@@ -217,6 +219,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
         $('input[name="qrimage1"]').prop('disabled', false);
         $('#saveButton').prop('disabled', false);
         $('#editConfirmationModal').modal('hide');
+      });
+
+      $('#saveButton').on('click', function() {
+        showConfirmationModal();
       });
     });
   </script>
