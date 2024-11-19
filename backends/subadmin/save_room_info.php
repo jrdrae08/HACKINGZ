@@ -12,6 +12,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $adultMax = htmlspecialchars(trim($_POST['adultmax']));
   $childrenMax = htmlspecialchars(trim($_POST['childrenmax']));
   $roomDesc = htmlspecialchars(trim($_POST['roomdesc']));
+  $timeStart = htmlspecialchars(trim($_POST['timestart']));
+  $timeEnd = htmlspecialchars(trim($_POST['timeend']));
+  $paymentAmount = isset($_POST['payment']) ? htmlspecialchars(trim($_POST['payment'])) : null;
   $businessInfoID = $_SESSION['business_info_id'];
 
   // Initialize an array to store errors
@@ -139,9 +142,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Insert data into the database
     $sql = "INSERT INTO roomInfoTable 
-                        (BusinessInfoID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6) 
+                        (BusinessInfoID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, timeStart, timeEnd) 
                     VALUES 
-                        (:BusinessInfoID, :roomName, :roomPrice, :adultMax, :ChildrenMax, :RoomDescriptions, :image1, :image2, :image3, :image4, :image5, :image6)";
+                        (:BusinessInfoID, :roomName, :roomPrice, :adultMax, :ChildrenMax, :RoomDescriptions, :image1, :image2, :image3, :image4, :image5, :image6, :timeStart, :timeEnd)";
 
     $stmt = $pdo->prepare($sql);
     $stmt->execute([
@@ -156,8 +159,35 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ':image3' => $images['image3'] ?? null,
       ':image4' => $images['image4'] ?? null,
       ':image5' => $images['image5'] ?? null,
-      ':image6' => $images['image6'] ?? null
+      ':image6' => $images['image6'] ?? null,
+      ':timeStart' => $timeStart,
+      ':timeEnd' => $timeEnd
     ]);
+
+    // Get the last inserted room ID
+    $roomID = $pdo->lastInsertId();
+
+    // Handle facilities mapping
+    $facilities = $_POST['facilities'] ?? [];
+    $pdo->prepare("DELETE FROM room_facilities_mapping WHERE roomID = :roomID AND BusinessInfoID = :businessInfoID")->execute([':roomID' => $roomID, ':businessInfoID' => $businessInfoID]);
+    foreach ($facilities as $facilityID) {
+      $stmt = $pdo->prepare("INSERT INTO room_facilities_mapping (roomID, FacilityID, BusinessInfoID, IsActive) VALUES (:roomID, :facilityID, :businessInfoID, 1)");
+      $stmt->execute([
+        ':roomID' => $roomID,
+        ':facilityID' => $facilityID,
+        ':businessInfoID' => $businessInfoID
+      ]);
+    }
+
+    // Handle payment method
+    if ($paymentAmount !== null) {
+      $stmt = $pdo->prepare("INSERT INTO payment_methods (roomID, amount) VALUES (:roomID, :amount)");
+      $stmt->execute([
+        ':roomID' => $roomID,
+        ':amount' => $paymentAmount
+      ]);
+    }
+
     $_SESSION['success'] = 'Room information has been saved successfully.';
     unset($_SESSION['temp_images']); // Unset the temporary images from the session
 

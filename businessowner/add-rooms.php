@@ -83,34 +83,35 @@ $errors = $_SESSION['errors'] ?? [];
                                                             <span id="error-childrenmax" class="text-danger"><?php echo $errors['childrenmax'] ?? ''; ?></span>
                                                         </div>
                                                     </div>
-                                                    <hr>
 
+                                                    <div class="col-lg-10 mb-3">
+                                                        <div class="form-floating">
+                                                            <textarea id="roomdesc" name="roomdesc" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo htmlspecialchars($formData['roomdesc'] ?? ''); ?></textarea>
+                                                            <label for="roomdesc">Room Rules</label>
+                                                            <span id="error-roomdesc" class="text-danger"><?php echo $errors['roomdesc'] ?? ''; ?></span>
+                                                            <div id="roomdesc-word-count" class="text-end text-muted"></div>
+                                                        </div>
+                                                    </div>
+
+                                                    <hr>
                                                     <h5 class="fw-bold mb-3">Time Scheduling</h5>
                                                     <div class="col-lg-10">
                                                         <div class="row mb-3 d-flex justify-content-center">
                                                             <div class="col-lg-5 col-md-6 col-sm-12">
                                                                 <div class="form-floating mb-3">
-                                                                    <input type="time" class="form-control shadow" placeholder="">
+                                                                    <input name="timestart" type="time" class="form-control shadow" placeholder="">
                                                                     <label for="">Time Start</label>
                                                                 </div>
                                                             </div>
                                                             <div class="col-lg-5 col-md-6 col-sm-12">
                                                                 <div class="form-floating mb-3">
-                                                                    <input type="time" class="form-control shadow" placeholder="">
+                                                                    <input name="timeend" type="time" class="form-control shadow" placeholder="">
                                                                     <label for="">Time End</label>
                                                                 </div>
                                                             </div>
                                                         </div>
                                                     </div>
                                                     <hr>
-                                                    <!-- <div class="col-lg-10 mb-3">
-                                                        <div class="form-floating">
-                                                            <textarea id="roomdesc" name="roomdesc" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo htmlspecialchars($formData['roomdesc'] ?? ''); ?></textarea>
-                                                            <label for="roomdesc">Room Descriptions</label>
-                                                            <span id="error-roomdesc" class="text-danger"><?php echo $errors['roomdesc'] ?? ''; ?></span>
-                                                            <div id="roomdesc-word-count" class="text-end text-muted"></div>
-                                                        </div>
-                                                    </div> -->
 
                                                     <!-- payment method -->
                                                     <div class="col-lg-10 col-10 text-center border bg-info-subtle rounded shadow py-2 mb-3">
@@ -122,7 +123,7 @@ $errors = $_SESSION['errors'] ?? [];
                                                                 <label class="form-check-label" for="flexSwitchCheckReverse">Payment Method (G-Cash)</label>
                                                             </div>
                                                             <div class="col-lg-5 d-flex justify-content-center" id="paymentField" style="display: none;">
-                                                                <input type="number" class="form-control shadow" placeholder="Enter amount" disabled id="paymentAmount">
+                                                                <input name="payment" type="number" class="form-control shadow" placeholder="Enter amount" disabled id="paymentAmount">
                                                             </div>
                                                         </div>
                                                     </div>
@@ -153,28 +154,37 @@ $errors = $_SESSION['errors'] ?? [];
                                                         });
                                                     </script>
 
-
-
-
                                                     <div class="col-lg-10 mb-3">
                                                         <h5 class="fw-bold">Facilities</h5>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="facilities1" value="Bedroom">
-                                                            <label class="form-check-label">Bedroom</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="facilities2" value="Balcony">
-                                                            <label class="form-check-label">Balcony</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="facilities3" value="Comfort Room">
-                                                            <label class="form-check-label">Comfort Room</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="facilities4" value="Kitchen">
-                                                            <label class="form-check-label">Kitchen</label>
+                                                        <div id="facilitiesContainer" class="form-check form-check-inline">
+                                                            <!-- Dynamically added facilities will be displayed here -->
                                                         </div>
                                                     </div>
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                            fetch('../../backends/subadmin/fetch_roomfacilities.php')
+                                                                .then(response => response.json())
+                                                                .then(data => {
+                                                                    if (data.status === 'success') {
+                                                                        const facilitiesContainer = document.getElementById('facilitiesContainer');
+                                                                        data.facilities.forEach(facility => {
+                                                                            const facilityDiv = document.createElement('div');
+                                                                            facilityDiv.className = 'form-check form-check-inline';
+                                                                            facilityDiv.innerHTML = `
+                            <input class="form-check-input" type="checkbox" id="facility${facility.FacilityID}" name="facilities[]" value="${facility.FacilityID}">
+                            <label class="form-check-label" for="facility${facility.FacilityID}">${facility.FacilityName}</label>
+                        `;
+                                                                            facilitiesContainer.appendChild(facilityDiv);
+                                                                        });
+                                                                    } else {
+                                                                        console.error('Error fetching facilities:', data.message);
+                                                                    }
+                                                                })
+                                                                .catch(error => {
+                                                                    console.error('Error:', error);
+                                                                });
+                                                        });
+                                                    </script>
 
                                                     <div class="col-lg-10 mb-3">
                                                         <h5 class="fw-bold">Features</h5>
@@ -197,7 +207,6 @@ $errors = $_SESSION['errors'] ?? [];
                                                     </div>
                                                 </div>
                                             </div>
-
 
                                             <div class="col-xl-6 col-lg-10 col-md-10 col-sm-12">
                                                 <div class="row">
@@ -223,9 +232,8 @@ $errors = $_SESSION['errors'] ?? [];
                                                     <?php endfor; ?>
                                                 </div>
                                             </div>
-
-
                                         </div>
+
                                         <div class="d-flex justify-content-end">
                                             <button type="button" class="btn btn-success px-4 me-2" id="save-button" data-bs-toggle="modal" data-bs-target="#confirmationModal" disabled>SAVE</button>
                                             <a href="../businessowner/manage-rooms.php" class="btn btn-secondary">CANCEL</a>
@@ -234,9 +242,7 @@ $errors = $_SESSION['errors'] ?? [];
                                 </div>
                             </div>
                         </div>
-
                     </div>
-
                 </div>
             </main>
 
