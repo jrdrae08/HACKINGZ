@@ -95,20 +95,18 @@ $errors = $_SESSION['errors'] ?? [];
 
                                                     <hr>
                                                     <h5 class="fw-bold mb-3">Time Scheduling</h5>
-                                                    <div class="col-lg-10">
-                                                        <div class="row mb-3 d-flex justify-content-center">
-                                                            <div class="col-lg-5 col-md-6 col-sm-12">
-                                                                <div class="form-floating mb-3">
-                                                                    <input name="timestart" type="time" class="form-control shadow" placeholder="">
-                                                                    <label for="">Time Start</label>
-                                                                </div>
-                                                            </div>
-                                                            <div class="col-lg-5 col-md-6 col-sm-12">
-                                                                <div class="form-floating mb-3">
-                                                                    <input name="timeend" type="time" class="form-control shadow" placeholder="">
-                                                                    <label for="">Time End</label>
-                                                                </div>
-                                                            </div>
+                                                    <div class="col-lg-5 col-md-6 col-sm-12">
+                                                        <div class="form-floating mb-3">
+                                                            <input name="timestart" type="time" class="form-control shadow" placeholder="" value="<?php echo htmlspecialchars($formData['timestart'] ?? ''); ?>">
+                                                            <label for="">Time Start</label>
+                                                            <span id="error-timestart" class="text-danger"><?php echo $errors['timestart'] ?? ''; ?></span>
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-lg-5 col-md-6 col-sm-12">
+                                                        <div class="form-floating mb-3">
+                                                            <input name="timeend" type="time" class="form-control shadow" placeholder="" value="<?php echo htmlspecialchars($formData['timeend'] ?? ''); ?>">
+                                                            <label for="">Time End</label>
+                                                            <span id="error-timeend" class="text-danger"><?php echo $errors['timeend'] ?? ''; ?></span>
                                                         </div>
                                                     </div>
                                                     <hr>
@@ -122,11 +120,40 @@ $errors = $_SESSION['errors'] ?? [];
                                                                 <input class="form-check-input shadow" type="checkbox" id="flexSwitchCheckReverse">
                                                                 <label class="form-check-label" for="flexSwitchCheckReverse">Payment Method (G-Cash)</label>
                                                             </div>
-                                                            <div class="col-lg-5 d-flex justify-content-center" id="paymentField" style="display: none;">
-                                                                <input name="payment" type="number" class="form-control shadow" placeholder="Enter amount" disabled id="paymentAmount">
+                                                            <div class="col-lg-5 d-flex justify-content-center" id="paymentField" style="display: <?php echo isset($formData['payment']) ? 'block' : 'none'; ?>;">
+                                                                <input name="payment" type="number" class="form-control shadow" placeholder="Enter amount" id="paymentAmount" value="<?php echo htmlspecialchars($formData['payment'] ?? ''); ?>" <?php echo isset($formData['payment']) ? '' : 'disabled'; ?>>
+                                                                <span id="error-payment" class="text-danger"><?php echo $errors['payment'] ?? ''; ?></span>
                                                             </div>
                                                         </div>
                                                     </div>
+                                                    <script>
+                                                        document.addEventListener("DOMContentLoaded", function() {
+                                                            const paymentField = document.getElementById("paymentField");
+                                                            const switchCheckbox = document.getElementById("flexSwitchCheckReverse");
+                                                            const paymentAmount = document.getElementById("paymentAmount");
+
+                                                            // Add event listener for the checkbox
+                                                            switchCheckbox.addEventListener("change", function() {
+                                                                // Toggle visibility and enable/disable the input based on the checkbox state
+                                                                if (switchCheckbox.checked) {
+                                                                    paymentField.style.display = "block"; // Show the input field
+                                                                    paymentAmount.disabled = false; // Enable the input field
+                                                                } else {
+                                                                    paymentField.style.display = "none"; // Hide the input field
+                                                                    paymentAmount.disabled = true; // Disable the input field
+                                                                }
+                                                            });
+
+                                                            // Initial check to set the correct state on page load
+                                                            if (switchCheckbox.checked) {
+                                                                paymentField.style.display = "block";
+                                                                paymentAmount.disabled = false;
+                                                            } else {
+                                                                paymentField.style.display = "none";
+                                                                paymentAmount.disabled = true;
+                                                            }
+                                                        });
+                                                    </script>
 
                                                     <hr>
                                                     <!-- Hidden input field for payment number -->
@@ -184,6 +211,26 @@ $errors = $_SESSION['errors'] ?? [];
                                                                     console.error('Error:', error);
                                                                 });
                                                         });
+
+                                                        function validateFacilities() {
+                                                            const facilities = document.querySelectorAll('input[name="facilities[]"]');
+                                                            const errorElement = document.getElementById('error-facilities');
+                                                            let isChecked = false;
+
+                                                            facilities.forEach(facility => {
+                                                                if (facility.checked) {
+                                                                    isChecked = true;
+                                                                }
+                                                            });
+
+                                                            if (!isChecked) {
+                                                                errorElement.textContent = 'Please select at least one facility.';
+                                                                return false;
+                                                            } else {
+                                                                errorElement.textContent = '';
+                                                                return true;
+                                                            }
+                                                        }
                                                     </script>
 
                                                     <div class="col-lg-10 mb-3">
@@ -472,7 +519,6 @@ $errors = $_SESSION['errors'] ?? [];
         </script>
 
         <script>
-            //validation for form before submitting it
             document.addEventListener('DOMContentLoaded', function() {
                 const saveButton = document.getElementById('save-button');
                 const formFields = document.querySelectorAll('input[required], textarea[required]');
@@ -484,6 +530,8 @@ $errors = $_SESSION['errors'] ?? [];
                     document.getElementById('room-image-input-5'),
                     document.getElementById('room-image-input-6')
                 ];
+                const timeStart = document.querySelector('input[name="timestart"]');
+                const timeEnd = document.querySelector('input[name="timeend"]');
 
                 function validateForm() {
                     let allFieldsFilled = true;
@@ -494,8 +542,9 @@ $errors = $_SESSION['errors'] ?? [];
                     });
 
                     const isAnyImageSelected = imageInputs.some(input => input && input.files.length > 0);
+                    const isTimeFilled = timeStart.value.trim() && timeEnd.value.trim();
 
-                    if (allFieldsFilled && isAnyImageSelected) {
+                    if (allFieldsFilled && isAnyImageSelected && isTimeFilled) {
                         saveButton.removeAttribute('disabled');
                     } else {
                         saveButton.setAttribute('disabled', 'true');
@@ -509,6 +558,9 @@ $errors = $_SESSION['errors'] ?? [];
                 imageInputs.forEach(input => {
                     input.addEventListener('change', validateForm);
                 });
+
+                timeStart.addEventListener('input', validateForm);
+                timeEnd.addEventListener('input', validateForm);
 
                 validateForm(); // Initial validation check
             });

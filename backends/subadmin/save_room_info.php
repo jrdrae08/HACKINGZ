@@ -54,7 +54,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $errors[] = ['field' => 'roomname', 'message' => 'Room name must be unique for the given business.'];
   }
 
-  // Handle image uploads and resize
+  // Check if at least one facility is selected
+  $facilities = $_POST['facilities'] ?? [];
+  if (empty($facilities)) {
+    $errors[] = ['field' => 'facilities', 'message' => 'Please select at least one facility.'];
+  }
+
+  // Handle image uploads
   $images = $_SESSION['temp_images'] ?? [];
   $tempDir = "../../businessowner/tempImages/";
   if (!file_exists($tempDir)) {
@@ -83,13 +89,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $imageName = pathinfo($_FILES[$imageKey]['name'], PATHINFO_FILENAME) . "_" . $uniqueNumber . "." . $imageFileType;
       $tempFilePath = $tempDir . $imageName;
 
-      // Resize image
-      $resizedImagePath = resizeImage($_FILES[$imageKey]['tmp_name'], $tempFilePath, 1920, 1080);
-
-      if ($resizedImagePath) {
-        $images[$imageKey] = $resizedImagePath;
+      // Move the uploaded file to the temp directory
+      if (move_uploaded_file($_FILES[$imageKey]['tmp_name'], $tempFilePath)) {
+        $images[$imageKey] = $tempFilePath;
       } else {
-        $errors[] = ['field' => $imageKey, 'message' => "Failed to resize or move uploaded file: " . $_FILES[$imageKey]['name']];
+        $errors[] = ['field' => $imageKey, 'message' => "Failed to move uploaded file: " . $_FILES[$imageKey]['name']];
       }
     }
   }
@@ -100,6 +104,23 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 
   // Check for errors before proceeding
+  if (!empty($errors)) {
+    $_SESSION['errors'] = $errors;
+    $_SESSION['form_data'] = $_POST;
+    $_SESSION['temp_images'] = $images;
+    header('Location: ../../businessowner/add-rooms.php');
+    exit();
+  }
+
+  // Resize images
+  foreach ($images as $key => $tempPath) {
+    $resizedImagePath = resizeImage($tempPath, $tempPath, 1920, 1080);
+    if (!$resizedImagePath) {
+      $errors[] = ['field' => $key, 'message' => "Failed to resize image: " . basename($tempPath)];
+    }
+  }
+
+  // Check for errors after resizing images
   if (!empty($errors)) {
     $_SESSION['errors'] = $errors;
     $_SESSION['form_data'] = $_POST;
@@ -168,7 +189,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $roomID = $pdo->lastInsertId();
 
     // Handle facilities mapping
-    $facilities = $_POST['facilities'] ?? [];
     $pdo->prepare("DELETE FROM room_facilities_mapping WHERE roomID = :roomID AND BusinessInfoID = :businessInfoID")->execute([':roomID' => $roomID, ':businessInfoID' => $businessInfoID]);
     foreach ($facilities as $facilityID) {
       $stmt = $pdo->prepare("INSERT INTO room_facilities_mapping (roomID, FacilityID, BusinessInfoID, IsActive) VALUES (:roomID, :facilityID, :businessInfoID, 1)");
