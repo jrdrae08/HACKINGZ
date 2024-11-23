@@ -27,7 +27,7 @@ try {
 
     // Query to fetch rooms based on businessInfoID and filter out the room with the specific roomID
     $stmt = $pdo->prepare("
-        SELECT roomID, roomName, roomPrice, RoomDescriptions, image1
+        SELECT roomID, roomName, roomPrice, RoomDescriptions, image1, timeStart, timeEnd, adultMax, ChildrenMax
         FROM roominfotable
         WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
     ");
@@ -483,9 +483,9 @@ try {
                                                 <h5 class="p-3 text-center dm-sans-text fw-bold text-secondary">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($room['roomPrice']); ?></span>/Night</h5>
                                             </div>
                                             <h3 class="card-title text-color-1 fw-bold cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h3>
-                                            <p class="card-text dm-sans-text text-secondary">Time Schedule: </p>
-                                            <p class="card-text dm-sans-text text-secondary">Max Adult: </p>
-                                            <p class="card-text dm-sans-text text-secondary">Max Children </p>
+                                            <p class="card-text dm-sans-text text-secondary">Time Schedule: <span class="fw-bold"><?php echo date("g:i A", strtotime($room['timeStart'])) . " to " . date("g:i A", strtotime($room['timeEnd'])); ?></span></p>
+                                            <p class="card-text dm-sans-text text-secondary">Max Adult: <span class="fw-bold"><?php echo htmlspecialchars($room['adultMax']); ?></span></p>
+                                            <p class="card-text dm-sans-text text-secondary">Max Children: <span class="fw-bold"><?php echo htmlspecialchars($room['ChildrenMax']); ?></span></p>
                                             <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
                                         </div>
                                     </div>
