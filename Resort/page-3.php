@@ -9,7 +9,7 @@ $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
 try {
     // Query to fetch room information based on roomID
     $stmt = $pdo->prepare("
-        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, BusinessInfoID
+        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, timeStart, timeEnd, BusinessInfoID
         FROM roominfotable
         WHERE roomID = :roomID
     ");
@@ -33,11 +33,39 @@ try {
     ");
     $stmt->execute(['businessInfoID' => $businessInfoID, 'roomID' => $roomID]);
     $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Query to check if the room has a payment method
+    $stmt = $pdo->prepare("
+        SELECT amount
+        FROM payment_methods
+        WHERE roomID = :roomID
+    ");
+    $stmt->execute(['roomID' => $roomID]);
+    $payment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Query to fetch facilities for the room
+    $stmt = $pdo->prepare("
+        SELECT rf.FacilityName
+        FROM room_facilities_mapping rfm
+        JOIN room_facilities rf ON rfm.FacilityID = rf.FacilityID
+        WHERE rfm.roomID = :roomID AND rfm.IsActive = 1
+    ");
+    $stmt->execute(['roomID' => $roomID]);
+    $facilities = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Query to fetch features for the room
+    $stmt = $pdo->prepare("
+        SELECT rf.FeatureName
+        FROM room_features_mapping rfm
+        JOIN room_features rf ON rfm.FeatureID = rf.FeatureID
+        WHERE rfm.roomID = :roomID AND rfm.IsActive = 1
+    ");
+    $stmt->execute(['roomID' => $roomID]);
+    $features = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }
 ?>
-
 <!DOCTYPE html>
 <html lang="en">
 
@@ -82,6 +110,58 @@ try {
             background-color: green !important;
             color: white !important;
         }
+
+        /* Style for the overlay */
+        .image-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+        }
+
+        /* Style for the enlarged image */
+        .image-overlay img {
+            max-width: 95%;
+            /* Make image responsive */
+            max-height: 95%;
+            /* Ensure image does not exceed the viewport */
+            object-fit: contain;
+            /* Ensure aspect ratio is maintained */
+        }
+
+        /* Media Query for Small Devices (Mobile) */
+        @media (max-width: 576px) {
+            .image-overlay img {
+                max-width: 100%;
+                /* Full width on small devices */
+                max-height: 90%;
+                /* Slightly smaller on small screens */
+            }
+        }
+
+        /* Media Query for Medium Devices (Tablets) */
+        @media (max-width: 768px) {
+            .image-overlay img {
+                max-width: 90%;
+                /* Adjust image size on tablets */
+                max-height: 90%;
+            }
+        }
+
+        /* Media Query for Larger Screens */
+        @media (min-width: 992px) {
+            .image-overlay img {
+                max-width: 80%;
+                /* Slightly larger image on larger screens */
+                max-height: 80%;
+            }
+        }
     </style>
 </head>
 
@@ -90,19 +170,19 @@ try {
         <section class="first-page" id="first-page">
             <div class="container-fluid">
                 <div class="row d-flex justify-content-between align-items-center">
-                    <div class="col-lg-2 col-2 py-3 ps-5 d-flex justify-content-start align-items-center">
+                    <div class="col-2 py-3 d-flex justify-content-center align-items-center">
                         <a href="../../resort/page-2.php?businessInfoID=<?php echo $businessInfoID; ?>">
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
                         </a>
                     </div>
 
-                    <div class="col-lg-5 col-5 py-3 ms-auto py-3 align-items-center">
+                    <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
                         <div class="row d-flex justify-content-center">
-                            <div class="col-lg-4 col-md-6 col-10 d-flex justify-content-center mb-3">
-                                <a href="../../resort/page-2.php" class="page-nav active  text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
+                            <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
+                                <a href="../../resort/page-2.php" class="page-nav active text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
                             </div>
-                            <div class="col-lg-4 col-md-6 col-10 d-flex justify-content-center mb-3">
-                                <a href="" class="page-nav  text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
+                            <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
+                                <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
                             </div>
                         </div>
                     </div>
@@ -111,13 +191,13 @@ try {
                 <div class="page-title-container">
                     <h1 class="page-title text-light text-center cormorant-text fw-bold "><?php echo htmlspecialchars($room['roomName']); ?></h1>
                 </div>
-            </div>
+
         </section>
 
-        <section class="room-page-title bg-color-5" id="room-page-title">
-            <div class="accommodation-nav bg-color-1 m-0 py-3">
+        <section class="room-page-title  bg-secondary-subtle" id="room-page-title">
+            <div class="accommodation-nav bg-success m-0 py-3">
                 <div class="d-flex justify-content-center">
-                    <a href="" class="text-decoration-none">
+                    <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
                         <h3 class="nav text-nav text-light me-2 dm-sans-text">Home ></h3>
                     </a>
                     <a href="../../resort/page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
@@ -130,24 +210,33 @@ try {
             </div>
 
             <div class="container-fluid">
-                <div class="row room-page-info d-flex justify-content-center">
+                <div class="row room-page-info bg-secondary-subtle d-flex justify-content-evenly">
                     <div class="col-xl-5 col-lg-6 col-md-8">
                         <div class="row d-flex justify-content-center">
-                            <div class="col-xl-11">
+                            <div class="col-12">
                                 <h5 class="text-dark dm-sans-text fw-bold">For only<span class="text-success"> &#8369 <?php echo number_format(htmlspecialchars($room['roomPrice']), 2, '.', ','); ?></span> /Night</h5>
-                                <h1 class="fs-1 text-color-1 cormorant-text fw-bold"><?php echo htmlspecialchars($room['roomName']); ?></h1>
-
+                                <h1 class="text-success cormorant-text fw-bold"><?php echo htmlspecialchars($room['roomName']); ?></h1>
                             </div>
-
-                            <div class="col-xl-10 col-11 image-content">
-                                <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid" alt="Main Image">
+                            <div class="col-12 image-content">
+                                <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid " alt="Main Image">
                             </div>
                         </div>
                     </div>
 
                     <!-- Calendar -->
                     <div class="col-xl-3 col-lg-6 col-md-8 my-3">
-                        <div class="shadow p-3 text-dark">
+                        <div class="">
+                            <?php if ($payment): ?>
+                                <p class="fw-bold text-danger text-center">**Requires Downpayment**</p>
+                            <?php endif; ?>
+                        </div>
+                        <div class="col-12 d-flex justify-content-center bg-light shadow my-3 rounded border">
+                            <div class="text-center py-3">
+                                <h5 class="text-dark dm-sans-text fw-bold">Available Schedules</h5>
+                                <p class="text-dark dm-sans-text"><?php echo date("g:i A", strtotime($room['timeStart'])) . " to " . date("g:i A", strtotime($room['timeEnd'])); ?></p>
+                            </div>
+                        </div>
+                        <div class="shadow p-3 bg-light text-dark">
                             <div class="">
                                 <h5 class="card-title cormorant-text text-dark">Check Availabilities</h5>
                                 <div id="calendar"></div>
@@ -225,21 +314,20 @@ try {
                             });
                         </script>
 
-                        <div class="book mt-4 d-grid">
+                        <div class="book mt-3 d-grid">
                             <a href="../Resort/booking-info.php" class="btn btn-success">BOOK NOW</a>
                         </div>
-
                     </div>
 
                     <!-- Room Description -->
-                    <div class="col-xl-7">
+                    <!-- <div class="col-xl-7">
                         <p class="text-secondary dm-sans-text fs-5" style="text-align: justify;"><?php echo htmlspecialchars($room['RoomDescriptions']); ?></p>
-                    </div>
+                    </div> -->
 
                     <div class="col-lg-12 d-flex justify-content-center">
-                        <div class="col-lg-6 col-md-8 col-12">
-                            <div class=" more-image mb-5">
-                                <h1 class="text-color-1 cormorant-text px-3 fw-bold">More Images:</h1>
+                        <div class="col-lg-6 col-md-11 col-12">
+                            <div class="more-image mb-5">
+                                <h1 class="text-dark cormorant-text px-3 fw-bold">More Images:</h1>
                                 <div id="carouselExampleIndicators" class="carousel slide custom-carousel">
                                     <div class="carousel-indicators">
                                         <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
@@ -265,7 +353,8 @@ try {
                                         foreach ($images as $index => $image) {
                                         ?>
                                             <div class="carousel-item <?php echo $index == 0 ? 'active' : ''; ?>">
-                                                <img src="<?php echo htmlspecialchars($image); ?>" class="img-fluid d-block w-100" alt="...">
+                                                <img src="<?php echo htmlspecialchars($image); ?>" class="img-fluid d-block w-100" alt="..."
+                                                    onclick="enlargeImage('<?php echo htmlspecialchars($image); ?>')">
                                             </div>
                                         <?php
                                         }
@@ -284,22 +373,30 @@ try {
                         </div>
                     </div>
 
-                    <div class="col-xl-9 col-lg-11 col-md-12 text-center p-4 mb-4 border border-success shadow bg-success-subtle rounded">
-                        <h2 class="cormorant-text text-success my-4">Why do you want to book this room? </h2>
-                        <div class="row d-flex justify-content-evenly">
-                            <div class="col-lg-3 col-md-5 col-12">
-                                <div class="card py-4">
-                                    <div class="card-body">
-                                        <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
-                                        <h2 class="text-color-1 cormorant-text fw-bold mt-3">Features</h2>
-                                        <div class="text-dark">
-                                            <p class="dm-sans-text">Wi-fi</p>
-                                            <p class="dm-sans-text">Smart TV</p>
-                                        </div>
-                                    </div>
-                                </div>
+                    <!-- Overlay for Enlarged Image -->
+                    <div id="imageOverlay" class="image-overlay" style="display: none;">
+                        <img id="overlayImage" src="" alt="Enlarged Image">
+                    </div>
 
-                            </div>
+                    <script>
+                        // Function to enlarge the image on click
+                        function enlargeImage(imageSrc) {
+                            document.getElementById('overlayImage').src = imageSrc;
+                            document.getElementById('imageOverlay').style.display = 'flex'; // Use flex for centering
+                        }
+
+                        // Function to close the overlay when clicking outside the image
+                        document.getElementById('imageOverlay').addEventListener('click', function(event) {
+                            if (event.target === this) { // If the click is on the overlay itself (outside the image)
+                                this.style.display = 'none'; // Close the overlay
+                            }
+                        });
+                    </script>
+
+
+                    <div class="col-xl-9 col-11 text-center p-4 mb-4 border border-success shadow bg-success-subtle rounded">
+                        <h2 class="cormorant-text text-dark my-4">Why do you want to book this room? </h2>
+                        <div class="row d-flex justify-content-evenly">
 
                             <div class="col-lg-3 col-md-5 col-12">
                                 <div class="card py-4">
@@ -307,8 +404,24 @@ try {
                                         <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
                                         <h2 class="text-color-1 cormorant-text fw-bold mt-3">Facilities</h2>
                                         <div class="text-dark">
-                                            <p class="dm-sans-text">Kitchen</p>
-                                            <p class="dm-sans-text">Comfort Room</p>
+                                            <?php foreach ($facilities as $facility): ?>
+                                                <p class="dm-sans-text"><?php echo htmlspecialchars($facility['FacilityName']); ?></p>
+                                            <?php endforeach; ?>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="col-lg-3 col-md-5 col-12">
+                                <div class="card py-4">
+                                    <div class="card-body">
+                                        <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
+                                        <h2 class="text-color-1 cormorant-text fw-bold mt-3">Features</h2>
+                                        <div class="text-dark">
+                                            <?php foreach ($features as $feature): ?>
+                                                <p class="dm-sans-text"><?php echo htmlspecialchars($feature['FeatureName']); ?></p>
+                                            <?php endforeach; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -320,8 +433,12 @@ try {
                                         <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
                                         <h2 class="text-color-1 cormorant-text fw-bold mt-3">Resort Rules</h2>
                                         <div class="text-dark">
-                                            <p class="dm-sans-text">No Pets Allowed</p>
-                                            <p class="dm-sans-text">No Parking inside</p>
+                                            <?php
+                                            $rules = explode("\n", $room['RoomDescriptions']);
+                                            foreach ($rules as $rule) {
+                                                echo '<p class="dm-sans-text"> ' . htmlspecialchars($rule) . '</p>';
+                                            }
+                                            ?>
                                         </div>
                                     </div>
                                 </div>
@@ -344,34 +461,37 @@ try {
                     </div>
 
                     <!-- Related Rooms -->
-                    <div class="col-xxl-8 col-xl-10 col-lg-10 col-md-11 col-md-12 mx-3 mb-5">
+                    <div class="col-xxl-8 col-xl-10 col-lg-10 col-md-11 col-sm-12 mx-3 mb-5">
                         <div class="d-flex justify-content-tstart">
                             <h1 class="text-dark cormorant-text display-3 fw-bold mt-5">Related Rooms</h1>
                         </div>
                         <div class="row">
+                            <div class="col-11 d-flex justify-content-center">
+                                <?php if (empty($rooms)): ?>
+                                    <p class="text-muted">No available rooms</p>
+                                <?php else: ?>
+                            </div>
 
-                            <?php if (empty($rooms)): ?>
-                                <p class="text-muted">No available rooms</p>
-                            <?php else: ?>
-                                <?php foreach ($rooms as $room): ?>
-                                    <div class="col-xl-4 col-lg-6 col-md-6 col-sm-10 my-4 d-flex justify-content-center">
-                                        <div class="card shadow custom-card-height rounded-0 overflow-hidden">
-                                            <div class="img-container">
-                                                <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="card-img-top rounded-0" alt="Room Image">
+                            <?php foreach ($rooms as $room): ?>
+                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-10 my-4 d-flex justify-content-center">
+                                    <div class="card shadow custom-card-height rounded-0 overflow-hidden">
+                                        <div class="img-container">
+                                            <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="card-img-top rounded-0" alt="Room Image">
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="price-overlay shadow bg-light rounded-5">
+                                                <h5 class="p-3 text-center dm-sans-text fw-bold text-secondary">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($room['roomPrice']); ?></span>/Night</h5>
                                             </div>
-                                            <div class="card-body">
-                                                <div class="price-overlay shadow bg-light rounded-5">
-                                                    <h5 class="p-3 text-center dm-sans-text fw-bold text-secondary">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($room['roomPrice']); ?></span>/Night</h5>
-                                                </div>
-                                                <h3 class="card-title text-color-1 fw-bold cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h3>
-                                                <p class="card-text dm-sans-text text-secondary"><?php echo htmlspecialchars($room['RoomDescriptions']); ?></p>
-                                                <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
-                                            </div>
+                                            <h3 class="card-title text-color-1 fw-bold cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h3>
+                                            <p class="card-text dm-sans-text text-secondary">Time Schedule: </p>
+                                            <p class="card-text dm-sans-text text-secondary">Max Adult: </p>
+                                            <p class="card-text dm-sans-text text-secondary">Max Children </p>
+                                            <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
                                         </div>
                                     </div>
-                                <?php endforeach; ?>
-                            <?php endif; ?>
-
+                                </div>
+                            <?php endforeach; ?>
+                        <?php endif; ?>
                         </div>
                     </div>
                 </div>
@@ -379,7 +499,7 @@ try {
         </section>
 
         <section id="contact" class="contact-container">
-            <div class="container-fluid p-5 bg-color-6">
+            <div class="container-fluid p-5 bg-success-subtle">
                 <div class="row justify-content-evenly">
                     <div class="col-lg-4 col-sm-5 gx-5 mb-4">
                         <div class="col-12">
@@ -439,7 +559,7 @@ try {
         </section>
 
 
-        <section class="footer-container bg-color-1">
+        <section class="footer-container bg-success">
             <div class="container-fluid ">
                 <div class="row ">
                     <div class="col-6 text-start">

@@ -36,11 +36,11 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <section id="home" class="homepage-container">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-center align-items-center">
-                    <div class="col-lg-5">
+                <div class="row d-flex justify-content-around align-items-center" style="margin-top: 75px;">
+                    <div class="col-lg-5 mt-5">
                         <div class="home-header text-center mx-4">
                             <h1 class="display-1 jaro-font">WELCOME TO <br><span class="element poetsen-one-regular"></span></h1>
-                            <p class="fs-5 montserrat-font text-light mx-3" style=" text-align: justify;"><?= htmlspecialchars($content['description']) ?></p>
+                            <p class="main-text fs-5 montserrat-font text-light mx-3" style=" text-align: justify;"><?= htmlspecialchars($content['description']) ?></p>
                         </div>
                     </div>
                     <div class="col-lg-6 collection m-0 p-0">
@@ -75,24 +75,21 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-
         </section>
 
         <section id="discover" class="discover-container">
             <div class="container-fluid">
-                <div class="row d-flex py-5">
-                    <div class="col-lg-5 col-sm-12 d-flex justify-content-center align-items-center">
-                        <div class="ms-auto px-5 me-0">
+                <div class="row d-flex d-flex justify-content-center py-5">
+                    <div class="col-lg-3 col-sm-12 d-flex justify-content-center align-items-center">
+                        <div class="ms-auto px-5 me-0 text-end">
                             <h4 class="text-color-1 fw-bold">DISCOVER</h4>
                             <h1 class="text-dark">Our Tourist <br> Destinations</h1>
                             <p class="text-secondary">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla accusantium error voluptas recusandae assumenda sit, modi est amet unde fugiat?</p>
-                            <a href="../Resort/page-0.php" class="btn text-light bg-color-1 shadow">View More</a>
+                            <a href="../Resort/page-0.php" class="btn text-light bg-color-1 shadow mb-4">View More</a>
                         </div>
-
-
                     </div>
 
-                    <div class="col-lg-7 col-sm-12 d-flex justify-content-evenly align-items-center position-relative">
+                    <div class="col-lg-9 col-12 d-flex justify-content-evenly align-items-center position-relative">
                         <div class="scrolling-wrapper">
                             <a href="" class="text-decoration-none">
                                 <div class="card mx-3 shadow rounded-0">
@@ -146,7 +143,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <h5 class="text-color-1 fw-bold text-start">ABOUT US</h5>
                             </div>
                             <div class="col-12">
-                                <p class="about-content text-dark ">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
+                                <p class="about-content text-dark">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
                                     aperiam sed sint quisquam culpa ut nostrum rem iusto doloribus fuga voluptate, debitis quod placeat earum neque officia
                                     eaque rerum eos iure? Reiciendis suscipit harum voluptas vel totam aperiam illo deleniti ipsa nihil unde sequi, illum velit
                                     voluptatem quod est incidunt? Dolores neque facere odit deleniti veniam error esse, porro at ea minima, minus aliquam expedita
@@ -163,11 +160,11 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
         </section>
 
         <section id="service" class="service-container">
-            <div class="container-fluid p-5">
-                <h5 class="text-center text-color-1 fw-bold">OUR SERVICES</h5>
+            <div class="container-fluid p-1">
+                <h5 class="text-center text-color-1 fw-bold mt-5">OUR SERVICES</h5>
                 <div class="service-cards">
                     <div class="row d-flex justify-content-center">
-                        <div class="col-lg-4 d-flex justify-content-center">
+                        <div class="col-lg-3 d-flex justify-content-center">
                             <a href="../businessowner/business-registration.php" class="text-decoration-none">
                                 <div class="card mb-3 rounded-0 shadow" style="width: 18rem;">
                                     <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
@@ -179,7 +176,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                             </a>
                         </div>
 
-                        <div class="col-lg-4  d-flex justify-content-center mb-sm-3">
+                        <div class="col-lg-3 d-flex justify-content-center mb-sm-3">
                             <a href="../Resort/page-0.php" class="text-decoration-none">
                                 <div class="card rounded-0 shadow" style="width: 18rem;">
                                     <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
@@ -291,5 +288,18 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>
 <script src="../homepage/homepage.js"></script>
+<script>
+    // Function to toggle the 'scrolled' class on the navbar when scrolling
+    window.addEventListener('scroll', function() {
+        const navbar = document.querySelector('.custom-navbar');
+
+        // Check if the page is scrolled down
+        if (window.scrollY > 50) { // Adjust the value as needed
+            navbar.classList.add('scrolled');
+        } else {
+            navbar.classList.remove('scrolled');
+        }
+    });
+</script>
 
 </html>

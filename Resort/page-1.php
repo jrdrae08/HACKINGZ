@@ -86,28 +86,27 @@ try {
 
         <section class="first-page" id="first-page">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-around">
-                    <div class="col-lg-4 py-3 ps-5 d-flex justify-content-start align-items-center">
-                        <a href="../../resort/page-0.php?businessInfoID=<?php echo $businessInfoID; ?>"><i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i></a>
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-2 py-3 d-flex justify-content-center align-items-center">
+                        <a href="../../resort/page-0.php?businessInfoID=<?php echo $businessInfoID; ?>">
+                            <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
+                        </a>
                     </div>
 
-                    <div class="col-lg-5 py-3 ms-auto">
-                        <div class="row">
-                            <div class="col text-center">
-                                <a href="page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="page-nav mx-2 text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
+                    <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
+                                <a href="../../resort/page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
                             </div>
-                            <div class="col text-center">
-                                <a href="" class="page-nav mx-2 text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
-                            </div>
-                            <div class="col text-center">
-                                <a href="" class="page-nav-book btn mx-2 mt-2  rounded-0 cormorant-text fw-bold text-shadow-light">BOOK NOW</a>
+                            <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
+                                <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 <div class="first-page-title">
-                    <div class="row mx-4 d-flex justify-content-center">
+                    <div class="row d-flex justify-content-center">
                         <div class="col-lg-12 d-flex justify-content-center">
                             <h1 class="title-text-1 text-light cormorant-text fw-bold text-shadow-light text-center"><?php echo htmlspecialchars($business['BusinessName']); ?></h1>
                         </div>
@@ -115,7 +114,7 @@ try {
                             <h3 class="title-text-2 dm-sans-text text-shadow-light text-center"><?php echo htmlspecialchars($business['Quotation']); ?></h3>
                         </div>
                         <div class="col-lg-12 mt-3 d-flex justify-content-center align-items-center">
-                            <a href="page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book-2 mx-2 fs-4 rounded-0 cormorant-text fw-bold text-center mb-5">View More</a>
+                            <a href="page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-success mx-2 rounded dm-sans-text text-center">View More</a>
                         </div>
                     </div>
                 </div>

@@ -8,7 +8,7 @@ $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID']
 try {
     // Query to fetch room information based on businessInfoID
     $stmt = $pdo->prepare("
-        SELECT roomID, roomName, roomPrice, RoomDescriptions, image1
+        SELECT roomID, roomName, roomPrice, RoomDescriptions, image1, timeStart, timeEnd, adultMax, ChildrenMax
         FROM roominfotable
         WHERE BusinessInfoID = :businessInfoID
     ");
@@ -47,6 +47,7 @@ try {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
     <link rel="stylesheet" href="../../resort/new-resort-ui.css">
+    <link rel="stylesheet" href="../css/businessowner.css">
     <style>
         .custom-img img {
             height: 400px;
@@ -63,6 +64,24 @@ try {
             background-position: center;
             background-attachment: fixed;
             background-repeat: no-repeat;
+        }
+
+        .text-truncate-8 {
+            display: -webkit-box;
+            -webkit-line-clamp: 6;
+            /* Number of lines to show */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .btn-book {
+            background-color: #ffffff;
+        }
+
+        .btn-book:hover {
+            background-color: #198754;
+            color: #ffffff;
         }
     </style>
 </head>
@@ -99,22 +118,20 @@ try {
 
         <section class="first-page" id="first-page">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-center">
-                    <div class="col-lg-4 py-3 ps-5 d-flex justify-content-start align-items-center">
-                        <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>"><i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i></a>
+                <div class="row d-flex justify-content-between align-items-center">
+                    <div class="col-2 py-3 d-flex justify-content-center align-items-center">
+                        <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>">
+                            <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
+                        </a>
                     </div>
 
-                    <div class="col-lg-5 py-3 ms-auto">
-                        <div class="row">
-                            <div class="col text-center">
-                                <a href="../../resort/page-2.php" class="page-nav active mx-2 text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
+                    <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
+                                <a href="../../resort/page-2.php" class="page-nav active  text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
                             </div>
-                            <div class="col text-center">
-                                <a href="" class="page-nav mx-2 text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
-                            </div>
-                            <div class="col text-center">
-                                <a href="../../resort/page-2.php" class="page-nav-book btn mx-2 mt-2  rounded-0 cormorant-text fw-bold text-shadow-light">BOOK NOW</a>
-
+                            <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
+                                <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
                             </div>
                         </div>
                     </div>
@@ -126,10 +143,10 @@ try {
             </div>
         </section>
 
-        <section class="accommodation-page-title bg-color-5 shadow">
-            <div class="accommodation-nav bg-color-1 m-0 py-3">
+        <section class="accommodation-page-title shadow">
+            <div class="accommodation-nav bg-success m-0 py-3">
                 <div class="d-flex justify-content-center">
-                    <a href="../../resort/page-1.php" class="text-decoration-none">
+                    <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
                         <h3 class="nav text-light text-nav mx-3 dm-sans-text">Home ></h3>
                     </a>
                     <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
@@ -138,8 +155,8 @@ try {
                 </div>
             </div>
             <div class="container-fluid">
-                <div class="row room-lists d-flex justify-content-center align-items-center">
-                    <div class="col-xxl-8 col-xl-10 col-lg-10 col-md-11 col-md-12 ">
+                <div class="row room-lists d-flex justify-content-center bg-secondary-subtle align-items-center">
+                    <div class="col-xxl-8 col-xl-10 col-lg-10 col-md-11 col-md-12">
                         <div class="row">
                             <h1 class="text-color-1 cormorant-text fw-bold">Rooms:</h1>
                             <?php foreach ($rooms as $room): ?>
@@ -153,7 +170,9 @@ try {
                                                 <h5 class="p-2 text-center dm-sans-text fw-bold text-secondary">Price: <span class="text-danger">&#8369 <?php echo number_format(htmlspecialchars($room['roomPrice']), 2, '.', ','); ?></span>/Night</h5>
                                             </div>
                                             <h3 class="card-title text-color-1 fw-bold cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h3>
-                                            <p class="card-text dm-sans-text text-secondary " style="font-size:13px; text-align: justify;"><?php echo htmlspecialchars($room['RoomDescriptions']); ?></p>
+                                            <p class="card-text dm-sans-text text-secondary">Time Schedule: <span class="fw-bold"><?php echo date("g:i A", strtotime($room['timeStart'])) . " to " . date("g:i A", strtotime($room['timeEnd'])); ?></span></p>
+                                            <p class="card-text dm-sans-text text-secondary">Max Adult: <span class="fw-bold"><?php echo htmlspecialchars($room['adultMax']); ?></span></p>
+                                            <p class="card-text dm-sans-text text-secondary">Max Children: <span class="fw-bold"><?php echo htmlspecialchars($room['ChildrenMax']); ?></span></p>
                                             <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
                                         </div>
                                     </div>
@@ -166,7 +185,7 @@ try {
         </section>
 
         <section id="contact" class="contact-container shadow">
-            <div class="container-fluid p-5 bg-color-6">
+            <div class="container-fluid p-5 bg-success-subtle">
                 <div class="row justify-content-evenly">
                     <div class="col-lg-4 col-sm-5 gx-5 mb-4">
                         <div class="col-12">
@@ -224,7 +243,7 @@ try {
             </div>
         </section>
 
-        <section class="footer-container bg-color-1">
+        <section class="footer-container bg-success">
             <div class="container-fluid ">
                 <div class="row ">
                     <div class="col-6 text-start mt-2">

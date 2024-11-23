@@ -62,7 +62,7 @@ try {
       <main class="content">
         <div class="container-fluid">
           <div class="row d-flex justify-content-center align-items-center">
-            <div class="col-5">
+            <div class="col-lg-5 col-md-8 col-11">
               <div class="card">
                 <div class="card-header">
                   <h5 class="card-title">Generated Quick Response Code</h5>

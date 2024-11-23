@@ -86,12 +86,83 @@ $errors = $_SESSION['errors'] ?? [];
 
                                                     <div class="col-lg-10 mb-3">
                                                         <div class="form-floating">
-                                                            <textarea id="roomdesc" name="roomdesc" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo htmlspecialchars($formData['roomdesc'] ?? ''); ?></textarea>
+                                                            <textarea id="roomdesc" name="roomdesc" class="form-control shadow" placeholder="Leave a comment here" style="height: 100px" required><?php echo htmlspecialchars($formData['roomdesc'] ?? ''); ?></textarea>
                                                             <label for="roomdesc">Room Rules</label>
                                                             <span id="error-roomdesc" class="text-danger"><?php echo $errors['roomdesc'] ?? ''; ?></span>
                                                             <div id="roomdesc-word-count" class="text-end text-muted"></div>
                                                         </div>
                                                     </div>
+                                                    <!-- Script for Bullt Point -->
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                            const roomDescTextarea = document.getElementById('roomdesc');
+
+                                                            // Function to add bullet points
+                                                            function addBulletPoints() {
+                                                                const lines = roomDescTextarea.value.split('\n');
+                                                                const bulletedLines = lines.map(line => {
+                                                                    line = line.trim();
+                                                                    if (line && !line.startsWith('* ')) {
+                                                                        return `* ${line}`;
+                                                                    }
+                                                                    return line;
+                                                                }).join('\n');
+                                                                roomDescTextarea.value = bulletedLines;
+                                                            }
+
+                                                            // Function to handle input event
+                                                            function handleInput(event) {
+                                                                const cursorPosition = roomDescTextarea.selectionStart;
+                                                                const lines = roomDescTextarea.value.split('\n');
+                                                                const bulletedLines = lines.map((line, index) => {
+                                                                    if (line.trim() && !line.startsWith('* ')) {
+                                                                        return `* ${line.trim()}`;
+                                                                    } else if (!line.trim() && index === lines.length - 1 && event.inputType === 'insertLineBreak') {
+                                                                        return '* ';
+                                                                    }
+                                                                    return line;
+                                                                }).join('\n');
+                                                                roomDescTextarea.value = bulletedLines;
+                                                                roomDescTextarea.setSelectionRange(cursorPosition, cursorPosition);
+                                                            }
+
+                                                            // Function to handle keydown event
+                                                            function handleKeydown(event) {
+                                                                if (event.key === 'Enter') {
+                                                                    event.preventDefault();
+                                                                    const cursorPosition = roomDescTextarea.selectionStart;
+                                                                    const beforeCursor = roomDescTextarea.value.substring(0, cursorPosition);
+                                                                    const afterCursor = roomDescTextarea.value.substring(cursorPosition);
+                                                                    const newValue = beforeCursor + '\n* ' + afterCursor;
+                                                                    roomDescTextarea.value = newValue;
+                                                                    roomDescTextarea.setSelectionRange(cursorPosition + 3, cursorPosition + 3);
+                                                                }
+                                                            }
+
+                                                            // Add bullet points on initial load
+                                                            addBulletPoints();
+
+                                                            // Add bullet points on focus if the textarea is empty
+                                                            roomDescTextarea.addEventListener('focus', function() {
+                                                                if (!roomDescTextarea.value.trim()) {
+                                                                    roomDescTextarea.value = '* ';
+                                                                }
+                                                            });
+
+                                                            // Add bullet points on input (when the user types)
+                                                            roomDescTextarea.addEventListener('input', function(event) {
+                                                                if (event.inputType !== 'deleteContentBackward' && event.inputType !== 'deleteContentForward') {
+                                                                    handleInput(event);
+                                                                }
+                                                            });
+
+                                                            // Handle Enter key to insert new bullet point
+                                                            roomDescTextarea.addEventListener('keydown', handleKeydown);
+
+                                                            // Add bullet points on blur (when the textarea loses focus)
+                                                            roomDescTextarea.addEventListener('blur', addBulletPoints);
+                                                        });
+                                                    </script>
 
                                                     <hr>
                                                     <h5 class="fw-bold mb-3">Time Scheduling</h5>
@@ -235,23 +306,55 @@ $errors = $_SESSION['errors'] ?? [];
 
                                                     <div class="col-lg-10 mb-3">
                                                         <h5 class="fw-bold">Features</h5>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="features1" value="Aircon">
-                                                            <label class="form-check-label">Aircon</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="features2" value="Wi-Fi">
-                                                            <label class="form-check-label">Wi-Fi</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="features3" value="Television">
-                                                            <label class="form-check-label">TV</label>
-                                                        </div>
-                                                        <div class="form-check form-check-inline">
-                                                            <input class="form-check-input" type="checkbox" id="features4" value="Shower">
-                                                            <label class="form-check-label">Shower</label>
+                                                        <div id="featuresContainer" class="form-check form-check-inline">
+                                                            <!-- Dynamically added features will be displayed here -->
                                                         </div>
                                                     </div>
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', function() {
+                                                            fetch('../../backends/subadmin/fetch_roomfeatures.php')
+                                                                .then(response => response.json())
+                                                                .then(data => {
+                                                                    if (data.status === 'success') {
+                                                                        const featuresContainer = document.getElementById('featuresContainer');
+                                                                        data.features.forEach(feature => {
+                                                                            const featureDiv = document.createElement('div');
+                                                                            featureDiv.className = 'form-check form-check-inline';
+                                                                            featureDiv.innerHTML = `
+                            <input class="form-check-input" type="checkbox" id="feature${feature.FeatureID}" name="features[]" value="${feature.FeatureID}">
+                            <label class="form-check-label" for="feature${feature.FeatureID}">${feature.FeatureName}</label>
+                        `;
+                                                                            featuresContainer.appendChild(featureDiv);
+                                                                        });
+                                                                    } else {
+                                                                        console.error('Error fetching features:', data.message);
+                                                                    }
+                                                                })
+                                                                .catch(error => {
+                                                                    console.error('Error:', error);
+                                                                });
+                                                        });
+
+                                                        function validateFeatures() {
+                                                            const features = document.querySelectorAll('input[name="features[]"]');
+                                                            const errorElement = document.getElementById('error-features');
+                                                            let isChecked = false;
+
+                                                            features.forEach(feature => {
+                                                                if (feature.checked) {
+                                                                    isChecked = true;
+                                                                }
+                                                            });
+
+                                                            if (!isChecked) {
+                                                                errorElement.textContent = 'Please select at least one feature.';
+                                                                return false;
+                                                            } else {
+                                                                errorElement.textContent = '';
+                                                                return true;
+                                                            }
+                                                        }
+                                                    </script>
                                                 </div>
                                             </div>
 

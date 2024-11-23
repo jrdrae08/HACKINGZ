@@ -26,7 +26,7 @@ if (isset($_GET['businessInfoID'])) {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
-    <link rel="stylesheet" href="../../Resort/new-resort-ui.css">
+    <link rel="stylesheet" href="../../resort/new-resort-ui.css">
     <style>
         .custom-img img {
             height: 400px;
@@ -38,7 +38,14 @@ if (isset($_GET['businessInfoID'])) {
             object-fit: cover;
         }
 
-        @media screen {}
+        .text-truncate-8 {
+            display: -webkit-box;
+            -webkit-line-clamp: 7;
+            /* Number of lines to show */
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     </style>
 </head>
 
@@ -48,7 +55,7 @@ if (isset($_GET['businessInfoID'])) {
             <div class="container-fluid my-1">
                 <a class="navbar-brand ms-5 text-light" href="#">
                     <img src="../../resort/majayjay-logo.webp" alt="Majayjay Logo" height="50">
-                    <span>Majayjay,Laguna</span>
+                    <span class="dm-sans-text">Majayjay,Laguna</span>
                 </a>
                 <button class="navbar-toggler shadow" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
@@ -74,14 +81,14 @@ if (isset($_GET['businessInfoID'])) {
 
         <section class="first-page" id="first-page">
             <div class="container-fluid">
-                <div class="page-0-title-container">
+                <div class="page-title-container">
                     <h1 class="page-title text-light text-center cormorant-text fw-bold ">Discover Majayjay</h1>
                 </div>
             </div>
         </section>
 
         <section>
-            <div class="accommodation-nav bg-color-1 m-0 py-1">
+            <div class="accommodation-nav bg-success m-0 py-1">
                 <div class="d-flex justify-content-center">
                     <ul class="nav nav-pills d-flex justify-content-center align-items-center py-2" id="pills-tab" role="tablist">
                         <li class="nav-item" role="presentation">
@@ -101,24 +108,27 @@ if (isset($_GET['businessInfoID'])) {
             </div>
         </section>
 
-        <section class="destination-page bg-color-5 shadow">
+        <section class="destination-page bg-secondary-subtle shadow">
             <div class="container-fluid">
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabindex="0">
-                        <div class="row destination-lists mx-2">
+                        <div class="row destination-lists">
                             <?php foreach ($businesses as $business): ?>
-                                <div class="col-md-6 col-12">
+                                <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
                                     <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
-                                        <div class="card card-trans mb-3 shadow d-flex justify-content-center">
-                                            <div class="row g-0 h-100 w-100">
-                                                <div class="col-xl-7 col-lg-12 col-md-12 col-12">
-                                                    <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>" class="img-fluid img-thumbnail rounded-start" alt="Business Image" style="object-fit: cover; height: 290px; width: 100%;">
+                                        <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
+                                            <div class="row g-0">
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-12">
+                                                    <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
+                                                        class="img-fluid img-thumbnail rounded-start"
+                                                        alt="Business Image"
+                                                        style="object-fit: cover; height: 300px; width: 100%;">
                                                 </div>
-                                                <div class="col-xl-5 col-lg-12 col-md-12 col-12">
-                                                    <div class="card-body">
+                                                <div class="col-xl-6 col-lg-6 col-md-6 col-12 d-flex flex-column">
+                                                    <div class="card-body d-flex flex-column"> <!-- flex-column to make content stack vertically -->
                                                         <h5 class="card-title card-title-1 cormorant-text text-color-1"><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
-                                                        <p class="card-text-1 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
-                                                        <div class="features">
+                                                        <p class="card-text-1 text-truncate-8 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
+                                                        <div class="features mt-auto"> <!-- mt-auto pushes the features to the bottom of the card body -->
                                                             <p class="card-text dm-sans-text">
                                                                 <small class="text-secondary fw-bold d-flex justify-content-center">
                                                                     <?php
@@ -145,39 +155,46 @@ if (isset($_GET['businessInfoID'])) {
                     </div>
 
 
+
+
                     <div class="tab-pane fade" id="pills-resort" role="tabpanel" aria-labelledby="pills-resort-tab" tabindex="0">
-                        <div class="row destination-lists mx-2">
+                        <div class="row destination-lists">
                             <?php if (empty($resortBusinesses)): ?>
                                 <div class="col-12">
                                     <p class="text-center text-muted">No available destination</p>
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($resortBusinesses as $business): ?>
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
                                         <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
-                                            <div class="card card-trans mb-3 shadow d-flex justify-content-center">
-                                                <div class="row g-0 h-100 w-100">
-                                                    <div class="col-xl-7 col-lg-12 col-md-12 col-12">
-                                                        <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>" class="img-fluid img-thumbnail rounded-start" alt="Business Image" style="object-fit: cover; height: 290px; width: 100%;">
+                                            <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
+                                                <div class="row g-0">
+                                                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
+                                                        <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
+                                                            class="img-fluid img-thumbnail rounded-start"
+                                                            alt="Business Image"
+                                                            style="object-fit: cover; height: 300px; width: 100%;">
                                                     </div>
-                                                    <div class="col-xl-5 col-lg-12 col-md-12 col-12">
-                                                        <div class="card-body">
+                                                    <div class="col-xl-6 col-lg-6 col-md-6 col-12 d-flex flex-column">
+                                                        <div class="card-body d-flex flex-column"> <!-- flex-column to make content stack vertically -->
                                                             <h5 class="card-title card-title-1 cormorant-text text-color-1"><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
-                                                            <p class="card-text-1 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
-                                                            <p class="card-text dm-sans-text">
-                                                                <small class="text-secondary fw-bold d-flex justify-content-center">
-                                                                    <?php
-                                                                    $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
-                                                                    if (!empty($currentBusinessFeatures)):
-                                                                        foreach ($currentBusinessFeatures as $feature):
-                                                                            echo htmlspecialchars($feature['FeatureName']) . ' • ';
-                                                                        endforeach;
-                                                                    else:
-                                                                        echo 'No features available';
-                                                                    endif;
-                                                                    ?>
-                                                                </small>
-                                                            </p>
+                                                            <p class="card-text-1 text-truncate-8 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
+                                                            <div class="features mt-auto"> <!-- mt-auto pushes the features to the bottom of the card body -->
+                                                                <p class="card-text dm-sans-text">
+                                                                    <small class="text-secondary fw-bold d-flex justify-content-center">
+                                                                        <?php
+                                                                        $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
+                                                                        if (!empty($currentBusinessFeatures)):
+                                                                            foreach ($currentBusinessFeatures as $feature):
+                                                                                echo htmlspecialchars($feature['FeatureName']) . ' • ';
+                                                                            endforeach;
+                                                                        else:
+                                                                            echo 'No features available';
+                                                                        endif;
+                                                                        ?>
+                                                                    </small>
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -189,39 +206,45 @@ if (isset($_GET['businessInfoID'])) {
                         </div>
                     </div>
 
+
                     <div class="tab-pane fade" id="pills-farms" role="tabpanel" aria-labelledby="pills-farms-tab" tabindex="0">
-                        <div class="row destination-lists mx-2">
+                        <div class="row destination-lists">
                             <?php if (empty($farmBusinesses)): ?>
                                 <div class="col-12">
                                     <p class="text-center text-muted">No available destination</p>
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($farmBusinesses as $business): ?>
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
                                         <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
-                                            <div class="card card-trans mb-3 shadow d-flex justify-content-center">
-                                                <div class="row g-0 h-100 w-100">
-                                                    <div class="col-xl-7 col-lg-12 col-md-12 col-12">
-                                                        <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>" class="img-fluid img-thumbnail rounded-start" alt="Business Image" style="object-fit: cover; height: 290px; width: 100%;">
+                                            <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
+                                                <div class="row g-0">
+                                                    <div class="col-xl-6 col-lg-6 col-md-6 col-12">
+                                                        <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
+                                                            class="img-fluid img-thumbnail rounded-start"
+                                                            alt="Business Image"
+                                                            style="object-fit: cover; height: 300px; width: 100%;">
                                                     </div>
-                                                    <div class="col-xl-5 col-lg-12 col-md-12 col-12">
-                                                        <div class="card-body">
+                                                    <div class="col-xl-6 col-lg-6 col-md-6 col-12 d-flex flex-column">
+                                                        <div class="card-body d-flex flex-column"> <!-- flex-column to make content stack vertically -->
                                                             <h5 class="card-title card-title-1 cormorant-text text-color-1"><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
-                                                            <p class="card-text-1 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
-                                                            <p class="card-text dm-sans-text">
-                                                                <small class="text-secondary fw-bold">
-                                                                    <?php
-                                                                    $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
-                                                                    if (!empty($currentBusinessFeatures)):
-                                                                        foreach ($currentBusinessFeatures as $feature):
-                                                                            echo htmlspecialchars($feature['FeatureName']) . ' ';
-                                                                        endforeach;
-                                                                    else:
-                                                                        echo 'No features available';
-                                                                    endif;
-                                                                    ?>
-                                                                </small>
-                                                            </p>
+                                                            <p class="card-text-1 text-truncate-8 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
+                                                            <div class="features mt-auto"> <!-- mt-auto pushes the features to the bottom of the card body -->
+                                                                <p class="card-text dm-sans-text">
+                                                                    <small class="text-secondary fw-bold d-flex justify-content-center">
+                                                                        <?php
+                                                                        $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
+                                                                        if (!empty($currentBusinessFeatures)):
+                                                                            foreach ($currentBusinessFeatures as $feature):
+                                                                                echo htmlspecialchars($feature['FeatureName']) . ' • ';
+                                                                            endforeach;
+                                                                        else:
+                                                                            echo 'No features available';
+                                                                        endif;
+                                                                        ?>
+                                                                    </small>
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -233,39 +256,45 @@ if (isset($_GET['businessInfoID'])) {
                         </div>
                     </div>
 
+
                     <div class="tab-pane fade" id="pills-falls" role="tabpanel" aria-labelledby="pills-falls-tab" tabindex="0">
-                        <div class="row destination-lists mx-2">
+                        <div class="row destination-lists">
                             <?php if (empty($fallsBusinesses)): ?>
                                 <div class="col-12">
                                     <p class="text-center text-muted">No available destination</p>
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($fallsBusinesses as $business): ?>
-                                    <div class="col-md-6 col-12">
+                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
                                         <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
-                                            <div class="card card-trans mb-3 shadow d-flex justify-content-center">
-                                                <div class="row g-0 h-100 w-100">
-                                                    <div class="col-xl-7 col-lg-12 col-md-12 col-12">
-                                                        <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>" class="img-fluid img-thumbnail rounded-start" alt="Business Image" style="object-fit: cover; height: 290px; width: 100%;">
+                                            <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
+                                                <div class="row g-0">
+                                                    <div class="col-xl-7 col-lg-6 col-md-6 col-12">
+                                                        <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
+                                                            class="img-fluid img-thumbnail rounded-start"
+                                                            alt="Business Image"
+                                                            style="object-fit: cover; height: 300px; width: 100%;">
                                                     </div>
-                                                    <div class="col-xl-5 col-lg-12 col-md-12 col-12">
-                                                        <div class="card-body">
-                                                            <h5 class="card-title card-title-1 cormorant-text text-color-1 "><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
-                                                            <p class="card-text-1 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
-                                                            <p class="card-text dm-sans-text">
-                                                                <small class="text-secondary fw-bold">
-                                                                    <?php
-                                                                    $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
-                                                                    if (!empty($currentBusinessFeatures)):
-                                                                        foreach ($currentBusinessFeatures as $feature):
-                                                                            echo htmlspecialchars($feature['FeatureName']) . ' ';
-                                                                        endforeach;
-                                                                    else:
-                                                                        echo 'No features available';
-                                                                    endif;
-                                                                    ?>
-                                                                </small>
-                                                            </p>
+                                                    <div class="col-xl-5 col-lg-6 col-md-6 col-12 d-flex flex-column">
+                                                        <div class="card-body d-flex flex-column"> <!-- flex-column to make content stack vertically -->
+                                                            <h5 class="card-title card-title-1 cormorant-text text-color-1"><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
+                                                            <p class="card-text-1 text-truncate-8 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
+                                                            <div class="features mt-auto"> <!-- mt-auto pushes the features to the bottom of the card body -->
+                                                                <p class="card-text dm-sans-text">
+                                                                    <small class="text-secondary fw-bold d-flex justify-content-center">
+                                                                        <?php
+                                                                        $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
+                                                                        if (!empty($currentBusinessFeatures)):
+                                                                            foreach ($currentBusinessFeatures as $feature):
+                                                                                echo htmlspecialchars($feature['FeatureName']) . ' • ';
+                                                                            endforeach;
+                                                                        else:
+                                                                            echo 'No features available';
+                                                                        endif;
+                                                                        ?>
+                                                                    </small>
+                                                                </p>
+                                                            </div>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -275,15 +304,14 @@ if (isset($_GET['businessInfoID'])) {
                                 <?php endforeach; ?>
                             <?php endif; ?>
                         </div>
-
-
                     </div>
+
                 </div>
         </section>
 
 
         <section id="contact" class="contact-container shadow">
-            <div class="container-fluid p-5 bg-color-6">
+            <div class="container-fluid p-5 bg-success-subtle">
                 <div class="row justify-content-evenly">
                     <div class="col-lg-4 col-sm-5 gx-5 mb-4">
                         <div class="col-12">
@@ -342,7 +370,7 @@ if (isset($_GET['businessInfoID'])) {
             </div>
         </section>
 
-        <section class="footer-container bg-color-1">
+        <section class="footer-container bg-success">
             <div class="container-fluid ">
                 <div class="row ">
                     <div class="col-6 text-start mt-2">

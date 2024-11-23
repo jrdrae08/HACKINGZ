@@ -22,6 +22,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <link rel="stylesheet" href="../css/businessowner.css">
+    <style>
+        /* Hide the dropdown arrow */
+        #notification-icon::after {
+            display: none;
+        }
+    </style>
 </head>
 
 <body>
@@ -32,33 +38,49 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
             <?php include '../businessowner/includes/navbar.php'; ?>
 
             <!-- Manage Reservation -->
-            <main class="content px-3 py-2">
+            <main class="content py-2">
                 <div class="container-fluid">
                     <h3>Manage Customer Reservations</h3>
                     <div class="row d-flex justify-content-center mt-5">
-                        <div class="col-lg-10">
+                        <div class="col-lg-10 col-12">
                             <div class="card border-0 shadow">
                                 <div class="card-header">
-                                    <div class="row ">
-                                        <div class="col-lg-8 col-sm-12 mb-2 d-flex justify-content-center align-items-center">
-                                            <ul class="nav nav-pills" id="pills-tab" role="tablist">
+                                    <div class="row d-flex justify-content-center align-items-center">
+                                        <div class="col-lg-8 col-sm-12 mb-2 ">
+                                            <ul class="nav nav-pills d-flex justify-content-center" id="pills-tab" role="tablist">
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills btn me-2 active" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-home" aria-selected="true">NEW</button>
+                                                    <button class="nav-link pills btn me-2 mb-2 active" id="pills-new-tab" data-bs-toggle="pill" data-bs-target="#pills-new" type="button" role="tab" aria-controls="pills-home" aria-selected="true">NEW</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills btn me-2" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button" role="tab" aria-controls="pills-home" aria-selected="false">UPCOMING</button>
+                                                    <button class="nav-link pills btn me-2 mb-2" id="pills-upcoming-tab" data-bs-toggle="pill" data-bs-target="#pills-upcoming" type="button" role="tab" aria-controls="pills-home" aria-selected="false">UPCOMING</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills btn" id="pills-ongoing-tab" data-bs-toggle="pill" data-bs-target="#pills-ongoing" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ONGOING</button>
+                                                    <button class="nav-link pills btn me-2 mb-2" id="pills-ongoing-tab" data-bs-toggle="pill" data-bs-target="#pills-ongoing" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ONGOING</button>
                                                 </li>
 
-                                                <div class="vertical-line"></div>
+                                                <!-- <div class="vertical-line"></div> -->
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link bg-danger text-light btn " id="pills-archive-tab" data-bs-toggle="pill" data-bs-target="#pills-archive" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ARCHIVE</button>
+                                                    <button class="nav-link pills btn me-2 mb-2" id="pills-archive-tab" data-bs-toggle="pill" data-bs-target="#pills-archive" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ARCHIVE</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link pills btn me-2 mb-2" id="pills-cancel-tab" data-bs-toggle="pill" data-bs-target="#pills-cancel" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">CANCELED</button>
                                                 </li>
                                             </ul>
                                         </div>
-                                        <div class="col-lg-4 col-sm-12">
+
+                                        <div class="col-lg-1 col-sm-12 d-flex justify-content-center align-items-center">
+                                            <!-- Bell Icon with Dropdown -->
+                                            <div class="dropdown">
+                                                <i class="bi bi-bell-fill text-warning fs-3 dropdown-toggle" id="notification-icon" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></i>
+                                                <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="notification-icon">
+                                                    <li><a class="dropdown-item" href="#">Booking cancellation</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+
+
+
+                                        <div class="col-lg-3 col-sm-12">
                                             <form class="d-flex" role="search">
                                                 <input class="form-control shadow me-2" type="search" placeholder="Search" aria-label="Search">
                                                 <button class="btn btn-outline-success" type="submit">Search</button>
@@ -70,24 +92,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                     <!-- New -->
                                     <div class="tab-content" id="pills-tabContent">
                                         <div class="tab-pane fade show active" id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab" tabindex="0">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Time Booked</th>
-                                                        <th scope="col">Room Name</th>
-                                                        <th scope="col">Customer Name</th>
-                                                        <th scope="col">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="new-reservations">
-                                                    <!-- Data will be populated here by JavaScript -->
-                                                </tbody>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Time Booked</th>
+                                                            <th scope="col">Room Name</th>
+                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col">Action</th>
+                                                            <th scope="col">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="new-reservations">
+                                                        <!-- Data will be populated here by JavaScript -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
 
                                         <!-- view modal -->
                                         <div class="modal fade" id="viewroom" tabindex="-1" aria-labelledby="viewroomLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
+                                            <div class="modal-dialog modal-dialog-centered">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="viewroomLabel">Reservation Details</h5>
@@ -268,19 +293,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                         <!-- upcoming -->
                                         <div class="tab-pane fade" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab" tabindex="0">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Time Booked</th>
-                                                        <th scope="col">Room Name</th>
-                                                        <th scope="col">Customer Name</th>
-                                                        <th scope="col">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody id="upcoming-reservations">
-                                                    <!-- Data will be populated here by JavaScript -->
-                                                </tbody>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Time Booked</th>
+                                                            <th scope="col">Room Name</th>
+                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col">Action</th>
+                                                            <th scope="col">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody id="upcoming-reservations">
+                                                        <!-- Data will be populated here by JavaScript -->
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                         <script>
                                             document.addEventListener('DOMContentLoaded', function() {
@@ -369,57 +397,97 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                         <!-- Ongoing -->
                                         <div class="tab-pane fade" id="pills-ongoing" role="tabpanel" aria-labelledby="pills-ongoing-tab" tabindex="0">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Room Name</th>
-                                                        <th scope="col">Time In</th>
-                                                        <th scope="col">Time Out</th>
-                                                        <th scope="col">Customer Name</th>
-                                                        <th scope="col">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <td>Room 5</td>
-                                                        <td>01:00PM 11/26/24</td>
-                                                        <td>01:00PM 11/28/24</td>
-                                                        <td>John Angel Manalo</td>
-                                                        <th>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Room Name</th>
+                                                            <th scope="col">Time In</th>
+                                                            <th scope="col">Time Out</th>
+                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col">Action</th>
+                                                            <th scope="col">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>Room 5</td>
+                                                            <td>01:00PM 11/26/24</td>
+                                                            <td>01:00PM 11/28/24</td>
+                                                            <td>John Angel Manalo</td>
+                                                            <th>
 
-                                                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom"><i class="bi bi-eye"></i></button>
-                                                            <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
-                                                        </th>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                                                <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom"><i class="bi bi-eye"></i></button>
+                                                                <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+                                                            </th>
+                                                            <td>New</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
 
                                         <!-- archived -->
                                         <div class="tab-pane fade" id="pills-archive" role="tabpanel" aria-labelledby="pills-archive-tab" tabindex="0">
-                                            <table class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">#</th>
-                                                        <th scope="col">Time Booked</th>
-                                                        <th scope="col">Room Name</th>
-                                                        <th scope="col">Customer Name</th>
-                                                        <th scope="col">Action</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                    <tr>
-                                                        <th scope="row">1</th>
-                                                        <td>11:23AM 11/23/24</td>
-                                                        <td>Room 5</td>
-                                                        <td>John Angel Manalo</td>
-                                                        <th>
-                                                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom"><i class="bi bi-eye"></i></button>
-                                                            <button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button>
-                                                        </th>
-                                                    </tr>
-                                                </tbody>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Time Booked</th>
+                                                            <th scope="col">Room Name</th>
+                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col">Action</th>
+                                                            <th scope="col">Remarks</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>11:23AM 11/23/24</td>
+                                                            <td>Room 5</td>
+                                                            <td>John Angel Manalo</td>
+                                                            <th>
+                                                                <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom"><i class="bi bi-eye"></i></button>
+                                                                <button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button>
+                                                            </th>
+                                                            <td>New</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+
+                                        <!-- cancel -->
+                                        <div class="tab-pane fade" id="pills-cancel" role="tabpanel" aria-labelledby="pills-cancel-tab" tabindex="0">
+                                            <div class="table-responsive">
+                                                <table class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+
+                                                            <th scope="col">Time Booked</th>
+                                                            <th scope="col">Room Name</th>
+                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col">Reason</th>
+                                                            <th scope="col">Action</th>
+                                                            <th scope="col">Remarks</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+
+                                                            <td>11:23AM 11/23/24</td>
+                                                            <td>Room 5</td>
+                                                            <td>John Angel Manalo</td>
+                                                            <td>emergency</td>
+                                                            <th>
+                                                                <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom"><i class="bi bi-eye"></i></button>
+                                                                <button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button>
+                                                            </th>
+                                                            <td>New</td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>

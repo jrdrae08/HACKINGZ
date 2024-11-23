@@ -81,19 +81,6 @@ function uploadFile($inputName, $isThumbnail = false, $resizeDimensions = null)
     exit;
   }
 
-  // Validate file size (e.g., limit to 2MB)
-  if ($_FILES[$inputName]['size'] > 2000000) { // 2MB
-    $_SESSION['error'] = "File size should be less than 2MB.";
-    header("Location: ../../businessowner/front-card.php");
-    exit;
-  }
-
-  // Validate dimensions if it's a business image (landscape)
-  if (!$isThumbnail && $check[0] <= $check[1]) {
-    $_SESSION['error'] = "Business images should be in landscape orientation (width greater than height).";
-    header("Location: ../../businessowner/front-card.php");
-    exit;
-  }
 
   // Resize and save the image
   if ($isThumbnail && $resizeDimensions) {
@@ -132,10 +119,20 @@ function resizeImage($file, $width, $height, $targetFile)
     case 'gif':
       $image = imagecreatefromgif($file);
       break;
+    case 'webp':
+      $image = imagecreatefromwebp($file);
+      break;
     default:
       $_SESSION['error'] = "Unsupported image format.";
       header("Location: ../../businessowner/front-card.php");
       exit;
+  }
+
+  // Check if the image resource is valid
+  if ($image === false) {
+    $_SESSION['error'] = "Failed to create image from file.";
+    header("Location: ../../businessowner/front-card.php");
+    exit;
   }
 
   // Resample the image

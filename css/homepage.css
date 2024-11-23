@@ -1,28 +1,29 @@
 @import url('https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,500;1,500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 
 * {
     margin: 0;
     padding: 0;
     box-sizing: border-box;
-    font-family: "poppins";
-    color: #fff;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
-body {
-    overflow-x: hidden;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    background: url(../img/general-img/bg.png) no-repeat center center;
-    background-color: #585858;
-    background-size: cover;
-    background-attachment: fixed;
-    /* Adjust the opacity as needed */
-    z-index: -1;
+
+.cormorant-text {
+    font-family: "Cormorant", serif;
+    font-optical-sizing: auto;
+    font-weight: 1000;
+    font-style: normal;
 }
 
+.dm-sans-text {
+    font-family: "DM Sans", sans-serif;
+    font-optical-sizing: auto;
+    font-weight: 250;
+    font-style: normal;
+}
 
 .montserrat-font {
     font-family: "Montserrat", sans-serif;
@@ -36,7 +37,6 @@ body {
     font-family: "Poetsen One", sans-serif;
     font-weight: 400;
     font-style: normal;
-    color: #198754;
 }
 
 .jaro-font {
@@ -49,156 +49,347 @@ body {
     text-shadow: 2px 2px 4px #000000;
 }
 
-
-/* SEARCH BAR */
-.search_wrap {
-    display: flex;
-    justify-content: space-between;
-    margin-bottom: 20px;
-}
-
-.search_wrap .search_item {
-    margin-right: 20px;
-    width: 275px;
-    max-width: 100%;
-    height: 45px;
+body {
+    overflow-x: hidden;
     position: relative;
-}
-
-
-.search_wrap .search_item .search_box {
     width: 100%;
-    height: 100%;
+    height: 100vh;
+    background: url('../img/general-img/bg.png') center center/cover;
+    background-attachment: fixed;
 }
 
-.search_wrap .search_item .input_search {
-    width: 100%;
-    height: 100%;
-    border: 0px;
-    border-radius: 25px;
-    padding: 12px 25px 12px 55px;
-}
 
-.search_wrap .search_item.search_item_right .input_search {
-    padding: 12px 55px 12px 25px;
-}
-
-.search_wrap .search_item .icon {
+body::before {
+    content: '';
     position: absolute;
-    font-size: 18px;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    border-radius: 0;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 2000px;
+    background-color: rgba(77, 76, 76, 0.35);
 }
 
-
-/* Search_Box_2 and Search_Box_3 */
-.search_wrap.search_wrap_2 .search_item .icon {
-    top: 4px;
-    width: 37px;
-    height: 37px;
-    background: var(--btn-clr);
-    border-radius: 50%;
+.content {
+    position: relative;
+    z-index: 1;
+    color: white;
 }
-
-@media screen and (max-width: 600px) {
-    .wrapper {
-        top: 20px;
-        transform: translate(-50%, 0%);
-        padding-bottom: 50px;
-    }
-
-    .search_wrap {
-        flex-direction: column;
-        margin-bottom: 20px;
-    }
-
-    .search_wrap .search_item {
-        margin-right: 0;
-        margin-bottom: 20px;
-    }
-}
-
-
-
-@media (max-width: 991.98px) {
-    .navbar-nav .nav-link {
-        background-color: transparent !important;
-        justify-content: center;
-        align-items: center;
-        
-        margin: 0;
-        /* Remove margin from nav links */
-    }
-
-    .nav-item .nav-link {
-        margin: 0;
-        /* Ensure no margin is applied to nav links inside nav items */
-        margin-bottom: 1rem;
-        /* Optional: add some space between the links for better visual separation */
-    }
-
-    .btn-login {
-        border-radius: 50px !important;
-        background-color: transparent !important;
-        margin: 0;
-        /* Remove margin from login button */
-        margin-bottom: 1rem;
-        /* Optional: add some space below the login button for better visual separation */
-        
-    }
-
-    .navbar {
-        background-color: #198754;
-    }
-}
-
-.btn-nav {
-    width: 135px;
-    border-radius: 50px;
-    text-align: center;
-    font-size: 20px;
-    background-color: #198754;
-}
-
 
 .btn-visit {
-    background-color: #198754;
+    background-color: #5A7D2C;
     border: none;
 
 }
 
 .btn-visit:hover {
     color: white;
-    background-color: #198754;
+    background-color: rgb(63, 92, 26);
 }
 
+.btn-nav {
+    margin: 0 20px;
+    width: 100%;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 20px;
+    /* background-color: #5A7D2C; */
+}
+
+/* 
+.btn-nav:hover {
+    margin: 0 20px;
+    width: 100%;
+    border-radius: 50px;
+    text-align: center;
+    font-size: 20px;
+    background-color: #44611e;
+} */
+
 .btn-login {
+    margin-left: 20px;
     width: 135px;
     text-align: center;
     font-size: 20px;
     border-radius: 50px 0px 0px 50px;
+    background-color: #5A7D2C;
 }
 
-/* Additional styles for buttons inside the collapsed navbar */
-.navbar-collapse .nav-link.btn-nav {
-    margin: 0;
-    margin-bottom: 1rem;
-    /* Optional: add some space between the buttons for better visual separation */
+.btn-login:hover {
+    margin-left: 100px;
+    width: 135px;
+    text-align: center;
+    font-size: 20px;
+    border-radius: 50px 0px 0px 50px;
+    background-color: #44611e;
 }
 
-.navbar-collapse .form-control,
-.navbar-collapse .btn-outline-secondary {
-    margin: 0;
-    margin-bottom: 1rem;
-    /* Optional: add some space below the search button for better visual separation */
+.text-color-1 {
+    /* color: #3dac78; */
+    color: #5A7D2C;
+}
+
+.text-color-2 {
+    color: #74c69d;
+}
+
+.text-color-3 {
+    color: #95d5b2;
+}
+
+.text-color-4 {
+    color: #b7e4c7;
+}
+
+.text-color-5 {
+    /* color: #d8f3dc; */
+    color: #fff8d8;
+}
+
+.bg-color-1 {
+    /* background-color:  #3dac78; */
+    background-color: #5A7D2C;
+}
+
+.bg-color-1:hover {
+    /* background-color:  #3dac78; */
+    background-color: #44611e;
+}
+
+.bg-color-2 {
+    background-color: #74c69d;
+}
+
+.bg-color-3 {
+    background-color: #95d5b2;
+}
+
+.bg-color-4 {
+    background-color: #b7e4c7;
+}
+
+.bg-color-5 {
+    /* background-color:  #d8f3dc; */
+    background-color: #ffffff;
+}
+
+.bg-color-6 {
+    background-color: rgb(205, 218, 187);
 }
 
 
+/*** 
+====================================================================
+	Header Page
+====================================================================
+ ***/
+.home-header {
+    margin: 225px 0;
+}
 
-/* CAROUSEL */
+/*** 
+====================================================================
+	Discover Page
+====================================================================
+ ***/
+
+
+/* .slider-wrapper .image-list {
+    gap: 18px;
+    grid-template-columns: repeat(10,1fr);
+    font-size: 0;
+    overflow-x: auto;
+    scrollbar-width: none;
+}
+.slider-wrapper .image-list::-webkit-scrollbar {
+    display: none;
+}
+
+.slider-wrapper .image-list .image-item {
+    width: 325px;
+    height: 400px;
+    object-fit: cover;
+} */
+
+
+.discover-container {
+    background: #F1F4FD;
+}
+
+
+.discover-img {
+    width: 100%;
+    height: 450px;
+    object-fit: cover;
+}
+
+.scrolling-wrapper {
+    overflow-x: scroll;
+    overflow-y: hidden;
+    white-space: nowrap;
+    margin: 0 50px;
+    -webkit-overflow-scrolling: touch;
+}
+
+.scrolling-wrapper .card {
+    display: inline-block;
+    margin-bottom: 10px;
+    width: 23rem;
+    height: 32rem;
+}
+
+.scrolling-wrapper-flexbox {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+}
+
+.scrolling-wrapper-flexbox .card {
+    flex: 0 0 auto;
+    width: 23rem;
+    height: 32rem;
+}
+
+@media (max-width: 767px) {
+
+    .scrolling-wrapper .card,
+    .scrolling-wrapper-flexbox .card {
+        width: 18rem;
+        height: 25rem;
+    }
+
+    .discover-img {
+        height: 350px;
+        width: 100%;
+        object-fit: cover;
+    }
+}
+
+/*** 
+====================================================================
+	Featured Page
+====================================================================
+ ***/
+
+.featured-ts {
+    padding: 100px 0 50px 100px
+}
+
+
+/*** 
+====================================================================
+	About Page
+====================================================================
+ ***/
+
+.about-content {
+    text-align: justify;
+}
+
+/*** 
+====================================================================
+	Services Page
+====================================================================
+ ***/
+
+.service-container {
+    background: #F1F4FD;
+}
+
+.service-cards {
+    margin: 100px;
+
+}
+
+.featured-cards .card,
+.service-cards .card {
+    transition: transform 0.2s ease;
+}
+
+.featured-cards .card:hover,
+.service-cards .card:hover {
+    transform: scale(1.05);
+}
+
+/*** 
+====================================================================
+	Contact Page
+====================================================================
+ ***/
+
+
+
+/*** 
+====================================================================
+	Footer Page
+====================================================================
+ ***/
+.text-muted {
+    text-decoration: none;
+}
+
+@media (max-width: 990px) {
+
+    .card {
+        width: 18rem;
+        /* Adjust the width for mobile screens */
+        height: 25rem;
+        /* Adjust the height for mobile screens */
+    }
+
+    .navbar-brand {
+        margin-left: 0 !important;
+    }
+
+    .navbar-nav {
+        text-align: center;
+    }
+
+    .navbar-nav .nav-item {
+        display: block;
+        width: 100%;
+        margin-bottom: 10px;
+        color: #198754;
+    }
+
+    .navbar-nav .nav-link {
+        display: block;
+        width: 100%;
+        margin: 0 !important;
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .navbar-nav .btn-login {
+        display: block;
+        width: 100%;
+        margin-left: 0 !important;
+        background: none !important;
+        border: none !important;
+        box-shadow: none !important;
+    }
+
+    .home-header {
+        margin: 0 !important;
+    }
+
+    .featured-ts {
+        padding: 30px 0 10px 10px;
+    }
+
+    .discover-content {
+        padding: 0 !important;
+        margin: 0 !important;
+    }
+}
+
+
+/*** 
+====================================================================
+	Carousel
+====================================================================
+ ***/
 .collection {
     height: 75vh;
     display: flex;
@@ -207,19 +398,19 @@ body {
 }
 
 .collection .content {
-    height: 28rem;
-    width: 15rem;
+    height: 29rem;
+    width: 18rem;
     background-color: #ffffff;
     border: .2rem solid rgba(255, 255, 255, .1);
-    border-radius: .7rem;
+    border-radius: .4rem;
     /* border-bottom: .4rem solid #198754;
     border-top: .4rem solid #198754; */
     overflow: hidden;
 }
 
-.content img {
+.content .slider-img {
     width: 100%;
-    height: 200px;
+    height: 250px;
     border-bottom-left-radius: .5rem;
     border-bottom-right-radius: .5rem;
 }
@@ -239,7 +430,7 @@ body {
 }
 
 .text-content p {
-    max-width: 22rem;
+    max-width: 20rem;
     font-size: .8rem;
     font-weight: 400;
     text-align: center;

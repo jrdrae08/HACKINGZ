@@ -34,11 +34,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 
   if ($childrenMax <= 0) {
-    $errors[] = ['field' => 'childrenMax', 'message' => 'ChildrenMax should be greater than 0.'];
+    $errors[] = ['field' => 'childrenmax', 'message' => 'ChildrenMax should be greater than 0.'];
   }
 
-  if (str_word_count($roomDesc) < 50) {
-    $errors[] = ['field' => 'roomdesc', 'message' => 'Room description should be at least 50 words.'];
+  if (str_word_count($roomDesc) > 50) {
+    $errors[] = ['field' => 'roomdesc', 'message' => 'Room description should be less than or equal to 50 words.'];
   }
 
   // Check if the room name is unique
@@ -58,6 +58,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $facilities = $_POST['facilities'] ?? [];
   if (empty($facilities)) {
     $errors[] = ['field' => 'facilities', 'message' => 'Please select at least one facility.'];
+  }
+
+  // Check if at least one feature is selected
+  $features = $_POST['features'] ?? [];
+  if (empty($features)) {
+    $errors[] = ['field' => 'features', 'message' => 'Please select at least one feature.'];
   }
 
   // Handle image uploads
@@ -195,6 +201,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $stmt->execute([
         ':roomID' => $roomID,
         ':facilityID' => $facilityID,
+        ':businessInfoID' => $businessInfoID
+      ]);
+    }
+
+    // Handle features mapping
+    $pdo->prepare("DELETE FROM room_features_mapping WHERE roomID = :roomID AND BusinessInfoID = :businessInfoID")->execute([':roomID' => $roomID, ':businessInfoID' => $businessInfoID]);
+    foreach ($features as $featureID) {
+      $stmt = $pdo->prepare("INSERT INTO room_features_mapping (roomID, FeatureID, BusinessInfoID, IsActive) VALUES (:roomID, :featureID, :businessInfoID, 1)");
+      $stmt->execute([
+        ':roomID' => $roomID,
+        ':featureID' => $featureID,
         ':businessInfoID' => $businessInfoID
       ]);
     }

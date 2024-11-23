@@ -81,56 +81,58 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                             </h6>
                         </div>
                         <div class="card-body">
-                            <table class="table table-bordered">
-                                <thead>
-                                    <tr>
-                                        <th rowspan="3">Day</th>
-                                        <th rowspan="3">Week Day <br>(Mon-Sun) </th>
-                                        <th colspan="9" style="text-align: center;">Philippines</th>
-                                        <th colspan="3" style="text-align: center;">Foreign Country Residence</th>
-                                        <th rowspan="3" style="text-align: center;">Grand Total<br>Number of Visitors</th>
-                                    </tr>
-                                    <tr>
-                                        <th colspan="3" style="text-align: center;">This City/Municipality</th>
-                                        <th colspan="3" style="text-align: center;">Other City/Municipality</th>
-                                        <th colspan="3" style="text-align: center;">Other Province</th>
-                                        <th colspan="3" style="text-align: center;">Foreign Country</th>
-                                    </tr>
-                                    <tr>
-                                        <th>Male</th>
-                                        <th>Female</th>
-                                        <th>Total</th>
-                                        <th>Male</th>
-                                        <th>Female</th>
-                                        <th>Total</th>
-                                        <th>Male</th>
-                                        <th>Female</th>
-                                        <th>Total</th>
-                                        <th>Male</th>
-                                        <th>Female</th>
-                                        <th>Total</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <tr>
-                                        <td>1</td>
-                                        <td>Mon</td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </tbody>
-                            </table>
+                            <div class="table-responsive">
+                                <table class="table table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th rowspan="3" class=" border-2 border-dark">Day</th>
+                                            <th rowspan="3" class=" border-2 border-dark">Week Day <br>(Mon-Sun) </th>
+                                            <th colspan="9" class="bg-success border-2 border-dark" style="text-align: center;">Philippines</th>
+                                            <th colspan="3" class="bg-info  border-2 border-dark" style="text-align: center;">Foreign Country Residence</th>
+                                            <th rowspan="3" class="bg-warning-subtle border-2 border-dark" style="text-align: center;">Grand Total<br>Number of Visitors</th>
+                                        </tr>
+                                        <tr>
+                                            <th colspan="3" class="bg-success-subtle border border-bottom border-dark border-1" style="text-align: center;">This City/Municipality</th>
+                                            <th colspan="3" class="bg-success-subtle  border-2 border-dark" style="text-align: center;">Other City/Municipality</th>
+                                            <th colspan="3" class="bg-success-subtle  border-2 border-dark" style="text-align: center;">Other Province</th>
+                                            <th colspan="3" class="bg-info-subtle  border-2 border-dark" style="text-align: center;">Foreign Country</th>
+                                        </tr>
+                                        <tr>
+                                            <th class="bg-primary-subtle  border-2 border-dark">Male</th>
+                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
+                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
+                                            <th class="bg-primary-subtle border-2 border-dark">Male</th>
+                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
+                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
+                                            <th class="bg-primary-subtle border-2 border-dark">Male</th>
+                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
+                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
+                                            <th class="bg-primary-subtle border-2 border-dark">Male</th>
+                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
+                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td class="border-2 border-dark">1</td>
+                                            <td class="border-2 border-dark">Mon</td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                            <td class="border-2 border-dark"></td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
                         </div>
                     </div>
                 </div>

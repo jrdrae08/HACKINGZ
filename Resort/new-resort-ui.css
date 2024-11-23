@@ -56,16 +56,6 @@ body {
 
 }
 
-/* body::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    min-height: 100vh;
-    background-color: rgba(0, 0, 0, 0.3);
-} */
-
 .content {
     position: relative;
     z-index: 1;
@@ -91,8 +81,8 @@ body {
     border-radius: 50px;
     text-align: center;
     font-size: 20px;
-    /* background-color:  #3dac78; */
-    background-color: #5A7D2C;
+    background-color: #3dac78;
+    /* background-color: #5A7D2C; */
 }
 
 .btn-nav:hover {
@@ -101,8 +91,8 @@ body {
     border-radius: 50px;
     text-align: center;
     font-size: 20px;
-    /* background-color:  #3dac78; */
-    background-color: #4e6d25;
+    background-color: #3dac78;
+    /* background-color: #4e6d25; */
 }
 
 .btn-login {
@@ -134,16 +124,16 @@ body {
     border: 0.2rem solid white;
 }
 
-.page-nav-book:hover {
+/* .page-nav-book:hover {
     color: #198754;
     border-color: #95ffce;
-}
+} */
 
 .page-nav {
     position: relative;
     text-decoration: none;
     display: inline-block;
-    font-size: 35px;
+    font-size: 30px;
 }
 
 .page-nav::after {
@@ -202,9 +192,9 @@ body {
     /* Maintains aspect ratio */
 }
 
-
+/* 
 .text-color-1 {
-    /* color: #3dac78; */
+    color: #3dac78;
     color: #5A7D2C;
 }
 
@@ -221,12 +211,12 @@ body {
 }
 
 .text-color-5 {
-    /* color: #d8f3dc; */
+    color: #d8f3dc;
     color: #fff8d8;
 }
 
 .bg-color-1 {
-    /* background-color:  #3dac78; */
+    background-color:  #3dac78;
     background-color: #5A7D2C;
 }
 
@@ -243,13 +233,13 @@ body {
 }
 
 .bg-color-5 {
-    /* background-color:  #d8f3dc; */
+    background-color:  #d8f3dc;
     background-color: #ffffff;
 }
 
 .bg-color-6 {
     background-color: rgb(205, 218, 187);
-}
+} */
 
 /*** 
 ====================================================================
@@ -260,7 +250,7 @@ body {
 
 .nav-link.active {
     background-color: #74c69d !important;
-    background-color: #456122 !important;
+    /* background-color: #456122 !important; */
     border-color: rgb(205, 218, 187) !important;
     border: #fff8d8 solid;
     border-radius: 3rem;
@@ -290,7 +280,7 @@ body {
 }
 
 .card-text-1 {
-    font-size: 16px;
+    font-size: 15px;
     text-align: justify;
 }
 
@@ -300,7 +290,7 @@ body {
 
 
 .destination-page {
-    padding: 70px 125px;
+    padding: 70px 130px;
 }
 
 .card-trans {
@@ -311,6 +301,11 @@ body {
     transform: scale(1.03);
 }
 
+@media (max-width: 1200px) {
+    .destination-page {
+        padding: 70px 70px;
+    }
+}
 
 @media (max-width: 998px) {
     .destination-page {
@@ -327,11 +322,21 @@ body {
         height: 290px;
         width: 100%;
     }
+
+    .card-text-1 {
+        font-size: 13px;
+        text-align: justify;
+    }
 }
 
 @media (max-width: 768px) {
     .destination-page {
         padding: 70px 10px !important;
+    }
+
+    .card-text-1 {
+        font-size: 13px;
+        text-align: justify;
     }
 
     .title-text-2 {
@@ -373,23 +378,17 @@ body {
     padding: 175px 0;
 }
 
-.page-0-title-container {
-    padding: 125px 0;
-}
+
 
 .page-title {
     text-shadow: 1px 1px 5px rgb(0, 0, 0);
     color: #3dac78;
+    font-size: 100px;
 }
 
 .room-lists {
     padding: 150px 0;
 }
-
-.page-title {
-    font-size: 100px;
-}
-
 
 .btn-book {
     font-size: 15px;
@@ -405,41 +404,13 @@ body {
     border: rgb(223, 223, 223) 0.15rem solid;
 }
 
-.btn-book-2 {
-    font-size: 15px;
-    /* Default button color */
-    color: #666464;
-    background-color: rgb(255, 255, 255);
-}
-
-.btn-book-2:hover {
-    color: #ffffff;
-    text-shadow: none !important;
-    background-color: #5A7D2C;
-    /* Color after hovering */
-}
-
-.btn-book-1:hover,
-.btn-book:hover {
-    color: #ffffff;
-    background-color: #5A7D2C;
-    /* Color after hovering */
-}
-
 .card {
     position: relative;
     overflow: hidden;
     /* Prevents the image from overflowing */
 }
 
-.card-img-top {
-    transition: transform 1s ease;
-}
 
-.card:hover .card-img-top {
-    transform: scale(1.2);
-    /* Zooms the image */
-}
 
 
 
@@ -451,11 +422,11 @@ body {
  ***/
 
 .room-page-info {
-    margin: 150px 0 0 0;
+    padding: 100px 0 0 0;
 }
 
 .image-content {
-    margin: 0 20px;
+    padding: 20px;
     position: relative;
     overflow: hidden;
 }
@@ -466,7 +437,7 @@ body {
 }
 
 .image-content:hover img {
-    transform: scale(1.2);
+    transform: scale(1.07);
     /* Zooms the image when hovering */
 }
 
@@ -492,7 +463,36 @@ body {
     /* This will ensure the images cover the container */
 }
 
+@media (max-width: 1200px) {
+    .page-nav {
+        position: relative;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 25px !important;
+    }
+}
+
 @media (max-width: 768px) {
+    .room-page-info {
+        margin: 50px 0 0 0;
+    }
+
+    .page-title-container {
+        padding: 100px 0;
+    }
+
+    .page-title-container .page-title {
+        font-size: 50px;
+    }
+
+
+    .page-nav {
+        position: relative;
+        text-decoration: none;
+        display: inline-block;
+        font-size: 20px !important;
+    }
+
     .custom-carousel img {
         height: 200px !important;
     }

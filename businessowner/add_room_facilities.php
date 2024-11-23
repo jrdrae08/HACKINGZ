@@ -88,7 +88,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                         <input type="text" class="form-control shadow" placeholder="Enter feature name" id="featureName">
                       </div>
                       <div class="col-lg-4 col-md-6">
-                        <button id="addFeatureButton" class="btn btn-primary " type="button" onclick="addFeature()"><i class="bi bi-plus"></i> Add</button>
+                        <button id="addFeatureButton" class="btn btn-primary" type="button" onclick="showFeatureConfirmationModal()"><i class="bi bi-plus"></i> Add</button>
                       </div>
                     </div>
                   </div>
@@ -133,6 +133,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     </div>
   </div>
 
+  <!-- Confirmation Modal For Adding Facilities -->
+
   <!-- Confirmation Modal -->
   <div class="modal fade" id="confirmAddFacilityModal" tabindex="-1" aria-labelledby="confirmAddFacilityModalLabel" aria-hidden="true">
     <div class="modal-dialog">
@@ -171,8 +173,52 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     </div>
   </div>
 
+  <!-- Closing Adding Facilities -->
+
+
+  <!-- Confirmation Modal for Adding Feature -->
+  <div class="modal fade" id="confirmAddFeatureModal" tabindex="-1" aria-labelledby="confirmAddFeatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmAddFeatureModalLabel">Confirm Add Feature</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to add the feature "<span id="featureNameToAdd"></span>"?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-primary" onclick="confirmAddFeature()">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal for Feature -->
+  <div class="modal fade" id="confirmDeleteFeatureModal" tabindex="-1" aria-labelledby="confirmDeleteFeatureModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmDeleteFeatureModalLabel">Confirm Delete Feature</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to delete this feature?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-danger" onclick="confirmDeleteFeature()">Delete</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Closing Adding Features -->
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="../js/businessowner.js"></script>
+
+  <!-- Adding facilities -->
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const notyf = new Notyf({
@@ -324,6 +370,160 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
       window.confirmDeleteFacility = confirmDeleteFacility;
     });
   </script>
+
+  <!-- Adding features -->
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const notyf = new Notyf({
+        duration: 3000, // Adjust the duration as needed
+        position: {
+          x: 'right',
+          y: 'top'
+        }
+      });
+
+      let featureToDelete = null;
+
+      function fetchFeatures() {
+        fetch('../../backends/subadmin/fetch_roomfeatures.php')
+          .then(response => response.json())
+          .then(data => {
+            if (data.status === 'success') {
+              data.features.forEach(feature => {
+                addFeatureToTable(feature.FeatureID, feature.FeatureName);
+              });
+            } else {
+              notyf.error(data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            notyf.error('An error occurred while fetching features');
+          });
+      }
+
+      function showFeatureConfirmationModal() {
+        const featureNameInput = document.getElementById('featureName');
+        const featureName = featureNameInput.value.trim();
+
+        // Validate the feature name before showing the modal
+        if (!featureName) {
+          notyf.error('Feature name cannot be empty');
+          return;
+        }
+
+        // Set the feature name in the modal text
+        document.getElementById('featureNameToAdd').textContent = featureName;
+
+        // Show the confirmation modal
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmAddFeatureModal'));
+        confirmModal.show();
+      }
+
+      function confirmAddFeature() {
+        const featureNameInput = document.getElementById('featureName');
+        const featureName = featureNameInput.value.trim();
+
+        fetch('../../backends/subadmin/add_roomfeature.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              featureName: featureName
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            // Hide the modal before showing the notification
+            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmAddFeatureModal'));
+            confirmModal.hide();
+
+            if (data.status === 'success') {
+              notyf.success('Feature added successfully');
+              featureNameInput.value = ''; // Clear the input field
+              addFeatureToTable(data.featureID, featureName);
+            } else {
+              notyf.error(data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            // Hide the modal before showing the error notification
+            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmAddFeatureModal'));
+            confirmModal.hide();
+            notyf.error('An error occurred while adding the feature');
+          });
+      }
+
+      function addFeatureToTable(featureID, featureName) {
+        const featureTableBody = document.getElementById('featureTableBody');
+        const newRow = document.createElement('tr');
+        newRow.id = `featureRow${featureID}`;
+        newRow.innerHTML = `
+        <td scope="row">${featureName}</td>
+        <td>
+          <div class="d-flex align-items-center">
+            <button class="btn btn-danger" type="button" onclick="showDeleteFeatureConfirmationModal(${featureID})"><i class="bi bi-x"></i></button>
+          </div>
+        </td>
+      `;
+        featureTableBody.appendChild(newRow);
+      }
+
+      function showDeleteFeatureConfirmationModal(featureID) {
+        featureToDelete = featureID;
+        const confirmModal = new bootstrap.Modal(document.getElementById('confirmDeleteFeatureModal'));
+        confirmModal.show();
+      }
+
+      function confirmDeleteFeature() {
+        fetch('../../backends/subadmin/delete_roomfeature.php', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              featureID: featureToDelete
+            })
+          })
+          .then(response => response.json())
+          .then(data => {
+            // Hide the modal before showing the notification
+            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteFeatureModal'));
+            confirmModal.hide();
+
+            if (data.status === 'success') {
+              notyf.success('Feature deleted successfully');
+              removeFeatureFromTable(featureToDelete);
+            } else {
+              notyf.error(data.message);
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            // Hide the modal before showing the error notification
+            const confirmModal = bootstrap.Modal.getInstance(document.getElementById('confirmDeleteFeatureModal'));
+            confirmModal.hide();
+            notyf.error('An error occurred while deleting the feature');
+          });
+      }
+
+      function removeFeatureFromTable(featureID) {
+        const featureRow = document.getElementById(`featureRow${featureID}`);
+        if (featureRow) {
+          featureRow.remove();
+        }
+      }
+
+      fetchFeatures();
+      window.showFeatureConfirmationModal = showFeatureConfirmationModal;
+      window.confirmAddFeature = confirmAddFeature;
+      window.showDeleteFeatureConfirmationModal = showDeleteFeatureConfirmationModal;
+      window.confirmDeleteFeature = confirmDeleteFeature;
+    });
+  </script>
+
 </body>
 
 </html>
