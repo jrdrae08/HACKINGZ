@@ -2,6 +2,13 @@
 include '../backends/subadmin/fetch_alldestination_category.php';
 include '../backends/subadmin/fetch_resortdestination_category.php';
 include '../backends/subadmin/fetch_features_category.php';
+
+session_start();
+
+// Check if userID is set in the URL and store it in the session
+if (isset($_GET['userID'])) {
+    $_SESSION['user_id'] = $_GET['userID'];
+}
 // Check if businessInfoID is set in the URL
 if (isset($_GET['businessInfoID'])) {
     // Unset the businessInfoID parameter
@@ -63,7 +70,7 @@ if (isset($_GET['businessInfoID'])) {
                 <div class="collapse navbar-collapse" id="navbarSupportedContent">
                     <ul class="navbar-nav ms-auto mb-lg-0">
                         <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="../homepage/homepage.php">HOME</a>
+                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="../homepage/homepage.php<?php echo isset($_SESSION['user_id']) ? '?userID=' . urlencode($_SESSION['user_id']) : ''; ?>">HOME</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link text-light btn btn-nav btn-success shadow" href="#service">SERVICES</a>
@@ -115,7 +122,7 @@ if (isset($_GET['businessInfoID'])) {
                         <div class="row destination-lists">
                             <?php foreach ($businesses as $business): ?>
                                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
-                                    <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
+                                <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                                         <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                             <div class="row g-0">
                                                 <div class="col-xl-6 col-lg-6 col-md-6 col-12">

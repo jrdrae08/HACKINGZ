@@ -1,7 +1,12 @@
 <?php
 // Include the database connection
 include '../includes/db.php';
+session_start();
 
+// Check if userID is set in the URL and store it in the session
+if (isset($_GET['userID'])) {
+    $_SESSION['user_id'] = $_GET['userID'];
+}
 // Get the businessInfoID from the URL, defaulting to 1 if not set
 $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
 
@@ -88,7 +93,7 @@ try {
             <div class="container-fluid">
                 <div class="row d-flex justify-content-between align-items-center">
                     <div class="col-2 py-3 d-flex justify-content-center align-items-center">
-                        <a href="../../resort/page-0.php?businessInfoID=<?php echo $businessInfoID; ?>">
+                        <a href="../../resort/page-0.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>">
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
                         </a>
                     </div>
@@ -96,7 +101,7 @@ try {
                     <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
-                                <a href="../../resort/page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
+                                <a href="../../resort/page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
                             </div>
                             <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
                                 <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
@@ -114,7 +119,7 @@ try {
                             <h3 class="title-text-2 dm-sans-text text-shadow-light text-center"><?php echo htmlspecialchars($business['Quotation']); ?></h3>
                         </div>
                         <div class="col-lg-12 mt-3 d-flex justify-content-center align-items-center">
-                            <a href="page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-success mx-2 rounded dm-sans-text text-center">View More</a>
+                            <a href="page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-success mx-2 rounded dm-sans-text text-center">View More</a>
                         </div>
                     </div>
                 </div>

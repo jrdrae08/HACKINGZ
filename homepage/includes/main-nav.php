@@ -2,6 +2,10 @@
 session_start();
 require_once '../includes/db.php';
 
+if (isset($_GET['userID'])) {
+  $_SESSION['user_id'] = $_GET['userID'];
+}
+
 // Check if the user is logged in
 $isLoggedIn = isset($_SESSION['user_id']);
 $userFullName = '';

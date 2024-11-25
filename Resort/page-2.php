@@ -1,7 +1,12 @@
 <?php
 // Include the database connection
 include '../includes/db.php';
+session_start();
 
+// Check if userID is set in the URL and store it in the session
+if (isset($_GET['userID'])) {
+    $_SESSION['user_id'] = $_GET['userID'];
+}
 // Get the businessInfoID from the URL, defaulting to 1 if not set
 $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
 
@@ -120,7 +125,7 @@ try {
             <div class="container-fluid">
                 <div class="row d-flex justify-content-between align-items-center">
                     <div class="col-2 py-3 d-flex justify-content-center align-items-center">
-                        <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>">
+                        <a href="../../resort/page-1.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>">
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
                         </a>
                     </div>
@@ -146,7 +151,7 @@ try {
         <section class="accommodation-page-title shadow">
             <div class="accommodation-nav bg-success m-0 py-3">
                 <div class="d-flex justify-content-center">
-                    <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
+                    <a href="../../resort/page-1.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                         <h3 class="nav text-light text-nav mx-3 dm-sans-text">Home ></h3>
                     </a>
                     <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
@@ -173,7 +178,7 @@ try {
                                             <p class="card-text dm-sans-text text-secondary">Time Schedule: <span class="fw-bold"><?php echo date("g:i A", strtotime($room['timeStart'])) . " to " . date("g:i A", strtotime($room['timeEnd'])); ?></span></p>
                                             <p class="card-text dm-sans-text text-secondary">Max Adult: <span class="fw-bold"><?php echo htmlspecialchars($room['adultMax']); ?></span></p>
                                             <p class="card-text dm-sans-text text-secondary">Max Children: <span class="fw-bold"><?php echo htmlspecialchars($room['ChildrenMax']); ?></span></p>
-                                            <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
+                                            <a href="../../resort/page-3.php?roomID=<?php echo urlencode($room['roomID']); ?>&businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
                                         </div>
                                     </div>
                                 </div>
