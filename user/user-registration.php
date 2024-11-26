@@ -96,10 +96,10 @@
                       <div class="form-floating my-3">
                         <select class="form-select shadow" id="locationType" name="locationType" required>
                           <option value="" disabled selected>Select Location Type</option>
-                          <option value="thisCity">This Municipality/City</option>
-                          <option value="otherCity">Other Municipality/City</option>
-                          <option value="otherProvince">Other Province</option>
-                          <option value="foreignCountry">Foreign Country</option>
+                          <option value="This City/Municipality">This City/Municipality</option>
+                          <option value="Other City/Municipality">Other City/Municipality</option>
+                          <option value="Other Province">Other Province</option>
+                          <option value="Foreign Country">Foreign Country</option>
                         </select>
                         <label for="locationType">Location Type</label>
                       </div>
@@ -110,8 +110,8 @@
                       <div class="form-floating my-3">
                         <select class="form-select shadow" id="sex" name="sex" required>
                           <option value="" disabled selected>Select Sex</option>
-                          <option value="male">Male</option>
-                          <option value="female">Female</option>
+                          <option value="Male">Male</option>
+                          <option value="Female">Female</option>
                         </select>
                         <label for="sex">Sex</label>
                       </div>
