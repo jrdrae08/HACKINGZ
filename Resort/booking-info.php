@@ -2,14 +2,21 @@
 // Assuming you have a database connection established
 include '../includes/db.php';
 
-// Fetch roomID from the URL
+// Fetch roomID and businessInfoID from the URL
 $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
+$businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
 
 // Fetch payment method for the room
 $query = "SELECT * FROM payment_methods WHERE roomID = :roomID";
 $stmt = $pdo->prepare($query);
 $stmt->execute(['roomID' => $roomID]);
 $hasPaymentMethod = $stmt->rowCount() > 0;
+
+// Fetch GCash information for the business
+$query = "SELECT bgcashnum, bgcashname, bgcashQrImage FROM qcashPayment WHERE BusinessInfoID = :businessInfoID";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['businessInfoID' => $businessInfoID]);
+$gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -179,11 +186,15 @@ $hasPaymentMethod = $stmt->rowCount() > 0;
                           <p>Please scan the GCash QR Code of the Resort and send a total amount of 1500 for the down payment.</p>
                         </div>
                         <div>
-                          <img src="../admin/qrCode/6720cf31a65d8.png" class="img-fluid" alt="" height="30">
+                          <img src="<?php echo htmlspecialchars($gcashInfo['bgcashQrImage']); ?>" class="img-fluid" alt="GCash QR Code" height="30">
                         </div>
                       </div>
 
                       <!-- Proof of Payment Upload -->
+                      <div class="col-lg-12 mb-3">
+                        <p class="text-center">Name: <?php echo htmlspecialchars($gcashInfo['bgcashname']); ?></p>
+                        <p class="text-center">Number: <?php echo htmlspecialchars($gcashInfo['bgcashnum']); ?></p>
+                      </div>
                       <div class="col-lg-12 mb-3">
                         <label for="back_id" class="mb-1 d-block text-start">Proof of Payment</label>
                         <input type="file" name="back_id" id="back_id" class="form-control shadow" accept="image/*" required>
