@@ -10,7 +10,9 @@ $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID']
 $query = "SELECT * FROM payment_methods WHERE roomID = :roomID";
 $stmt = $pdo->prepare($query);
 $stmt->execute(['roomID' => $roomID]);
+$paymentMethod = $stmt->fetch(PDO::FETCH_ASSOC);
 $hasPaymentMethod = $stmt->rowCount() > 0;
+$price = $paymentMethod ? $paymentMethod['amount'] : 0;
 
 // Fetch GCash information for the business
 $query = "SELECT bgcashnum, bgcashname, bgcashQrImage FROM qcashPayment WHERE BusinessInfoID = :businessInfoID";
@@ -183,7 +185,7 @@ $gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                       <!-- Payment Information -->
                       <div class="col-lg-12 text-center mb-3">
                         <div>
-                          <p>Please scan the GCash QR Code of the Resort and send a total amount of 1500 for the down payment.</p>
+                          <p>Please scan the GCash QR Code of the Resort and send a total amount of <?php echo htmlspecialchars($price); ?> for the down payment.</p>
                         </div>
                         <div>
                           <img src="<?php echo htmlspecialchars($gcashInfo['bgcashQrImage']); ?>" class="img-fluid" alt="GCash QR Code" height="30">
