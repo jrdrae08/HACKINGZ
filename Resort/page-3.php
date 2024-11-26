@@ -331,6 +331,7 @@ try {
                         <div class="book mt-3 d-grid">
                             <a class="btn btn-success" onclick="checkUserID();">BOOK NOW</a>
                         </div>
+                        <!-- Reridrect Script if the user is not logged in -->
                         <script>
                             function checkUserID() {
                                 var userID = "<?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : ''; ?>";

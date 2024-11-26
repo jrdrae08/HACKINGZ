@@ -9,7 +9,8 @@
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
   <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <!-- Notyf connection -->
+  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
   <link rel="stylesheet" href="../css/registration.css">
@@ -100,6 +101,18 @@
                     <!-- Demographics Form -->
                     <div class="col-lg-12 my-3">
                       <div class="row d-flex justify-content-center">
+                        <div class="col-6">
+                          <div class="form-floating mb-3">
+                            <input type="text" class="form-control shadow" name="checkin" id="checkin" placeholder="" required>
+                            <label for="checkin" class="fw-bold dm-sans-text">Check In</label>
+                          </div>
+                        </div>
+                        <div class="col-6">
+                          <div class="form-floating mb-3">
+                            <input type="text" class="form-control shadow" name="departure" id="departure" placeholder="" required>
+                            <label for="departure" class="fw-bold dm-sans-text">Departure</label>
+                          </div>
+                        </div>
                         <div class="col-6">
                           <div class="form-floating mb-3">
                             <input type="number" name="total_adults" class="form-control shadow" placeholder="" required>
@@ -289,6 +302,10 @@
       window.nextSection = nextSection;
       window.previousSection = previousSection;
       window.generateForm = generateForm;
+
+      // Initialize datepicker
+      $('#checkin').datepicker();
+      $('#departure').datepicker();
     });
   </script>
 
@@ -346,9 +363,6 @@
       display: block;
     }
   </style>
-
-  <script src="../sweetalert2/jquery-3.7.1.min.js"></script>
-  <script src="../sweetalert2/sweetalert2.all.min.js"></script>
 </body>
 
 </html>
