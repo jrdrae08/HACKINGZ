@@ -1,3 +1,16 @@
+<?php
+// Assuming you have a database connection established
+include '../includes/db.php';
+
+// Fetch roomID from the URL
+$roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
+
+// Fetch payment method for the room
+$query = "SELECT * FROM payment_methods WHERE roomID = :roomID";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['roomID' => $roomID]);
+$hasPaymentMethod = $stmt->rowCount() > 0;
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -42,7 +55,9 @@
                   <!-- Step markers -->
                   <div class="progress-step progress-step-active" data-step="1">1</div>
                   <div class="progress-step" data-step="2">2</div>
-                  <div class="progress-step" data-step="3">3</div>
+                  <?php if ($hasPaymentMethod) : ?>
+                    <div class="progress-step" data-step="3">3</div>
+                  <?php endif; ?>
 
                   <!-- Single Progress Bar -->
                   <div class="progress">
@@ -140,51 +155,57 @@
                         <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
                       </div>
                       <div class="d-grid col-6">
-                        <button type="button" class="btn btn-success" id="nextButton2" onclick="nextSection()">NEXT</button>
+                        <?php if ($hasPaymentMethod) : ?>
+                          <button type="button" class="btn btn-success" id="nextButton2" onclick="nextSection()">NEXT</button>
+                        <?php else : ?>
+                          <button type="submit" class="btn btn-success" id="registerButton">BOOK NOW</button>
+                        <?php endif; ?>
                       </div>
                     </div>
                   </div>
                 </div>
 
-                <!-- Step 3 : Payment -->
-                <div id="section3" class="section">
-                  <div class="row mx-3 mt-5">
-                    <div class="col-lg-12">
-                      <h5 class="text-center">Step 3: Payment Information</h5>
-                    </div>
+                <?php if ($hasPaymentMethod) : ?>
+                  <!-- Step 3 : Payment -->
+                  <div id="section3" class="section">
+                    <div class="row mx-3 mt-5">
+                      <div class="col-lg-12">
+                        <h5 class="text-center">Step 3: Payment Information</h5>
+                      </div>
 
-                    <!-- Payment Information -->
-                    <div class="col-lg-12 text-center mb-3">
-                      <div>
-                        <p>Please scan the GCash QR Code of the Resort and send a total amount of 1500 for the down payment.</p>
+                      <!-- Payment Information -->
+                      <div class="col-lg-12 text-center mb-3">
+                        <div>
+                          <p>Please scan the GCash QR Code of the Resort and send a total amount of 1500 for the down payment.</p>
+                        </div>
+                        <div>
+                          <img src="../admin/qrCode/6720cf31a65d8.png" class="img-fluid" alt="" height="30">
+                        </div>
                       </div>
-                      <div>
-                        <img src="../admin/qrCode/6720cf31a65d8.png" class="img-fluid" alt="" height="30">
-                      </div>
-                    </div>
 
-                    <!-- Proof of Payment Upload -->
-                    <div class="col-lg-12 mb-3">
-                      <label for="back_id" class="mb-1 d-block text-start">Proof of Payment</label>
-                      <input type="file" name="back_id" id="back_id" class="form-control shadow" accept="image/*" required>
-                    </div>
-                    <div class="col-lg-12 mb-3">
-                      <div class="form-floating mb-3">
-                        <input type="text" name="gcash_reference" class="form-control shadow" placeholder="" required>
-                        <label>G-Cash Reference Number</label>
+                      <!-- Proof of Payment Upload -->
+                      <div class="col-lg-12 mb-3">
+                        <label for="back_id" class="mb-1 d-block text-start">Proof of Payment</label>
+                        <input type="file" name="back_id" id="back_id" class="form-control shadow" accept="image/*" required>
                       </div>
-                    </div>
+                      <div class="col-lg-12 mb-3">
+                        <div class="form-floating mb-3">
+                          <input type="text" name="gcash_reference" class="form-control shadow" placeholder="" required>
+                          <label>G-Cash Reference Number</label>
+                        </div>
+                      </div>
 
-                    <div class="col-lg-12 d-flex my-3">
-                      <div class="d-grid col-6 mx-auto">
-                        <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
-                      </div>
-                      <div class="d-grid col-6 mx-auto">
-                        <button type="submit" class="btn btn-success" id="registerButton">BOOK NOW</button>
+                      <div class="col-lg-12 d-flex my-3">
+                        <div class="d-grid col-6 mx-auto">
+                          <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
+                        </div>
+                        <div class="d-grid col-6 mx-auto">
+                          <button type="submit" class="btn btn-success" id="registerButton">BOOK NOW</button>
+                        </div>
                       </div>
                     </div>
                   </div>
-                </div>
+                <?php endif; ?>
               </div>
             </div>
           </div>
@@ -205,15 +226,16 @@
       });
 
       let currentStep = 1;
+      const hasPaymentMethod = <?php echo json_encode($hasPaymentMethod); ?>;
 
       function nextSection() {
         if (currentStep === 1) {
           document.getElementById("section1").classList.remove("active");
           document.getElementById("section2").classList.add("active");
-          document.getElementById("progress-bar").style.width = "50%"; // 50% for step 2
+          document.getElementById("progress-bar").style.width = hasPaymentMethod ? "50%" : "100%"; // 50% for step 2 if payment method exists, otherwise 100%
           updateProgressStep(2);
           currentStep++;
-        } else if (currentStep === 2) {
+        } else if (currentStep === 2 && hasPaymentMethod) {
           document.getElementById("section2").classList.remove("active");
           document.getElementById("section3").classList.add("active");
           document.getElementById("progress-bar").style.width = "100%"; // 100% for step 3
