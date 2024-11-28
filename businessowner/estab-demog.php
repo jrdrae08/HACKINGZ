@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
       // Insert demographic data into the database
-      $stmt = $pdo->prepare("INSERT INTO bOwnerdemographics (ApplicationID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:applicationID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
+      $stmt = $pdo->prepare("INSERT INTO bOwnerdemographics (ApplicationID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry, isAccepted) VALUES (:applicationID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry, 'Accepted')");
       $stmt->execute([
         ':applicationID' => $applicationID,
         ':name' => $allNames,
@@ -159,7 +159,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     .card {
-      max-width: 550px;
+      max-width: 500px;
       width: 100%;
     }
 
@@ -170,6 +170,20 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       left: 50%;
       transform: translate(-50%, -50%);
       z-index: 1000;
+    }
+
+
+    .scrollable-content {
+      max-height: 600px;
+      /* Adjust the height as needed */
+      overflow-y: auto;
+      /* Enables scrolling within this container */
+      padding-top: 0;
+      /* Ensure there’s no extra padding at the top */
+      margin-top: 0;
+      /* Remove any margin if added by default */
+      display: block;
+      /* Avoid flex centering for scrolling behavior */
     }
   </style>
 </head>
@@ -185,7 +199,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       <div class="row d-flex justify-content-center">
         <div class="col-12 d-flex justify-content-center">
           <form id="businessOwnerForm" action="estab-demog.php?id=<?php echo $applicationID; ?>" method="POST">
-            <div class="card">
+            <div class="card scrollable-content">
               <div class="card-body">
                 <div class="row g-2">
                   <div class="col-12 my-4 d-flex align-items-center justify-content-center">
@@ -215,7 +229,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     <h4>Attendees' Information</h4>
                   </div>
                   <div class="hr-2"></div>
-                  <div id="attendeesInfoContainer" class="col-12 mb-4 d-flex justify-content-center flex-column">
+                  <div id="attendeesInfoContainer" class="col-12 mb-4 d-flex justify-content-center  flex-column">
                     <!-- Attendee fields will be appended here -->
                   </div>
 
@@ -278,7 +292,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       for (let i = 1; i <= numberOfAttendees; i++) {
         attendeesInfoContainer.insertAdjacentHTML('beforeend', `
       <div class="row g-2 mb-3">
-        <p class="mb-0">Name of Attendee ${i}</p>
+
+        <p class="mb-0 text-success fw-bold">Name of Attendee ${i}</p>
         <div class="col-lg-5 col-12">
           <input type="text" class="form-control shadow" name="name[]" placeholder="ex. Juan Dela Cruz" required>
         </div>
@@ -296,7 +311,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <option value="Foreign Country">Foreign Country</option>
           </select>
         </div>
+
       </div>
+                    <hr>
     `);
       }
 

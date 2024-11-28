@@ -2,9 +2,10 @@
 // Assuming you have a database connection established
 include '../includes/db.php';
 
-// Fetch roomID and businessInfoID from the URL
+// Fetch roomID, businessInfoID, and userID from the URL
 $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
 $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
+$userID = isset($_GET['userID']) ? (int) $_GET['userID'] : 1;
 
 // Fetch payment method for the room
 $query = "SELECT * FROM payment_methods WHERE roomID = :roomID";
@@ -19,6 +20,12 @@ $query = "SELECT bgcashnum, bgcashname, bgcashQrImage FROM qcashPayment WHERE Bu
 $stmt = $pdo->prepare($query);
 $stmt->execute(['businessInfoID' => $businessInfoID]);
 $gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+
+// Fetch user information
+$query = "SELECT full_name, u_address, u_email, u_contact, sex, locationType FROM users WHERE userID = :userID";
+$stmt = $pdo->prepare($query);
+$stmt->execute(['userID' => $userID]);
+$userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -30,17 +37,18 @@ $gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
-  <script src="https://code.jquery.com/jquery-3.5.1.min.js"></script>
-  <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
-  <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css">
   <link rel="stylesheet" href="../css/registration.css">
 </head>
 
 <body>
   <main>
-    <form id="registrationForm" method="POST" enctype="multipart/form-data" action="../backends/subadmin/businessregfunction.php">
+    <form id="registrationForm" method="POST" enctype="multipart/form-data" action="../../backends/subadmin/bookingreg.php?roomID=<?php echo $roomID; ?>&businessInfoID=<?php echo $businessInfoID; ?>&userID=<?php echo $userID; ?>">
       <div class="row d-flex justify-content-center">
         <div class="col-xl-4 col-lg-5 col-md-8 col-sm-11">
           <div class="container">
@@ -83,27 +91,45 @@ $gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
 
                     <!-- Form fields here -->
                     <div class="col-lg-10">
-                      <div class="form-floating mb-3">
-                        <input type="text" class="form-control shadow" name="fullname" placeholder=" " required>
-                        <label for="" class="dm-sans-text">Full Name</label>
+                      <div class="mb-3">
+                        <label for="fullname" class="dm-sans-text">Full Name</label>
+                        <input type="text" class="form-control shadow" name="fullname_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['full_name']); ?>" disabled>
+                        <input type="hidden" name="fullname" value="<?php echo htmlspecialchars($userInfo['full_name']); ?>">
                       </div>
                     </div>
                     <div class="col-lg-10">
-                      <div class="form-floating mb-3">
-                        <input type="text" class="form-control shadow" name="regadd" placeholder=" " required>
-                        <label for="" class="dm-sans-text">Address</label>
+                      <div class="mb3">
+                        <label for="regadd" class="dm-sans-text">Address</label>
+                        <input type="text" class="form-control shadow" name="regadd_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['u_address']); ?>" disabled>
+                        <input type="hidden" name="regadd" value="<?php echo htmlspecialchars($userInfo['u_address']); ?>">
                       </div>
                     </div>
                     <div class="col-lg-10">
-                      <div class="form-floating mb-3">
-                        <input type="email" name="u_email" class="form-control shadow" required>
-                        <label>Email Address</label>
+                      <div class="mb-3">
+                        <label for="u_email">Email Address</label>
+                        <input type="email" name="u_email_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>" disabled>
+                        <input type="hidden" name="u_email" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>">
                       </div>
                     </div>
                     <div class="col-lg-10">
-                      <div class="form-floating mb-3">
-                        <input type="number" name="u_contact" class="form-control shadow" required>
-                        <label>Contact Number</label>
+                      <div class="mb-3">
+                        <label for="u_contact">Contact Number</label>
+                        <input type="text" name="u_contact_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>" disabled>
+                        <input type="hidden" name="u_contact" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>">
+                      </div>
+                    </div>
+                    <div class="col-lg-10">
+                      <div class="mb-3">
+                        <label for="sex">Sex</label>
+                        <input type="text" name="sex_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['sex']); ?>" disabled>
+                        <input type="hidden" name="sex" value="<?php echo htmlspecialchars($userInfo['sex']); ?>">
+                      </div>
+                    </div>
+                    <div class="col-lg-10">
+                      <div class="mb-3">
+                        <label for="locationType">Location Type</label>
+                        <input type="text" name="locationType_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>" disabled>
+                        <input type="hidden" name="locationType" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>">
                       </div>
                     </div>
 
@@ -125,27 +151,30 @@ $gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                     <!-- Demographics Form -->
                     <div class="col-lg-12 my-3">
                       <div class="row d-flex justify-content-center">
-                        <div class="col-6">
+                        <div class="col-12">
                           <div class="form-floating mb-3">
-                            <input type="text" class="form-control shadow" name="checkin" id="checkin" placeholder="" required>
-                            <label for="checkin" class="fw-bold dm-sans-text">Check In</label>
+                            <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="" required>
+                            <label for="daterange" class="fw-bold dm-sans-text">Select Checkin and Checkout Date</label>
                           </div>
                         </div>
+                        <script>
+                          $(document).ready(function() {
+                            $('#daterange').daterangepicker({
+                              locale: {
+                                format: 'YYYY-MM-DD'
+                              }
+                            });
+                          });
+                        </script>
                         <div class="col-6">
                           <div class="form-floating mb-3">
-                            <input type="text" class="form-control shadow" name="departure" id="departure" placeholder="" required>
-                            <label for="departure" class="fw-bold dm-sans-text">Departure</label>
-                          </div>
-                        </div>
-                        <div class="col-6">
-                          <div class="form-floating mb-3">
-                            <input type="number" name="total_adults" class="form-control shadow" placeholder="" required>
+                            <input type="number" name="total_adults" class="form-control shadow" placeholder="">
                             <label>Total Adults</label>
                           </div>
                         </div>
                         <div class="col-6">
                           <div class="form-floating mb-3">
-                            <input type="number" name="total_children" class="form-control shadow" placeholder="" required>
+                            <input type="number" name="total_children" class="form-control shadow" placeholder="">
                             <label>Total Children</label>
                           </div>
                         </div>
@@ -198,8 +227,8 @@ $gcashInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                         <p class="text-center">Number: <?php echo htmlspecialchars($gcashInfo['bgcashnum']); ?></p>
                       </div>
                       <div class="col-lg-12 mb-3">
-                        <label for="back_id" class="mb-1 d-block text-start">Proof of Payment</label>
-                        <input type="file" name="back_id" id="back_id" class="form-control shadow" accept="image/*" required>
+                        <label for="proofofpayment" class="mb-1 d-block text-start">Proof of Payment</label>
+                        <input type="file" name="proofofpayment" id="proofofpayment" class="form-control shadow" accept="image/*" required>
                       </div>
                       <div class="col-lg-12 mb-3">
                         <div class="form-floating mb-3">
