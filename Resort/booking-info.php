@@ -247,7 +247,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                           <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
                         </div>
                         <div class="d-grid col-6 mx-auto">
-                          <button type="submit" class="btn btn-success" id="registerButton" disabled>BOOK NOW</button>
+                          <button type="button" class="btn btn-success" id="registerButton" data-bs-toggle="modal" data-bs-target="#confirmationModal" disabled>BOOK NOW</button>
                         </div>
                       </div>
                     </div>
