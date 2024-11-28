@@ -36,6 +36,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
   <title>Booking Information</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
@@ -200,7 +201,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                         <?php if ($hasPaymentMethod) : ?>
                           <button type="button" class="btn btn-success" id="nextButton2" onclick="nextSection()" disabled>NEXT</button>
                         <?php else : ?>
-                          <button type="submit" class="btn btn-success" id="registerButton">BOOK NOW</button>
+                          <button type="button" class="btn btn-success" id="registerButton" data-bs-toggle="modal" data-bs-target="#confirmationModal" disabled>BOOK NOW</button>
                         <?php endif; ?>
                       </div>
                     </div>
@@ -259,18 +260,67 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
       </div>
     </form>
   </main>
+  <!-- Confirmation Modal -->
+  <div class="modal fade" id="confirmationModal" tabindex="-1" aria-labelledby="confirmationModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title" id="confirmationModalLabel">Confirm Booking</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="modal-body">
+          Are you sure you want to confirm this booking?
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="button" class="btn btn-success" id="confirmBookingButton">Confirm</button>
+        </div>
+      </div>
+    </div>
+  </div>
 
-  <!-- JavaScript for section navigation -->
   <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      const notyf = new Notyf({
-        duration: 30000,
-        position: {
-          x: 'right',
-          y: 'top'
-        }
-      });
+    document.getElementById('confirmBookingButton').addEventListener('click', function() {
+      const form = document.getElementById('registrationForm');
+      const formData = new FormData(form);
 
+      fetch(form.action, {
+          method: 'POST',
+          body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+          var notyf = new Notyf({
+            duration: 3000,
+            position: {
+              x: 'right',
+              y: 'top',
+            }
+          });
+
+          if (data.type === 'success') {
+            notyf.success(data.message);
+            setTimeout(() => {
+              window.location.href = '../../resort/page-3.php?roomID=<?php echo $roomID; ?>&businessInfoID=<?php echo $businessInfoID; ?>&userID=<?php echo $userID; ?>';
+            }, 3000);
+          } else {
+            notyf.error(data.message);
+          }
+        })
+        .catch(error => {
+          var notyf = new Notyf({
+            duration: 3000,
+            position: {
+              x: 'right',
+              y: 'top',
+            }
+          });
+          notyf.error('An error occurred. Please try again.');
+        });
+    });
+
+    // JavaScript for section navigation
+    document.addEventListener('DOMContentLoaded', () => {
       let currentStep = 1;
       const hasPaymentMethod = <?php echo json_encode($hasPaymentMethod); ?>;
 
