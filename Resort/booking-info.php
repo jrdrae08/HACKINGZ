@@ -98,7 +98,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                       </div>
                     </div>
                     <div class="col-lg-10">
-                      <div class="mb3">
+                      <div class="mb-3">
                         <label for="regadd" class="dm-sans-text">Address</label>
                         <input type="text" class="form-control shadow" name="regadd_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['u_address']); ?>" disabled>
                         <input type="hidden" name="regadd" value="<?php echo htmlspecialchars($userInfo['u_address']); ?>">
@@ -162,6 +162,10 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                             $('#daterange').daterangepicker({
                               locale: {
                                 format: 'YYYY-MM-DD'
+                              },
+                              minDate: moment().startOf('day'), // Disable past dates
+                              isInvalidDate: function(date) {
+                                return date.isBefore(moment(), 'day'); // Disable past dates
                               }
                             });
                           });
@@ -194,7 +198,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                       </div>
                       <div class="d-grid col-6">
                         <?php if ($hasPaymentMethod) : ?>
-                          <button type="button" class="btn btn-success" id="nextButton2" onclick="nextSection()">NEXT</button>
+                          <button type="button" class="btn btn-success" id="nextButton2" onclick="nextSection()" disabled>NEXT</button>
                         <?php else : ?>
                           <button type="submit" class="btn btn-success" id="registerButton">BOOK NOW</button>
                         <?php endif; ?>
@@ -242,7 +246,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
                           <button type="button" class="btn btn-secondary me-2" onclick="previousSection()">BACK</button>
                         </div>
                         <div class="d-grid col-6 mx-auto">
-                          <button type="submit" class="btn btn-success" id="registerButton">BOOK NOW</button>
+                          <button type="submit" class="btn btn-success" id="registerButton" disabled>BOOK NOW</button>
                         </div>
                       </div>
                     </div>
@@ -270,7 +274,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
       let currentStep = 1;
       const hasPaymentMethod = <?php echo json_encode($hasPaymentMethod); ?>;
 
-      function nextSection() {
+      window.nextSection = function() {
         if (currentStep === 1) {
           document.getElementById("section1").classList.remove("active");
           document.getElementById("section2").classList.add("active");
@@ -286,7 +290,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         }
       }
 
-      function previousSection() {
+      window.previousSection = function() {
         if (currentStep === 2) {
           document.getElementById("section2").classList.remove("active");
           document.getElementById("section1").classList.add("active");
@@ -309,7 +313,7 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         });
       }
 
-      function generateForm() {
+      window.generateForm = function() {
         const totalAdults = document.querySelector('input[name="total_adults"]').value;
         const totalChildren = document.querySelector('input[name="total_children"]').value;
         const attendeesContainer = document.getElementById('attendeesContainer');
@@ -325,27 +329,30 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
           const attendeeDiv = document.createElement('div');
           attendeeDiv.className = 'row g-2 mb-3';
           attendeeDiv.innerHTML = `
-            <p class="mb-0">Name of Attendee ${i}</p>
-            <div class="col-lg-7 col-12">
-              <input type="text" class="form-control shadow" name="name[]" placeholder="ex. Juan Dela Cruz" required>
-            </div>
-            <div class="col-lg-5 col-md-6 col-12">
-              <select name="sex[]" class="form-select shadow" required>
-                <option value="">Select Sex</option>
-                <option value="Male">Male</option>
-                <option value="Female">Female</option>
-              </select>
-              <select name="location[]" class="form-select shadow mt-2" required>
-                <option value="">Select Location</option>
-                <option value="This City/Municipality">This City/Municipality</option>
-                <option value="Other City/Municipality">Other City/Municipality</option>
-                <option value="Other Province">Other Province</option>
-                <option value="Foreign Country">Foreign Country</option>
-              </select>
-            </div>
-          `;
+      <p class="mb-0">Name of Attendee ${i}</p>
+      <div class="col-lg-7 col-12">
+        <input type="text" class="form-control shadow" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+      </div>
+      <div class="col-lg-5 col-md-6 col-12">
+        <select name="sex[]" class="form-select shadow" required>
+          <option value="">Select Sex</option>
+          <option value="Male">Male</option>
+          <option value="Female">Female</option>
+        </select>
+        <select name="location[]" class="form-select shadow mt-2" required>
+          <option value="">Select Location</option>
+          <option value="This City/Municipality">This City/Municipality</option>
+          <option value="Other City/Municipality">Other City/Municipality</option>
+          <option value="Other Province">Other Province</option>
+          <option value="Foreign Country">Foreign Country</option>
+        </select>
+      </div>
+    `;
           attendeesContainer.appendChild(attendeeDiv);
         }
+
+        checkNextButton2();
+        checkRegisterButton();
       }
 
       function checkGenerateFormButton() {
@@ -360,16 +367,101 @@ $userInfo = $stmt->fetch(PDO::FETCH_ASSOC);
         }
       }
 
+      function checkNextButton2() {
+        const attendees = document.querySelectorAll('#attendeesContainer input[name="name[]"]');
+        const sexes = document.querySelectorAll('#attendeesContainer select[name="sex[]"]');
+        const locations = document.querySelectorAll('#attendeesContainer select[name="location[]"]');
+        const nextButton2 = document.getElementById('nextButton2');
+        let allFilled = true;
+
+        attendees.forEach(attendee => {
+          if (attendee.value.trim() === '') {
+            allFilled = false;
+          }
+        });
+
+        sexes.forEach(sex => {
+          if (sex.value.trim() === '') {
+            allFilled = false;
+          }
+        });
+
+        locations.forEach(location => {
+          if (location.value.trim() === '') {
+            allFilled = false;
+          }
+        });
+
+        nextButton2.disabled = !allFilled;
+      }
+
+      function checkRegisterButton() {
+        const attendees = document.querySelectorAll('#attendeesContainer input[name="name[]"]');
+        const sexes = document.querySelectorAll('#attendeesContainer select[name="sex[]"]');
+        const locations = document.querySelectorAll('#attendeesContainer select[name="location[]"]');
+        const totalAdults = document.querySelector('input[name="total_adults"]').value;
+        const totalChildren = document.querySelector('input[name="total_children"]').value;
+        const registerButton = document.getElementById('registerButton');
+        let allFilled = true;
+
+        attendees.forEach(attendee => {
+          if (attendee.value.trim() === '') {
+            allFilled = false;
+          }
+        });
+
+        sexes.forEach(sex => {
+          if (sex.value.trim() === '') {
+            allFilled = false;
+          }
+        });
+
+        locations.forEach(location => {
+          if (location.value.trim() === '') {
+            allFilled = false;
+          }
+        });
+
+        if (totalAdults === '' && totalChildren === '') {
+          allFilled = false;
+        }
+
+        if (hasPaymentMethod) {
+          const proofOfPayment = document.querySelector('input[name="proofofpayment"]').files.length > 0;
+          const gcashReference = document.querySelector('input[name="gcash_reference"]').value.trim() !== '';
+          if (!proofOfPayment || !gcashReference) {
+            allFilled = false;
+          }
+        }
+
+        registerButton.disabled = !allFilled;
+      }
+
       document.querySelector('input[name="total_adults"]').addEventListener('input', checkGenerateFormButton);
       document.querySelector('input[name="total_children"]').addEventListener('input', checkGenerateFormButton);
+      document.getElementById('attendeesContainer').addEventListener('input', checkNextButton2);
+      document.getElementById('attendeesContainer').addEventListener('input', checkRegisterButton);
+      document.querySelector('input[name="total_adults"]').addEventListener('input', checkRegisterButton);
+      document.querySelector('input[name="total_children"]').addEventListener('input', checkRegisterButton);
 
-      window.nextSection = nextSection;
-      window.previousSection = previousSection;
-      window.generateForm = generateForm;
+      if (hasPaymentMethod) {
+        document.querySelector('input[name="proofofpayment"]').addEventListener('change', checkRegisterButton);
+        document.querySelector('input[name="gcash_reference"]').addEventListener('input', checkRegisterButton);
+      }
 
       // Initialize datepicker
-      $('#checkin').datepicker();
-      $('#departure').datepicker();
+      $('#daterange').daterangepicker({
+        locale: {
+          format: 'YYYY-MM-DD'
+        },
+        minDate: moment().startOf('day'), // Disable past dates
+        isInvalidDate: function(date) {
+          return date.isBefore(moment(), 'day'); // Disable past dates
+        }
+      });
+
+      // Initially disable the "Book Now" button
+      document.getElementById('registerButton').disabled = true;
     });
   </script>
 
