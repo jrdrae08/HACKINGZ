@@ -93,7 +93,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     try {
       // Insert demographic data into the database
-      $stmt = $pdo->prepare("INSERT INTO bOwnerdemographics (ApplicationID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry, isAccepted) VALUES (:applicationID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry, 'Accepted')");
+      $stmt = $pdo->prepare("INSERT INTO bOwnerdemographics (ApplicationID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry) VALUES (:applicationID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry)");
       $stmt->execute([
         ':applicationID' => $applicationID,
         ':name' => $allNames,

@@ -104,192 +104,132 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         </tr>
                                                     </thead>
                                                     <tbody id="new-reservations">
-                                                        <!-- Data will be populated here by JavaScript -->
+
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
-
-                                        <!-- view modal -->
+                                        <!-- Modal -->
                                         <div class="modal fade" id="viewroom" tabindex="-1" aria-labelledby="viewroomLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
+                                            <div class="modal-dialog">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="viewroomLabel">Reservation Details</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <!-- Reservation details will be populated here by JavaScript -->
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <script>
-                                            // Define notyf globally
-                                            const notyf = new Notyf({
-                                                duration: 3000,
-                                                position: {
-                                                    x: 'right',
-                                                    y: 'top'
-                                                }
-                                            });
-
-                                            document.addEventListener('DOMContentLoaded', function() {
-                                                fetchReservations();
-                                            });
-
-                                            function fetchReservations() {
-                                                fetch('../../backends/subadmin/fetch_new_reservations.php')
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        if (data.status === 'success') {
-                                                            const reservations = data.data;
-                                                            const tbody = document.getElementById('new-reservations');
-                                                            tbody.innerHTML = '';
-
-                                                            reservations.forEach(reservation => {
-                                                                const tr = document.createElement('tr');
-                                                                tr.innerHTML = `
-                            <td>${formatDateTime(reservation.datetime)}</td>
-                            <td>${reservation.roomName}</td>
-                            <td>${reservation.fullname}</td>
-                            <th>
-                                <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom" onclick="fetchReservationDetails(${reservation.revID})"><i class="bi bi-eye"></i></button>
-                                <button class="btn btn-success m-1" onclick="showConfirmationModal(${reservation.revID})"><i class="bi bi-check-lg"></i></button>
-                                <button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button>
-                            </th>
-                        `;
-                                                                tbody.appendChild(tr);
-                                                            });
-                                                        } else {
-                                                            console.error(data.message);
-                                                        }
-                                                    })
-                                                    .catch(error => console.error('Error fetching reservations:', error));
-                                            }
-
-                                            function fetchReservationDetails(revID) {
-                                                console.log(`Fetching details for reservation ID: ${revID}`);
-                                                fetch(`../../backends/subadmin/fetch_reservation_details.php?revID=${revID}`)
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        console.log(data); // Log the response data
-                                                        if (data.status === 'success') {
-                                                            const reservation = data.data;
-                                                            document.querySelector('#viewroom .modal-body').innerHTML = `
-                        <p class="mt-2 fs-6 fw-bold text-center">Customer Profile</p>
-                        <ul>
-                            <li>Customer Name: ${reservation.fullname}</li>
-                            <li>Contact Number: ${reservation.regnum}</li>
-                            <li>Email: ${reservation.regemail}</li>
-                            <li>Address: ${reservation.regadd}</li>
-                        </ul>
-                        <p class="mt-2 fs-6 fw-bold text-center">Reservation Information</p>
-                        <ul>
-                            <li>Room name: ${reservation.roomName}</li>
-                            <li>Check In: ${reservation.checkin}</li>
-                            <li>Check Out: ${reservation.departure}</li>
-                        </ul>
-                        <div class="row">
-                            <div class="col-md-12 mb-2 text-center">
-                                <p>Total visitors: ${parseInt(reservation.numadult, 10) + parseInt(reservation.numchild, 10)}</p>
-                            </div>
-                            <div class="row text-center">
-                                <div class="col-md-6 mb-2">
-                                    <p>Males: ${reservation.nummale}</p>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <p>Females: ${reservation.numfemale}</p>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <p>Adults: ${reservation.numadult}</p>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <p>Children: ${reservation.numchild}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                                                        } else {
-                                                            console.error(data.message);
-                                                        }
-                                                    })
-                                                    .catch(error => console.error('Error fetching reservation details:', error));
-                                            }
-
-                                            function showConfirmationModal(revID) {
-                                                const confirmButton = document.getElementById('confirmButton');
-                                                confirmButton.onclick = function() {
-                                                    updateReservationStatus(revID, 'Accepted');
-                                                };
-                                                const confirmationModal = new bootstrap.Modal(document.getElementById('reservationConfirmationModal'));
-                                                confirmationModal.show();
-                                            }
-
-                                            function updateReservationStatus(revID, status) {
-                                                fetch(`../../backends/subadmin/update_reservation_status.php`, {
-                                                        method: 'POST',
-                                                        headers: {
-                                                            'Content-Type': 'application/json'
-                                                        },
-                                                        body: JSON.stringify({
-                                                            revID,
-                                                            status
-                                                        })
-                                                    })
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        if (data.status === 'success') {
-                                                            console.log(data.status);
-                                                            const confirmationModal = bootstrap.Modal.getInstance(document.getElementById('reservationConfirmationModal'));
-                                                            notyf.success('Reservation status updated successfully.');
-                                                            confirmationModal.hide();
-                                                            setTimeout(() => {
-                                                                location.reload(); // Refresh the page
-                                                            }, 1000);
-                                                        } else {
-                                                            console.error(data.message);
-                                                            notyf.error('Failed to update reservation status.');
-                                                        }
-                                                    })
-                                                    .catch(error => {
-                                                        console.error('Error updating reservation status:', error);
-                                                        notyf.error('An error occurred while updating reservation status.');
-                                                    });
-                                            }
-
-                                            function formatDateTime(datetime) {
-                                                const date = new Date(datetime);
-                                                const options = {
-                                                    hour: '2-digit',
-                                                    minute: '2-digit',
-                                                    hour12: true
-                                                };
-                                                const time = date.toLocaleTimeString('en-US', options);
-                                                const formattedDate = `${time} ${date.getMonth() + 1}/${date.getDate()}/${date.getFullYear().toString().slice(-2)}`;
-                                                return formattedDate;
-                                            }
-                                        </script>
-                                        <!-- Confirmation Modal -->
-                                        <div class="modal fade" id="reservationConfirmationModal" tabindex="-1" aria-labelledby="reservationConfirmationModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="reservationConfirmationModalLabel">Confirm Reservation</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        Are you sure you want to accept this reservation?
+                                                        <p><strong>Name:</strong> <span id="modal-name"></span></p>
+                                                        <p><strong>Address:</strong> <span id="modal-address"></span></p>
+                                                        <p><strong>Contact Number:</strong> <span id="modal-contact"></span></p>
+                                                        <p><strong>Type of ID:</strong> <span id="modal-id-type"></span></p>
+                                                        <p><strong>ID Front:</strong> <img id="modal-front-id" src="" alt="Front ID" style="width: 100%;"></p>
+                                                        <p id="back-id-container"><strong>ID Back:</strong> <img id="modal-back-id" src="" alt="Back ID" style="width: 100%;"></p>
+                                                        <hr>
+                                                        <h5>User Demographics</h5>
+                                                        <p><strong>Total Number of Attendees:</strong> <span id="modal-total-attendees"></span></p>
+                                                        <p><strong>Total Male:</strong> <span id="modal-total-male"></span></p>
+                                                        <p><strong>Total Female:</strong> <span id="modal-total-female"></span></p>
+                                                        <p><strong>This City/Municipality:</strong> <span id="modal-this-city"></span></p>
+                                                        <p><strong>Other City/Municipality:</strong> <span id="modal-other-city"></span></p>
+                                                        <p><strong>Other Province:</strong> <span id="modal-other-province"></span></p>
+                                                        <p><strong>Foreign Country:</strong> <span id="modal-foreign-country"></span></p>
+                                                        <p class="text-center fw-bold">Information Table</p>
+                                                        <table class="table table-striped">
+                                                            <thead>
+                                                                <tr>
+                                                                    <th scope="col">Name</th>
+                                                                    <th>Sex</th>
+                                                                    <th>Location</th>
+                                                                </tr>
+                                                            </thead>
+                                                            <tbody>
+                                                                <tr>
+                                                                    <td>Jordan Rae</td>
+                                                                    <td>Male</td>
+                                                                    <td>This City/Municipality</td>
+                                                                </tr>
+                                                            </tbody>
+                                                        </table>
                                                     </div>
                                                     <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-success" id="confirmButton">Confirm</button>
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
-                                        <!-- End Confirmation Modal -->
+                                        <script>
+                                            $(document).ready(function() {
+                                                function fetchNewReservations() {
+                                                    $.ajax({
+                                                        url: '../../backends/subadmin/fetch_new_reservations.php', // Update the path as needed
+                                                        method: 'GET',
+                                                        dataType: 'json',
+                                                        success: function(response) {
+                                                            if (response.status === 'success') {
+                                                                let reservations = response.data;
+                                                                let tbody = $('#new-reservations');
+                                                                tbody.empty(); // Clear existing rows
+
+                                                                reservations.forEach(function(reservation) {
+                                                                    let timeBooked = new Date(reservation.timeBooked);
+                                                                    let formattedTimeBooked = timeBooked.toLocaleString('en-US', {
+                                                                        hour: 'numeric',
+                                                                        minute: 'numeric',
+                                                                        hour12: true
+                                                                    }) + ' ' + timeBooked.toLocaleString('en-US', {
+                                                                        month: 'long',
+                                                                        day: 'numeric',
+                                                                        year: 'numeric'
+                                                                    });
+
+                                                                    let row = `
+                            <tr>
+                                <td>${formattedTimeBooked}</td>
+                                <td>${reservation.roomName}</td>
+                                <td>${reservation.customerName}</td>
+                                <td>
+                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom" data-name="${reservation.customerName}" data-address="${reservation.address}" data-contact="${reservation.contactNumber}" data-id-type="${reservation.id_type}" data-front-id="${reservation.front_id}" data-back-id="${reservation.back_id}"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+                                </td>
+                                <td>New</td>
+                            </tr>
+                        `;
+                                                                    tbody.append(row);
+                                                                });
+
+                                                                // Add event listener for view details buttons
+                                                                $('.view-details').on('click', function() {
+                                                                    $('#modal-name').text($(this).data('name'));
+                                                                    $('#modal-address').text($(this).data('address'));
+                                                                    $('#modal-contact').text($(this).data('contact'));
+                                                                    $('#modal-id-type').text($(this).data('id-type'));
+                                                                    $('#modal-front-id').attr('src', $(this).data('front-id'));
+
+                                                                    let backId = $(this).data('back-id');
+                                                                    if (backId) {
+                                                                        $('#modal-back-id').attr('src', backId).parent().show();
+                                                                    } else {
+                                                                        $('#modal-back-id').parent().hide();
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                $('#new-reservations').html('<tr><td colspan="5">No reservations found.</td></tr>');
+                                                            }
+                                                        },
+                                                        error: function() {
+                                                            $('#new-reservations').html('<tr><td colspan="5">An error occurred while fetching reservations.</td></tr>');
+                                                        }
+                                                    });
+                                                }
+
+                                                // Fetch new reservations on page load
+                                                fetchNewReservations();
+                                            });
+                                        </script>
+
+
+
+
 
                                         <!-- upcoming -->
                                         <div class="tab-pane fade" id="pills-upcoming" role="tabpanel" aria-labelledby="pills-upcoming-tab" tabindex="0">
@@ -310,90 +250,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 </table>
                                             </div>
                                         </div>
-                                        <script>
-                                            document.addEventListener('DOMContentLoaded', function() {
-                                                fetchUpcomingReservations();
-                                            });
 
-                                            function fetchUpcomingReservations() {
-                                                fetch('../../backends/subadmin/fetch_upcoming_reservations.php')
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        if (data.status === 'success') {
-                                                            const reservations = data.data;
-                                                            const tbody = document.getElementById('upcoming-reservations');
-                                                            tbody.innerHTML = '';
-
-                                                            reservations.forEach(reservation => {
-                                                                const tr = document.createElement('tr');
-                                                                tr.innerHTML = `
-                            <td>${formatDateTime(reservation.datetime)}</td>
-                            <td>${reservation.roomName}</td>
-                            <td>${reservation.fullname}</td>
-                            <th>
-                                <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom" onclick="fetchReservationDetails(${reservation.revID})"><i class="bi bi-eye"></i></button>
-                                <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
-                                <button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button>
-                            </th>
-                        `;
-                                                                tbody.appendChild(tr);
-                                                            });
-                                                        } else {
-                                                            console.error(data.message);
-                                                        }
-                                                    })
-                                                    .catch(error => console.error('Error fetching reservations:', error));
-                                            }
-
-                                            function fetchReservationDetails(revID) {
-                                                console.log(`Fetching details for reservation ID: ${revID}`);
-                                                fetch(`../../backends/subadmin/fetch_reservation_details.php?revID=${revID}`)
-                                                    .then(response => response.json())
-                                                    .then(data => {
-                                                        console.log(data); // Log the response data
-                                                        if (data.status === 'success') {
-                                                            const reservation = data.data;
-                                                            document.querySelector('#viewroom .modal-body').innerHTML = `
-                        <p class="mt-2 fs-6 fw-bold text-center">Customer Profile</p>
-                        <ul>
-                            <li>Customer Name: ${reservation.fullname}</li>
-                            <li>Contact Number: ${reservation.regnum}</li>
-                            <li>Email: ${reservation.regemail}</li>
-                            <li>Address: ${reservation.regadd}</li>
-                        </ul>
-                        <p class="mt-2 fs-6 fw-bold text-center">Reservation Information</p>
-                        <ul>
-                            <li>Room name: ${reservation.roomName}</li>
-                            <li>Check In: ${reservation.checkin}</li>
-                            <li>Check Out: ${reservation.departure}</li>
-                        </ul>
-                        <div class="row">
-                            <div class="col-md-12 mb-2 text-center">
-                                <p>Total visitors: ${parseInt(reservation.numadult, 10) + parseInt(reservation.numchild, 10)}</p>
-                            </div>
-                            <div class="row text-center">
-                                <div class="col-md-6 mb-2">
-                                    <p>Males: ${reservation.nummale}</p>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <p>Females: ${reservation.numfemale}</p>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <p>Adults: ${reservation.numadult}</p>
-                                </div>
-                                <div class="col-md-6 mb-2">
-                                    <p>Children: ${reservation.numchild}</p>
-                                </div>
-                            </div>
-                        </div>
-                    `;
-                                                        } else {
-                                                            console.error(data.message);
-                                                        }
-                                                    })
-                                                    .catch(error => console.error('Error fetching reservation details:', error));
-                                            }
-                                        </script>
 
                                         <!-- Ongoing -->
                                         <div class="tab-pane fade" id="pills-ongoing" role="tabpanel" aria-labelledby="pills-ongoing-tab" tabindex="0">

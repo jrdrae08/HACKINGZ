@@ -87,7 +87,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ]);
     }
 
-    // Insert into bownerdemographics table
+    // Insert into userdemographics table
     $names = $_POST['name'];
     $sexes = $_POST['sex'];
     $locations = $_POST['location'];
@@ -104,10 +104,12 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $allSexes = implode(', ', array_map('filter_var', $sexes, array_fill(0, count($sexes), FILTER_SANITIZE_STRING)));
     $allLocations = implode(', ', array_map('filter_var', $locations, array_fill(0, count($locations), FILTER_SANITIZE_STRING)));
 
-    $query = "INSERT INTO bownerdemographics (ApplicationID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry, isAccepted) VALUES (:applicationID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry, 'Pending')";
+    $query = "INSERT INTO userdemographics (userID, roomID, BusinessInfoID, name, sex, location, created_at, totalnumAttendees, totalmale, totalfemale, thisCity, otherCity, otherProvince, foreignCountry, isAccepted) VALUES (:userID, :roomID, :businessInfoID, :name, :sex, :location, NOW(), :totalnumAttendees, :totalmale, :totalfemale, :thisCity, :otherCity, :otherProvince, :foreignCountry, 'Pending')";
     $stmt = $pdo->prepare($query);
     $stmt->execute([
-      ':applicationID' => $businessInfoID,
+      ':userID' => $userID,
+      ':roomID' => $roomID,
+      ':businessInfoID' => $businessInfoID,
       ':name' => $allNames,
       ':sex' => $allSexes,
       ':location' => $allLocations,
