@@ -16,6 +16,8 @@ if (isset($_GET['businessInfoID'])) {
     header("Location: $url"); // Redirect to the URL without businessInfoID
     exit(); // Ensure the script stops executing after the redirect
 }
+// Get the tab parameter from the URL
+$activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -34,6 +36,7 @@ if (isset($_GET['businessInfoID'])) {
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
     <link rel="stylesheet" href="../../resort/new-resort-ui.css">
+    <!-- <link rel="stylesheet" href="../homepage/homepage.css"> -->
     <style>
         .custom-img img {
             height: 400px;
@@ -58,33 +61,8 @@ if (isset($_GET['businessInfoID'])) {
 
 <body>
     <main class="content">
-        <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid my-1">
-                <a class="navbar-brand ms-5 text-light" href="#">
-                    <img src="../../resort/majayjay-logo.webp" alt="Majayjay Logo" height="50">
-                    <span class="dm-sans-text">Majayjay,Laguna</span>
-                </a>
-                <button class="navbar-toggler shadow" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="../homepage/homepage.php<?php echo isset($_SESSION['user_id']) ? '?userID=' . urlencode($_SESSION['user_id']) : ''; ?>">HOME</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#service">SERVICES</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#about">ABOUT</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#contact">CONTACT</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav>
+        <!-- aside nav -->
+        <?php include '../homepage/includes/main-nav.php'; ?>
 
         <section class="first-page" id="first-page">
             <div class="container-fluid">
@@ -99,16 +77,16 @@ if (isset($_GET['businessInfoID'])) {
                 <div class="d-flex justify-content-center">
                     <ul class="nav nav-pills d-flex justify-content-center align-items-center py-2" id="pills-tab" role="tablist">
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link dm-sans-text active" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="true">All</button>
+                            <button class="nav-link dm-sans-text <?= $activeTab === 'all' ? 'active' : '' ?>" id="pills-all-tab" data-bs-toggle="pill" data-bs-target="#pills-all" type="button" role="tab" aria-controls="pills-all" aria-selected="<?= $activeTab === 'all' ? 'true' : 'false' ?>">All</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link dm-sans-text" id="pills-resort-tab" data-bs-toggle="pill" data-bs-target="#pills-resort" type="button" role="tab" aria-controls="pills-resort" aria-selected="false">Resort</button>
+                            <button class="nav-link dm-sans-text <?= $activeTab === 'resort' ? 'active' : '' ?>" id="pills-resort-tab" data-bs-toggle="pill" data-bs-target="#pills-resort" type="button" role="tab" aria-controls="pills-resort" aria-selected="<?= $activeTab === 'resort' ? 'true' : 'false' ?>">Resort</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link dm-sans-text" id="pills-farms-tab" data-bs-toggle="pill" data-bs-target="#pills-farms" type="button" role="tab" aria-controls="pills-farms" aria-selected="false">Farms</button>
+                            <button class="nav-link dm-sans-text <?= $activeTab === 'farms' ? 'active' : '' ?>" id="pills-farms-tab" data-bs-toggle="pill" data-bs-target="#pills-farms" type="button" role="tab" aria-controls="pills-farms" aria-selected="<?= $activeTab === 'farms' ? 'true' : 'false' ?>">Farms</button>
                         </li>
                         <li class="nav-item" role="presentation">
-                            <button class="nav-link dm-sans-text" id="pills-falls-tab" data-bs-toggle="pill" data-bs-target="#pills-falls" type="button" role="tab" aria-controls="pills-falls" aria-selected="false">Falls</button>
+                            <button class="nav-link dm-sans-text <?= $activeTab === 'falls' ? 'active' : '' ?>" id="pills-falls-tab" data-bs-toggle="pill" data-bs-target="#pills-falls" type="button" role="tab" aria-controls="pills-falls" aria-selected="<?= $activeTab === 'falls' ? 'true' : 'false' ?>">Falls</button>
                         </li>
                     </ul>
                 </div>
@@ -118,11 +96,11 @@ if (isset($_GET['businessInfoID'])) {
         <section class="destination-page bg-secondary-subtle shadow">
             <div class="container-fluid">
                 <div class="tab-content">
-                    <div class="tab-pane fade show active" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabindex="0">
-                        <div class="row destination-lists">
+                    <div class="tab-pane fade <?= $activeTab === 'all' ? 'show active' : '' ?>" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabindex="0">
+                        <div class="row d-flex justify-content-center">
                             <?php foreach ($businesses as $business): ?>
                                 <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
-                                <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
+                                    <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                                         <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                             <div class="row g-0">
                                                 <div class="col-xl-6 col-lg-6 col-md-6 col-12">
@@ -161,10 +139,7 @@ if (isset($_GET['businessInfoID'])) {
                         </div>
                     </div>
 
-
-
-
-                    <div class="tab-pane fade" id="pills-resort" role="tabpanel" aria-labelledby="pills-resort-tab" tabindex="0">
+                    <div class="tab-pane fade <?= $activeTab === 'resort' ? 'show active' : '' ?>" id="pills-resort" role="tabpanel" aria-labelledby="pills-resort-tab" tabindex="0">
                         <div class="row destination-lists">
                             <?php if (empty($resortBusinesses)): ?>
                                 <div class="col-12">
@@ -172,7 +147,7 @@ if (isset($_GET['businessInfoID'])) {
                                 </div>
                             <?php else: ?>
                                 <?php foreach ($resortBusinesses as $business): ?>
-                                    <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
+                                    <div class="col-6 mb-3"> <!-- Adjust column sizes for different screens -->
                                         <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
                                             <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                 <div class="row g-0">
@@ -213,8 +188,7 @@ if (isset($_GET['businessInfoID'])) {
                         </div>
                     </div>
 
-
-                    <div class="tab-pane fade" id="pills-farms" role="tabpanel" aria-labelledby="pills-farms-tab" tabindex="0">
+                    <div class="tab-pane fade <?= $activeTab === 'farms' ? 'show active' : '' ?>" id="pills-farms" role="tabpanel" aria-labelledby="pills-farms-tab" tabindex="0">
                         <div class="row destination-lists">
                             <?php if (empty($farmBusinesses)): ?>
                                 <div class="col-12">
@@ -263,8 +237,7 @@ if (isset($_GET['businessInfoID'])) {
                         </div>
                     </div>
 
-
-                    <div class="tab-pane fade" id="pills-falls" role="tabpanel" aria-labelledby="pills-falls-tab" tabindex="0">
+                    <div class="tab-pane fade <?= $activeTab === 'falls' ? 'show active' : '' ?>" id="pills-falls" role="tabpanel" aria-labelledby="pills-falls-tab" tabindex="0">
                         <div class="row destination-lists">
                             <?php if (empty($fallsBusinesses)): ?>
                                 <div class="col-12">
@@ -312,7 +285,6 @@ if (isset($_GET['businessInfoID'])) {
                             <?php endif; ?>
                         </div>
                     </div>
-
                 </div>
         </section>
 

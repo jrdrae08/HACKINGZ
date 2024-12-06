@@ -1,20 +1,6 @@
 <?php
 // page-3.php
 include '../includes/db.php';
-session_start();
-
-// Check if userID is set in the URL and store it in the session
-if (isset($_GET['userID'])) {
-    $_SESSION['user_id'] = $_GET['userID'];
-}
-// Check if the user is logged in
-// if (!isset($_SESSION['user_id'])) {
-//     echo "<script>
-//         alert('You need to log in to book a room.');
-//         window.location.href = '../login.php';
-//     </script>";
-//     exit;
-// }
 
 // Get the roomID and businessInfoID from the URL, defaulting to 1 if not set
 $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
@@ -23,7 +9,7 @@ $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
 try {
     // Query to fetch room information based on roomID
     $stmt = $pdo->prepare("
-        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, timeStart, timeEnd, BusinessInfoID
+        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, BusinessInfoID
         FROM roominfotable
         WHERE roomID = :roomID
     ");
@@ -41,45 +27,17 @@ try {
 
     // Query to fetch rooms based on businessInfoID and filter out the room with the specific roomID
     $stmt = $pdo->prepare("
-        SELECT roomID, roomName, roomPrice, RoomDescriptions, image1, timeStart, timeEnd, adultMax, ChildrenMax
+        SELECT roomID, roomName, roomPrice, RoomDescriptions, image1
         FROM roominfotable
         WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
     ");
     $stmt->execute(['businessInfoID' => $businessInfoID, 'roomID' => $roomID]);
     $rooms = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Query to check if the room has a payment method
-    $stmt = $pdo->prepare("
-        SELECT amount
-        FROM payment_methods
-        WHERE roomID = :roomID
-    ");
-    $stmt->execute(['roomID' => $roomID]);
-    $payment = $stmt->fetch(PDO::FETCH_ASSOC);
-
-    // Query to fetch facilities for the room
-    $stmt = $pdo->prepare("
-        SELECT rf.FacilityName
-        FROM room_facilities_mapping rfm
-        JOIN room_facilities rf ON rfm.FacilityID = rf.FacilityID
-        WHERE rfm.roomID = :roomID AND rfm.IsActive = 1
-    ");
-    $stmt->execute(['roomID' => $roomID]);
-    $facilities = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    // Query to fetch features for the room
-    $stmt = $pdo->prepare("
-        SELECT rf.FeatureName
-        FROM room_features_mapping rfm
-        JOIN room_features rf ON rfm.FeatureID = rf.FeatureID
-        WHERE rfm.roomID = :roomID AND rfm.IsActive = 1
-    ");
-    $stmt->execute(['roomID' => $roomID]);
-    $features = $stmt->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {
     echo "Error: " . $e->getMessage();
 }
 ?>
+
 <!DOCTYPE html>
 <html lang="en">
 
@@ -100,13 +58,14 @@ try {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
     <!-- External JS -->
+
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
 
     <link href='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css' rel='stylesheet' />
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.js'></script>
-    <link rel="stylesheet" href="../css/businessowner.css">
+    <link rel="stylesheet" href="../../resort/new-resort-ui.css">
     <style>
         body {
             overflow-x: hidden;
@@ -123,6 +82,29 @@ try {
         .booked {
             background-color: green !important;
             color: white !important;
+        }
+
+        /* Progress Bar Custom Style */
+        .progress {
+            height: 20px;
+            background-color: #f0f0f0;
+            border-radius: 15px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            font-size: 14px;
+            font-weight: bold;
+            line-height: 30px;
+            background-color: var(--bs-success);
+            color: #fff;
+            transition: width 0.5s ease;
+        }
+
+        .progress-bar span {
+            display: inline-block;
+            width: 100%;
+            text-align: center;
         }
 
         /* Style for the overlay */
@@ -181,11 +163,13 @@ try {
 
 <body>
     <main class="content">
+        <?php include '../homepage/includes/main-nav.php'; ?>
+
         <section class="first-page" id="first-page">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-between align-items-center">
+                <div class="row page-nav-select d-flex justify-content-between align-items-center">
                     <div class="col-2 py-3 d-flex justify-content-center align-items-center">
-                        <a href="../../resort/page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>">
+                        <a href="../../resort/page-1.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>">
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
                         </a>
                     </div>
@@ -193,7 +177,7 @@ try {
                     <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
-                                <a href="../../resort/page-2.php" class="page-nav active text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
+                                <a href="../../resort/page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="page-nav active text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
                             </div>
                             <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
                                 <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
@@ -202,327 +186,576 @@ try {
                     </div>
                 </div>
 
-                <div class="page-title-container">
-                    <h1 class="page-title text-light text-center cormorant-text fw-bold "><?php echo htmlspecialchars($room['roomName']); ?></h1>
-                </div>
-
-        </section>
-
-        <section class="room-page-title  bg-secondary-subtle" id="room-page-title">
-            <div class="accommodation-nav bg-success m-0 py-3">
-                <div class="d-flex justify-content-center">
-                    <a href="../../resort/page-1.php?businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
-                        <h3 class="nav text-nav text-light me-2 dm-sans-text">Home ></h3>
-                    </a>
-                    <a href="../../resort/page-2.php?businessInfoID=<?php echo $businessInfoID; ?>" class="text-decoration-none">
-                        <h3 class="nav text-nav text-light me-2 dm-sans-text">Accommodations > </h3>
-                    </a>
-                    <a href="../../resort/page-3.php" class="text-decoration-none">
-                        <h3 class="nav text-nav text-light dm-sans-text">Room</h3>
-                    </a>
+                <div class="first-page-title pb-5">
+                    <div class="row  d-flex justify-content-center">
+                        <div class="col-lg-12 d-flex justify-content-center">
+                            <h1 class="page-title text-light text-center cormorant-text fw-bold "><?php echo htmlspecialchars($room['roomName']); ?></h1>
+                        </div>
+                    </div>
                 </div>
             </div>
+        </section>
 
+        <section class="bg-light rounded-top rounded-top-3" id="destination-information">
             <div class="container-fluid">
-                <div class="row room-page-info bg-secondary-subtle d-flex justify-content-evenly">
-                    <div class="col-xl-5 col-lg-6 col-md-8">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-xl-10 col-lg-11 col-12 py-3">
                         <div class="row d-flex justify-content-center">
-                            <div class="col-12">
-                                <h5 class="text-dark dm-sans-text fw-bold">For only<span class="text-success"> &#8369 <?php echo number_format(htmlspecialchars($room['roomPrice']), 2, '.', ','); ?></span> /Night</h5>
-                                <h1 class="text-success cormorant-text fw-bold"><?php echo htmlspecialchars($room['roomName']); ?></h1>
+                            <div class="col-lg- col-md-9 col-12">
+                                <nav aria-label="breadcrumb">
+                                    <ol class="breadcrumb">
+                                        <li class="breadcrumb-item"><a href="../../resort/page-0.php">Destinations</a></li>
+                                        <li class="breadcrumb-item"><a href="../../resort/page-1.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>">(Resort Name)</a></li>
+                                        <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($room['roomName']); ?></li>
+                                    </ol>
+                                </nav>
                             </div>
-                            <div class="col-12 image-content">
-                                <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid " alt="Main Image">
+
+                            <div class="col-lg-9 col-12 mb-3">
+                                <div class="card">
+                                    <div class="card-body">
+
+                                    </div>
+                                </div>
                             </div>
-                        </div>
-                    </div>
+                            <div class="col-lg-5 col-md-5 col-12">
+                                <div class="card mb-3">
+                                    <div class="card-body">
+                                        <div class="row d-flex justify-content-center">
+                                            <div class="col-12 mb-3">
+                                                <div class="row g-2 d-flex justify-content-start">
+                                                    <div class="col-12"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                    <div class="col-4"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                    <div class="col-4"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                    <div class="col-4"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                    <div class="col-4"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                    <div class="col-4"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                    <div class="col-4"> <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid destinations-images" alt="" onclick="enlargeImage(this.src)"></div>
+                                                </div>
 
-                    <!-- Calendar -->
-                    <div class="col-xl-3 col-lg-6 col-md-8 my-3">
-                        <div class="">
-                            <?php if ($payment): ?>
-                                <p class="fw-bold text-danger text-center">**Requires Downpayment**</p>
-                            <?php endif; ?>
-                        </div>
-                        <div class="col-12 d-flex justify-content-center bg-light shadow my-3 rounded border">
-                            <div class="text-center py-3">
-                                <h5 class="text-dark dm-sans-text fw-bold">Available Schedules</h5>
-                                <p class="text-dark dm-sans-text"><?php echo date("g:i A", strtotime($room['timeStart'])) . " to " . date("g:i A", strtotime($room['timeEnd'])); ?></p>
-                            </div>
-                        </div>
-                        <div class="shadow p-3 bg-light text-dark">
-                            <div class="">
-                                <h5 class="card-title cormorant-text text-dark">Check Availabilities</h5>
-                                <div id="calendar"></div>
-                            </div>
-                        </div>
+                                                <!-- Overlay for Enlarged Image -->
+                                                <div id="imageOverlay" class="image-overlay" style="display: none;">
+                                                    <img id="overlayImage" src="" alt="Enlarged Image">
+                                                </div>
 
-                        <script>
-                            document.addEventListener('DOMContentLoaded', function() {
-                                var roomID = <?php echo $roomID; ?>;
-
-                                fetch('../../backends/subadmin/fetch_booked_dates.php', {
-                                        method: 'POST',
-                                        headers: {
-                                            'Content-Type': 'application/x-www-form-urlencoded'
-                                        },
-                                        body: new URLSearchParams({
-                                            roomID: roomID
-                                        })
-                                    })
-                                    .then(response => response.json())
-                                    .then(data => {
-                                        var bookedDates = data.bookedDates;
-
-                                        var calendarEl = document.getElementById('calendar');
-                                        var calendar = new FullCalendar.Calendar(calendarEl, {
-                                            initialView: 'dayGridMonth',
-                                            datesSet: function(info) {
-                                                var events = [];
-                                                var today = new Date();
-                                                var currentMonth = today.getMonth();
-                                                var currentYear = today.getFullYear();
-
-                                                function isInCurrentMonth(date) {
-                                                    var dateObj = new Date(date);
-                                                    return dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear;
-                                                }
-
-                                                for (var d = new Date(info.start); d <= new Date(info.end); d.setDate(d.getDate() + 1)) {
-                                                    var dateStr = d.toISOString().split('T')[0];
-                                                    var dateObj = new Date(dateStr);
-
-                                                    if (dateObj < today) {
-                                                        events.push({
-                                                            start: dateStr,
-                                                            end: dateStr,
-                                                            display: 'background',
-                                                            backgroundColor: '#d3d3d3' // Past dates
-                                                        });
-                                                    } else {
-                                                        var isBooked = bookedDates.some(bookedDate => bookedDate.date === dateStr && bookedDate.status === 'Accepted');
-                                                        if (isBooked) {
-                                                            events.push({
-                                                                start: dateStr,
-                                                                end: dateStr,
-                                                                display: 'background',
-                                                                backgroundColor: '#ff9f89' // Booked dates
-                                                            });
-                                                        } else {
-                                                            events.push({
-                                                                start: dateStr,
-                                                                end: dateStr,
-                                                                display: 'background',
-                                                                backgroundColor: '#28a745' // Available dates
-                                                            });
-                                                        }
+                                                <script>
+                                                    // Function to enlarge the image on click
+                                                    function enlargeImage(imageSrc) {
+                                                        document.getElementById('overlayImage').src = imageSrc;
+                                                        document.getElementById('imageOverlay').style.display = 'flex'; // Use flex for centering
                                                     }
-                                                }
-                                                calendar.removeAllEvents();
-                                                calendar.addEventSource(events);
-                                            }
-                                        });
 
-                                        calendar.render();
-                                    });
-                            });
-                        </script>
-
-                        <div class="book mt-3 d-grid">
-                            <a class="btn btn-success" onclick="checkUserID();">BOOK NOW</a>
-                        </div>
-                        <!-- Reridrect Script if the user is not logged in -->
-                        <script>
-                            function checkUserID() {
-                                var userID = "<?php echo isset($_SESSION['user_id']) ? $_SESSION['user_id'] : ''; ?>";
-                                if (userID) {
-                                    window.location.href = "../Resort/booking-info.php?roomID=<?php echo urlencode($room['roomID']); ?>&businessInfoID=<?php echo urlencode($businessInfoID); ?>&userID=" + encodeURIComponent(userID);
-                                } else {
-                                    alert("You need to log in to book a room.");
-                                    window.location.href = "../login.php";
-                                }
-                            }
-                        </script>
-                    </div>
-
-                    <!-- Room Description -->
-                    <!-- <div class=" col-xl-7">
-                                <p class="text-secondary dm-sans-text fs-5" style="text-align: justify;"><?php echo htmlspecialchars($room['RoomDescriptions']); ?></p>
-                        </div> -->
-
-                    <div class="col-lg-12 d-flex justify-content-center">
-                        <div class="col-lg-6 col-md-11 col-12">
-                            <div class="more-image mb-5">
-                                <h1 class="text-dark cormorant-text px-3 fw-bold">More Images:</h1>
-                                <div id="carouselExampleIndicators" class="carousel slide custom-carousel">
-                                    <div class="carousel-indicators">
-                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
-                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="1" aria-label="Slide 2"></button>
-                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="2" aria-label="Slide 3"></button>
-                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="3" aria-label="Slide 4"></button>
-                                        <button type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide-to="4" aria-label="Slide 5"></button>
-                                    </div>
-                                    <div class="carousel-inner">
-                                        <?php
-                                        $images = [];
-                                        for ($i = 1; $i <= 6; $i++) {
-                                            if (!empty($room["image$i"])) {
-                                                $images[] = $room["image$i"];
-                                            }
-                                        }
-
-                                        // If there is only one image, duplicate it to ensure the carousel works
-                                        if (count($images) == 1) {
-                                            $images[] = $images[0];
-                                        }
-
-                                        foreach ($images as $index => $image) {
-                                        ?>
-                                            <div class="carousel-item <?php echo $index == 0 ? 'active' : ''; ?>">
-                                                <img src="<?php echo htmlspecialchars($image); ?>" class="img-fluid d-block w-100" alt="..."
-                                                    onclick="enlargeImage('<?php echo htmlspecialchars($image); ?>')">
+                                                    // Function to close the overlay when clicking outside the image
+                                                    document.getElementById('imageOverlay').addEventListener('click', function(event) {
+                                                        if (event.target === this) { // If the click is on the overlay itself (outside the image)
+                                                            this.style.display = 'none'; // Close the overlay
+                                                        }
+                                                    });
+                                                </script>
                                             </div>
-                                        <?php
-                                        }
-                                        ?>
-                                    </div>
-                                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="prev">
-                                        <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Previous</span>
-                                    </button>
-                                    <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleIndicators" data-bs-slide="next">
-                                        <span class="carousel-control-next-icon" aria-hidden="true"></span>
-                                        <span class="visually-hidden">Next</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Overlay for Enlarged Image -->
-                    <div id="imageOverlay" class="image-overlay" style="display: none;">
-                        <img id="overlayImage" src="" alt="Enlarged Image">
-                    </div>
-
-                    <script>
-                        // Function to enlarge the image on click
-                        function enlargeImage(imageSrc) {
-                            document.getElementById('overlayImage').src = imageSrc;
-                            document.getElementById('imageOverlay').style.display = 'flex'; // Use flex for centering
-                        }
-
-                        // Function to close the overlay when clicking outside the image
-                        document.getElementById('imageOverlay').addEventListener('click', function(event) {
-                            if (event.target === this) { // If the click is on the overlay itself (outside the image)
-                                this.style.display = 'none'; // Close the overlay
-                            }
-                        });
-                    </script>
-
-
-                    <div class="col-xl-9 col-11 text-center p-4 mb-4 border border-success shadow bg-success-subtle rounded">
-                        <h2 class="cormorant-text text-dark my-4">Why do you want to book this room? </h2>
-                        <div class="row d-flex justify-content-evenly">
-
-                            <div class="col-lg-3 col-md-5 col-12">
-                                <div class="card py-4">
-                                    <div class="card-body">
-                                        <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
-                                        <h2 class="text-color-1 cormorant-text fw-bold mt-3">Facilities</h2>
-                                        <div class="text-dark">
-                                            <?php foreach ($facilities as $facility): ?>
-                                                <p class="dm-sans-text"><?php echo htmlspecialchars($facility['FacilityName']); ?></p>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-
-                            <div class="col-lg-3 col-md-5 col-12">
-                                <div class="card py-4">
-                                    <div class="card-body">
-                                        <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
-                                        <h2 class="text-color-1 cormorant-text fw-bold mt-3">Features</h2>
-                                        <div class="text-dark">
-                                            <?php foreach ($features as $feature): ?>
-                                                <p class="dm-sans-text"><?php echo htmlspecialchars($feature['FeatureName']); ?></p>
-                                            <?php endforeach; ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3 col-md-5 col-12">
-                                <div class="card py-4">
-                                    <div class="card-body">
-                                        <img src="../img/general-img/majayjay-logo.webp" alt="features" height="100">
-                                        <h2 class="text-color-1 cormorant-text fw-bold mt-3">Resort Rules</h2>
-                                        <div class="text-dark">
-                                            <?php
-                                            $rules = explode("\n", $room['RoomDescriptions']);
-                                            foreach ($rules as $rule) {
-                                                echo '<p class="dm-sans-text"> ' . htmlspecialchars($rule) . '</p>';
-                                            }
-                                            ?>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-
-                            <div class="col-lg-3 col-md-5 col-12">
-                                <div class="card py-4">
-                                    <div class="card-body">
-                                        <img src="../img/general-img/majayjay-logo.webp" class="" alt="features" height="100">
-                                        <h2 class="text-color-1 cormorant-text fw-bold mt-3">Resort Info</h2>
-
-                                        <div class="text-dark">
-                                            <p class="dm-sans-text"><span class="fw-bold">Contact Number:</span> <?php echo htmlspecialchars($businessInfo['BusinessContactNumber']); ?></p>
+                                            <h3 class="dm-sans-text fw-bold"><?php echo htmlspecialchars($room['roomName']); ?></h3>
+                                            <h6 class="dm-sans-text fw-bold"><span>Price: </span> <span class="text-success"> &#8369 <?php echo number_format(htmlspecialchars($room['roomPrice']), 2, '.', ','); ?></span> /Night</h6>
+                                            <p class="dm-sans-text"><span class="fw-bold">Max Adult: </span> </p>
+                                            <p class="dm-sans-text"><span class="fw-bold">Max Children: </span> </p>
                                             <p class="dm-sans-text"><span class="fw-bold">Location:</span> <?php echo htmlspecialchars($businessInfo['BusinessAddress']); ?></p>
+                                            <p class="dm-sans-text"><span class="fw-bold">Contact Number:</span> <?php echo htmlspecialchars($businessInfo['BusinessContactNumber']); ?></p>
+
+                                            <hr>
+                                            <div class="col-11 p-2 border rounded bg-secondary-subtle mb-2">
+                                                <h6 class="dm-sans-text fw-bold">Highlights</h6>
+                                                <div class="row g-2 d-flex justify-content-start">
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>Wi-fi</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>Television</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>King-sized Bed</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-11 p-2 border rounded bg-secondary-subtle mb-2">
+                                                <h6 class="dm-sans-text fw-bold">Facilities</h6>
+                                                <div class="row g-2 d-flex justify-content-start">
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>Wi-fi</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>Balcony</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>Kitchen</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-check-circle-fill  me-1 text-success"></i>Pool</p>
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-11 p-2 border rounded bg-secondary-subtle">
+                                                <h6 class="dm-sans-text fw-bold">Policies</h6>
+                                                <div class="row g-2 d-flex justify-content-start">
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-x-circle-fill me-1 text-danger"></i>No Pets Allowed</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-x-circle-fill me-1 text-danger"></i>No jumping in balcony</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-x-circle-fill me-1 text-danger"></i>No Smoking</p>
+                                                    </div>
+                                                    <div class="col-lg-4 col-md-6">
+                                                        <p class="dm-sans-text"><i class="bi bi-x-circle-fill me-1 text-danger"></i>No Swimming</p>
+                                                    </div>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
+
+                            <div class="col-lg-4 col-md-7 mb-3">
+                                <div class="row d-flex justify-content-center">
+                                    <div class="col-11">
+
+                                        <div class="row">
+                                            <div class="col-12">
+                                                <!-- Calendar -->
+                                                <div class="card mb-3">
+                                                    <div class="card-body">
+                                                        <div class="text-center">
+                                                            <h5 class="text-dark dm-sans-text fw-bold">Available Schedules</h5>
+                                                            <p class="text-dark dm-sans-text">12:00 PM to 6:00 AM</p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <div class="card mb-3">
+                                                    <div class="card-body">
+                                                        <div class="">
+                                                            <h5 class="card-title dm-sans-text ">Check Available Dates</h5>
+                                                            <div id="calendar"></div>
+
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <script>
+                                                    document.addEventListener('DOMContentLoaded', function() {
+                                                        var roomID = <?php echo $roomID; ?>;
+
+                                                        fetch('../../backends/subadmin/fetch_booked_dates.php', {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/x-www-form-urlencoded'
+                                                                },
+                                                                body: new URLSearchParams({
+                                                                    roomID: roomID
+                                                                })
+                                                            })
+                                                            .then(response => response.json())
+                                                            .then(data => {
+                                                                var bookedDates = data.bookedDates;
+
+                                                                var calendarEl = document.getElementById('calendar');
+                                                                var calendar = new FullCalendar.Calendar(calendarEl, {
+                                                                    initialView: 'dayGridMonth',
+                                                                    datesSet: function(info) {
+                                                                        var events = [];
+                                                                        var today = new Date();
+                                                                        var currentMonth = today.getMonth();
+                                                                        var currentYear = today.getFullYear();
+
+                                                                        function isInCurrentMonth(date) {
+                                                                            var dateObj = new Date(date);
+                                                                            return dateObj.getMonth() === currentMonth && dateObj.getFullYear() === currentYear;
+                                                                        }
+
+                                                                        for (var d = new Date(info.start); d <= new Date(info.end); d.setDate(d.getDate() + 1)) {
+                                                                            var dateStr = d.toISOString().split('T')[0];
+                                                                            var dateObj = new Date(dateStr);
+
+                                                                            if (dateObj < today) {
+                                                                                events.push({
+                                                                                    start: dateStr,
+                                                                                    end: dateStr,
+                                                                                    display: 'background',
+                                                                                    backgroundColor: '#d3d3d3' // Past dates
+                                                                                });
+                                                                            } else {
+                                                                                var isBooked = bookedDates.some(bookedDate => bookedDate.date === dateStr && bookedDate.status === 'Accepted');
+                                                                                if (isBooked) {
+                                                                                    events.push({
+                                                                                        start: dateStr,
+                                                                                        end: dateStr,
+                                                                                        display: 'background',
+                                                                                        backgroundColor: '#ff9f89' // Booked dates
+                                                                                    });
+                                                                                } else {
+                                                                                    events.push({
+                                                                                        start: dateStr,
+                                                                                        end: dateStr,
+                                                                                        display: 'background',
+                                                                                        backgroundColor: '#28a745' // Available dates
+                                                                                    });
+                                                                                }
+                                                                            }
+                                                                        }
+                                                                        calendar.removeAllEvents();
+                                                                        calendar.addEventSource(events);
+                                                                    }
+                                                                });
+
+                                                                calendar.render();
+                                                            });
+                                                    });
+                                                </script>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="alert alert-success text-danger text-center fw-bold p-0 m-0 mb-2" role="alert">
+                                    **Requires Downpayment**
+                                </div>
+
+                                <div class="card">
+                                    <div class="card-header">
+                                        <div class="card-title">
+                                            <h4 class="dm-sans-text text-center fw-bold">Booking Information</h4>
+                                        </div>
+                                        <!-- Progress Bar -->
+                                        <div class="progress my-3">
+                                            <div
+                                                id="progressBar"
+                                                class="progress-bar"
+                                                role="progressbar"
+                                                style="width: 50%;"
+                                                aria-valuenow="50"
+                                                aria-valuemin="0"
+                                                aria-valuemax="100">
+                                                <span>Step 1 of 2</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="card-body">
+                                        <div class="container">
+                                            <form id="multiStepForm">
+                                                <!-- Step 1 -->
+                                                <div id="step1" class="step">
+                                                    <h5 class=" fw-bold">Customer Information</h5>
+                                                    <div class="row g-3">
+                                                        <div class="col-lg-6 col-12">
+                                                            <label for="fullname" class="dm-sans-text">Full Name</label>
+                                                            <input type="text" class="form-control shadow" name="fullname_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['full_name']); ?>" disabled>
+                                                            <input type="hidden" name="fullname" value="<?php echo htmlspecialchars($userInfo['full_name']); ?>">
+                                                        </div>
+                                                        <div class="col-lg-6 col-12">
+                                                            <label for="sex" class="dm-sans-text">Sex</label>
+                                                            <input type="text" name="sex_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['sex']); ?>" disabled>
+                                                            <input type="hidden" name="sex" value="<?php echo htmlspecialchars($userInfo['sex']); ?>">
+                                                        </div>
+                                                        <div class="col-lg-6 col-12">
+                                                            <label for="u_email" class="dm-sans-text">Email Address</label>
+                                                            <input type="email" name="u_email_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>" disabled>
+                                                            <input type="hidden" name="u_email" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>">
+                                                        </div>
+                                                        <div class=" col-lg-6 col-12">
+                                                            <label for="u_contact" class="dm-sans-text">Contact Number</label>
+                                                            <input type="text" name="u_contact_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>" disabled>
+                                                            <input type="hidden" name="u_contact" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>">
+                                                        </div>
+                                                        <div class="col-lg-6 col-12">
+                                                            <label for="regadd" class="dm-sans-text">Address</label>
+                                                            <input type="text" class="form-control shadow" name="regadd_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['u_address']); ?>" disabled>
+                                                            <input type="hidden" name="regadd" value="<?php echo htmlspecialchars($userInfo['u_address']); ?>">
+                                                        </div>
+                                                        <div class=" col-lg-6 col-12">
+                                                            <label for="locationType" class="dm-sans-text">Type of Location </label>
+                                                            <input type="text" name="locationType_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>" disabled>
+                                                            <input type="hidden" name="locationType" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>">
+                                                        </div>
+                                                        <hr class="mt-5">
+                                                        <h5 class="fw-bold">Companions' Information</h5>
+                                                        <div class="col-12">
+                                                            <label for="daterange" class="dm-sans-text">Select Checkin and Checkout Date</label>
+                                                            <input type="date" class="form-control shadow" name="daterange" id="daterange" placeholder="" required>
+                                                            <script>
+                                                                $(document).ready(function() {
+                                                                    $('#daterange').daterangepicker({
+                                                                        locale: {
+                                                                            format: 'YYYY-MM-DD'
+                                                                        },
+                                                                        minDate: moment().startOf('day'), // Disable past dates
+                                                                        isInvalidDate: function(date) {
+                                                                            return date.isBefore(moment(), 'day'); // Disable past dates
+                                                                        }
+                                                                    });
+                                                                });
+                                                            </script>
+                                                        </div>
+
+                                                        <div class="col-12">
+                                                            <div class="row d-flex justify-content-evenly">
+                                                                <div class="col-lg-6 col-6 mb-3">
+                                                                    <label class="dm-sans-text">Total Adults</label>
+                                                                    <input type="number" name="total_adults" class="form-control shadow" placeholder="">
+                                                                </div>
+                                                                <div class="col-lg-6 col-6 mb-3">
+                                                                    <label class="dm-sans-text">Total Children</label>
+                                                                    <input type="number" name="total_children" class="form-control shadow" placeholder="">
+
+                                                                </div>
+                                                                <div class="col-12 text-center">
+                                                                    <button type="button" class="btn btn-primary dm-sans-text" id="generateFormButton" onclick="generateForm()" disabled>Generate Form</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+
+                                                        <div class="col-12 mb-3" id="attendeesContainer" style="max-height: 400px; overflow-x:hidden; overflow-y: auto;">
+                                                            <!-- Attendees will be dynamically added here -->
+                                                            <div class="col-lg-12 mb-3">
+                                                                <div class="row mb-3">
+                                                                    <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                                                                    <div class="col-xl-6 col-12">
+                                                                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                                                                    </div>
+                                                                    <div class="col-xl-6 col-12">
+                                                                        <div class="row g-2">
+                                                                            <div class=" col-xl-12 col-6">
+                                                                                <select name="sex[]" class="form-select shadow" required>
+                                                                                    <option value="">Select Sex</option>
+                                                                                    <option value="Male">Male</option>
+                                                                                    <option value="Female">Female</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="col-xl-12 col-6">
+                                                                                <select name="location[]" class="form-select shadow" required>
+                                                                                    <option value="">Select Location</option>
+                                                                                    <option value="This City/Municipality">This City/Municipality</option>
+                                                                                    <option value="Other City/Municipality">Other City/Municipality</option>
+                                                                                    <option value="Other Province">Other Province</option>
+                                                                                    <option value="Foreign Country">Foreign Country</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-12 mb-3">
+                                                                <div class="row mb-3">
+                                                                    <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                                                                    <div class="col-xl-6 col-12">
+                                                                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                                                                    </div>
+                                                                    <div class="col-xl-6 col-12">
+                                                                        <div class="row g-2">
+                                                                            <div class=" col-xl-12 col-6">
+                                                                                <select name="sex[]" class="form-select shadow" required>
+                                                                                    <option value="">Select Sex</option>
+                                                                                    <option value="Male">Male</option>
+                                                                                    <option value="Female">Female</option>
+                                                                                </select>
+                                                                            </div>
+                                                                            <div class="col-xl-12 col-6">
+                                                                                <select name="location[]" class="form-select shadow" required>
+                                                                                    <option value="">Select Location</option>
+                                                                                    <option value="This City/Municipality">This City/Municipality</option>
+                                                                                    <option value="Other City/Municipality">Other City/Municipality</option>
+                                                                                    <option value="Other Province">Other Province</option>
+                                                                                    <option value="Foreign Country">Foreign Country</option>
+                                                                                </select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                        <div class="col-lg-12 d-grid">
+                                                            <button type="button" id="nextStep" class="btn btn-success dm-sans-text mb-2">Proceed to Payment</button>
+                                                            <button type="button" class="btn btn-success dm-sans-text" id="registerButton" data-bs-toggle="modal" data-bs-target="#confirmationModal" disabled>Confirm Booking</button>
+                                                        </div>
+                                                    </div>
+                                                </div>
+
+                                                <!-- Step 2 -->
+                                                <div id="step2" class="step d-none">
+                                                    <div class="row g-2">
+                                                        <div class="col-lg-12">
+                                                            <h5 class="fw-bold">Payment Information</h5>
+                                                        </div>
+
+                                                        <!-- Payment Information -->
+                                                        <div class="col-lg-12 text-center mb-3">
+                                                            <div>
+                                                                <p class="dm-sans-text">Please scan the GCash QR Code of the Resort and send a total amount of <?php echo htmlspecialchars($price); ?> for the down payment.</p>
+                                                            </div>
+                                                            <div>
+                                                                <img src="<?php echo htmlspecialchars($gcashInfo['bgcashQrImage']); ?>" class="img-fluid" alt="GCash QR Code" height="30">
+                                                            </div>
+                                                        </div>
+
+                                                        <!-- Proof of Payment Upload -->
+                                                        <div class="col-lg-12 mb-3">
+                                                            <p class="text-center dm-sans-text">Name: <?php echo htmlspecialchars($gcashInfo['bgcashname']); ?></p>
+                                                            <p class="text-center dm-sans-text">Number: <?php echo htmlspecialchars($gcashInfo['bgcashnum']); ?></p>
+                                                        </div>
+                                                        <div class="col-lg-12 mb-3">
+                                                            <label for="proofofpayment" class="mb-1 d-block dm-sans-text text-start">Proof of Payment</label>
+                                                            <input type="file" name="proofofpayment" id="proofofpayment" class="form-control shadow" accept="image/*" required>
+                                                        </div>
+                                                        <div class="col-lg-12 mb-3">
+                                                            <label>G-Cash Reference Number</label>
+                                                            <input type="text" name="gcash_reference" class="form-control shadow" placeholder="Enter the reference number of your transaction" required>
+                                                        </div>
+                                                        <div class="col-12 bg-success-subtle text-center rounded border-0">
+                                                            <i class="bi bi-info-circle me-1"></i><span class="fw-bold ">Business owner will review your transaction before accepting your reservation.</span>
+                                                        </div>
+
+                                                        <div class="col-lg-12 my-3">
+                                                            <div class="d-grid col-12 mx-auto">
+                                                                <button type="button" class="btn btn-secondary mb-2" id="previousStep">Back</button>
+                                                            </div>
+                                                            <div class="d-grid col-12 mx-auto">
+                                                                <button type="button" class="btn btn-success" id="registerButton" data-bs-toggle="modal" data-bs-target="#confirmationModal" disabled>Confirm Booking</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </form>
+                                        </div>
+                                        <script>
+                                            const progressBar = document.getElementById('progressBar');
+                                            const step1 = document.getElementById('step1');
+                                            const step2 = document.getElementById('step2');
+
+                                            document.getElementById('nextStep').addEventListener('click', function() {
+                                                step1.classList.add('d-none');
+                                                step2.classList.remove('d-none');
+                                                progressBar.style.width = '100%';
+                                                progressBar.setAttribute('aria-valuenow', '100');
+                                                progressBar.textContent = 'Step 2 of 2';
+                                            });
+
+                                            document.getElementById('previousStep').addEventListener('click', function() {
+                                                step2.classList.add('d-none');
+                                                step1.classList.remove('d-none');
+                                                progressBar.style.width = '50%';
+                                                progressBar.setAttribute('aria-valuenow', '50');
+                                                progressBar.textContent = 'Step 1 of 2';
+                                            });
+                                        </script>
+                                    </div>
+                                </div>
+                            </div>
+
+
                         </div>
                     </div>
 
-                    <!-- Related Rooms -->
-                    <div class="col-xxl-8 col-xl-10 col-lg-10 col-md-11 col-sm-12 mx-3 mb-5">
-                        <div class="d-flex justify-content-tstart">
-                            <h1 class="text-dark cormorant-text display-3 fw-bold mt-5">Related Rooms</h1>
-                        </div>
-                        <div class="row">
-                            <div class="col-11 d-flex justify-content-center">
-                                <?php if (empty($rooms)): ?>
-                                    <p class="text-muted">No available rooms</p>
-                                <?php else: ?>
-                            </div>
-
-                            <?php foreach ($rooms as $room): ?>
-                                <div class="col-xl-4 col-lg-6 col-md-6 col-sm-10 my-4 d-flex justify-content-center">
-                                    <div class="card shadow custom-card-height rounded-0 overflow-hidden">
-                                        <div class="img-container">
-                                            <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="card-img-top rounded-0" alt="Room Image">
-                                        </div>
-                                        <div class="card-body">
-                                            <div class="price-overlay shadow bg-light rounded-5">
-                                                <h5 class="p-3 text-center dm-sans-text fw-bold text-secondary">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($room['roomPrice']); ?></span>/Night</h5>
-                                            </div>
-                                            <h3 class="card-title text-color-1 fw-bold cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h3>
-                                            <p class="card-text dm-sans-text text-secondary">Time Schedule: <span class="fw-bold"><?php echo date("g:i A", strtotime($room['timeStart'])) . " to " . date("g:i A", strtotime($room['timeEnd'])); ?></span></p>
-                                            <p class="card-text dm-sans-text text-secondary">Max Adult: <span class="fw-bold"><?php echo htmlspecialchars($room['adultMax']); ?></span></p>
-                                            <p class="card-text dm-sans-text text-secondary">Max Children: <span class="fw-bold"><?php echo htmlspecialchars($room['ChildrenMax']); ?></span></p>
-                                            <a href="../../resort/page-3.php?roomID=<?php echo urlencode($room['roomID']); ?>&businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-book fw-bold dm-sans-text rounded-0 py-3 px-4">BOOK NOW</a>
-                                        </div>
+                    <div id="rooms" class="col-xl-8 col-lg-10 col-md-11 col-12 py-5">
+                        <h5 class="text-dark dm-sans-text fw-bold mb-3">Related rooms from the same destination:</h5>
+                        <div class="row g-3">
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/businessowner-img/dalitiwan resort.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Villa Gregoria de pasta</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/booking.php" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
                                     </div>
                                 </div>
-                            <?php endforeach; ?>
-                        <?php endif; ?>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/booking.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/booking.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
+            </div>
         </section>
+
+
 
         <section id="contact" class="contact-container">
             <div class="container-fluid p-5 bg-success-subtle">
@@ -751,6 +984,38 @@ try {
             });
         });
     });
+
+    // Progressbar
+    function nextSection(section) {
+        document.querySelectorAll('.section').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        document.getElementById('section' + section).classList.add('active');
+        updateProgressBar(section);
+        validateFields();
+    }
+
+    function previousSection(section) {
+        document.querySelectorAll('.section').forEach(function(el) {
+            el.classList.remove('active');
+        });
+        document.getElementById('section' + section).classList.add('active');
+        updateProgressBar(section);
+        validateFields();
+    }
+
+    function updateProgressBar(section) {
+        const progressBar = document.getElementById('progress-bar');
+        const steps = document.querySelectorAll('.progress-step');
+        steps.forEach((step, index) => {
+            if (index < section) {
+                step.classList.add('progress-step-active');
+            } else {
+                step.classList.remove('progress-step-active');
+            }
+        });
+        progressBar.style.width = ((section - 1) / (steps.length - 1)) * 100 + '%';
+    }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>

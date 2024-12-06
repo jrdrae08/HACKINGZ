@@ -6,7 +6,7 @@ var typed = new Typed('.element', {
 });
 
 // Change the text color
-document.querySelector('.element').style.color = '#5A7D2C';
+document.querySelector('.element').style.color = '#198754';
 
 var swiper = new Swiper(".mySwiper", {
     effect: "coverflow",
@@ -14,7 +14,7 @@ var swiper = new Swiper(".mySwiper", {
     centeredSlides: true,
     loop: true,
     slidesPerView: "auto",
-    initialSlide: 2, // Start with the second card (index 1)
+    initialSlide: 5, // Start with the second card (index 1)
     coverflowEffect: {
         rotate: 0,
         stretch: 0,
@@ -27,5 +27,5 @@ var swiper = new Swiper(".mySwiper", {
         disableOnInteraction: false,
         reverseDirection: true,  // This makes the autoplay go in reverse
     },
-    loopedSlides: 3, // Ensure this matches or exceeds the number of slides you have
+    loopedSlides: 5, // Ensure this matches or exceeds the number of slides you have
 });

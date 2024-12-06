@@ -13,7 +13,7 @@ $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID']
 try {
     // Query to fetch business media and related business information based on businessInfoID
     $stmt = $pdo->prepare("
-        SELECT bm.Thumbnail, bm.Quotation, bif.BusinessName
+        SELECT bm.Thumbnail, bm.Quotation, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6, bif.BusinessName
         FROM business_media bm
         JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
         WHERE bif.BusinessInfoID = :businessInfoID
@@ -41,6 +41,8 @@ try {
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Montserrat:400,800">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0.27/dist/fancybox.css" />
+    <script src="https://cdn.jsdelivr.net/npm/@fancyapps/ui@4.0.27/dist/fancybox.umd.js"></script>
     <link rel="stylesheet" href="../../resort/new-resort-ui.css">
 
     <style>
@@ -55,43 +57,32 @@ try {
             background-attachment: fixed;
             background-repeat: no-repeat;
         }
+
+        #imageOverlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            justify-content: center;
+            align-items: center;
+            z-index: 1050;
+            /* Ensure it's above the navbar */
+        }
+
+        /* css for image slider */
     </style>
 </head>
 
 <body>
     <main class="content">
-        <!-- <nav class="navbar navbar-expand-lg">
-            <div class="container-fluid">
-                <a class="navbar-brand ms-5 text-light" href="#">
-                    <img src="../majayjay-logo.webp" alt="Majayjay Logo" height="50">
-                    <span>Majayjay,Laguna</span>
-                </a>
-                <button class="navbar-toggler shadow" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                    <span class="navbar-toggler-icon"></span>
-                </button>
-                <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                    <ul class="navbar-nav ms-auto mb-lg-0">
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#">HOME</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#service">SERVICES</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#about">ABOUT</a>
-                        </li>
-                        <li class="nav-item">
-                            <a class="nav-link text-light btn btn-nav btn-success shadow" href="#contact">CONTACT</a>
-                        </li>
-                    </ul>
-                </div>
-            </div>
-        </nav> -->
+        <?php include '../homepage/includes/main-nav.php'; ?>
 
-
-        <section class="first-page" id="first-page">
+        <section class="first-page mt-5" id="first-page">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-between align-items-center">
+                <div class="row page-nav-select d-flex justify-content-between align-items-center">
                     <div class="col-2 py-3 d-flex justify-content-center align-items-center">
                         <a href="../../resort/page-0.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>">
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
@@ -110,16 +101,232 @@ try {
                     </div>
                 </div>
 
-                <div class="first-page-title">
-                    <div class="row d-flex justify-content-center">
+                <div class="first-page-title pb-5">
+                    <div class="row  d-flex justify-content-center">
                         <div class="col-lg-12 d-flex justify-content-center">
-                            <h1 class="title-text-1 text-light cormorant-text fw-bold text-shadow-light text-center"><?php echo htmlspecialchars($business['BusinessName']); ?></h1>
+                            <h1 class="page-title  text-light cormorant-text fw-bold text-shadow-light text-center"><?php echo htmlspecialchars($business['BusinessName']); ?></h1>
                         </div>
-                        <div class="col-lg-12 d-flex justify-content-center align-items-center">
-                            <h3 class="title-text-2 dm-sans-text text-shadow-light text-center"><?php echo htmlspecialchars($business['Quotation']); ?></h3>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="bg-light rounded-top rounded-top-3" id="destination-information">
+            <div class="container-fluid">
+                <div class="row d-flex justify-content-center">
+                    <div class="col-lg-8 col-md-10 col-11 py-3">
+                        <nav aria-label="breadcrumb">
+                            <ol class="breadcrumb">
+                                <li class="breadcrumb-item dm-sans-text"><a href="../../resort/page-0.php">Destinations</a></li>
+                                <li class="breadcrumb-item dm-sans-text active" aria-current="page"><?php echo htmlspecialchars($business['BusinessName']); ?></li>
+                            </ol>
+                        </nav>
+                    </div>
+
+                    <div class="col-lg-8 col-md-10 col-11 pb-3">
+                        <div class="row g-2 d-flex justify-content-start">
+                            <?php
+                            $images = [
+                                $business['Image1'],
+                                $business['Image2'],
+                                $business['Image3'],
+                                $business['Image4'],
+                                $business['Image5'],
+                                $business['Image6']
+                            ];
+                            foreach ($images as $image) {
+                                if ($image) {
+                                    echo '<div class="col-lg-2 col-md-4 col-6">';
+                                    echo '<a href="../../businessowner/businessmediacategory/' . htmlspecialchars($image) . '" data-fancybox="gallery">';
+                                    echo '<img src="../../businessowner/businessmediacategory/' . htmlspecialchars($image) . '" class="img-fluid rounded object-fit-cover destinations-images" alt="Large Image">';
+                                    echo '</a>';
+                                    echo '</div>';
+                                }
+                            }
+                            ?>
                         </div>
-                        <div class="col-lg-12 mt-3 d-flex justify-content-center align-items-center">
-                            <a href="page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-success mx-2 rounded dm-sans-text text-center">View More</a>
+                        <script>
+                            Fancybox.bind("[data-fancybox='gallery']", {
+                                transitionEffect: "fade",
+                                thumbs: {
+                                    autoStart: true
+                                }
+                            });
+                        </script>
+                    </div>
+
+                    <!-- <div class="col-lg-8 col-md-10 col-11 mb-3">
+                        <div class="card border border-secondary rounded ">
+                            <div class="card-body">
+                                <div class="flex-row">
+                                    <a href="" class="text-dark mx-2 text-decoration-none dm-sans-text">Overview</a>
+                                    <a href="#rooms" class="text-dark mx-2 text-decoration-none dm-sans-text">Rooms</a>
+                                    <a href="" class="text-dark mx-2 text-decoration-none dm-sans-text">Posts</a>
+                                </div>
+                            </div>
+                        </div>
+                    </div> -->
+
+                    <div class="col-lg-8 col-md-10 col-11">
+                        <div class="row d-flex justify-content-between">
+                            <div class="col-lg-8 col-12 mb-3">
+                                <div class="card border border-secondary rounded mb-3">
+                                    <div class="card-body">
+                                        <h3 class="text-dark dm-sans-text fw-bold"><?php echo htmlspecialchars($business['BusinessName']); ?></h3>
+                                        <p class="text-dark dm-sans-text">Brgy. eneme, Majayjay, Laguna</p>
+                                        <hr class="text-dark">
+                                        <h6 class="text-dark dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></h6>
+                                    </div>
+                                </div>
+
+                                <div class="card border border-secondary rounded mb-3">
+                                    <div class="card-body">
+                                        <h5 class="text-dark dm-sans-text fw-bold mb-4">Facilities</h5>
+                                        <div class="row g-2 text-start">
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Free Wi-fi</p>
+                                            </div>
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Free Dinner</p>
+                                            </div>
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Air Conditioned</p>
+                                            </div>
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Balconies</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="card border border-secondary rounded">
+                                    <div class="card-body">
+                                        <h5 class="text-dark dm-sans-text fw-bold mb-4">Features</h5>
+                                        <div class="row g-2 text-start">
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Free Wi-fi</p>
+                                            </div>
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Free Dinner</p>
+                                            </div>
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Air Conditioned</p>
+                                            </div>
+                                            <div class="col-lg-4 col-6">
+                                                <p><i class="bi bi-check-circle"></i> Balconies</p>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="col-lg-4 col-12 mb-3">
+                                <div class="card border border-secondary rounded">
+                                    <div class="card-body">
+                                        <h5 class="text-dark text-center fw-bold dm-sans-text mb-3 bg-success-subtle rounded py-1">Business Information</h5>
+                                        <h6 class="text-dark fw-bold dm-sans-text mb-3">Contact #:</h6>
+                                        <h6 class="text-dark text-center dm-sans-text mb-3">0921875218952</h6>
+                                        <h6 class="text-dark fw-bold dm-sans-text mb-3">Email Address:</h6>
+                                        <h6 class="text-dark text-center dm-sans-text mb-3">Majayjay@yahoo.com</h6>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="rooms" class="col-lg-8 col-md-10 col-11 mb-3">
+                        <h5 class="text-dark dm-sans-text fw-bold ms-3 mb-3">Available Rooms</h5>
+                        <div class="row g-3">
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/businessowner-img/dalitiwan resort.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Villa Gregoria de pasta</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
+                                <div class="card card-shadow">
+                                    <div class="img-container">
+                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
+                                    </div>
+                                    <div class="card-body">
+                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
+                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
+                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
+                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -128,7 +335,7 @@ try {
 
 
 
-        <!-- <section class="footer-container bg-success">
+        <section class="footer-container bg-success">
             <div class="container-fluid ">
                 <div class="row ">
                     <div class="col-6 text-start mt-2">
@@ -156,7 +363,7 @@ try {
                     </div>
                 </div>
             </div>
-        </section> -->
+        </section>
     </main>
 
 </body>

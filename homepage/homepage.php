@@ -1,12 +1,106 @@
 <?php
 include __DIR__ . '/../includes/db.php';
 
+// Retrieve the userID from the URL or session
+$userID = isset($_GET['userID']) ? intval($_GET['userID']) : (isset($_SESSION['user_id']) ? intval($_SESSION['user_id']) : null);
+
 $sql = "SELECT * FROM frontpagecontent ORDER BY frontpageid DESC LIMIT 1";
 $stmt = $pdo->query($sql);
 $content = $stmt->fetch(PDO::FETCH_ASSOC);
 ?>
 <!DOCTYPE html>
 <html lang="en">
+<?php
+// session_start();
+require_once '../includes/db.php';
+
+if (isset($_GET['userID'])) {
+    $_SESSION['user_id'] = $_GET['userID'];
+}
+
+// Check if the user is logged in
+$isLoggedIn = isset($_SESSION['user_id']);
+$userFullName = '';
+$userID = $isLoggedIn ? $_SESSION['user_id'] : '';
+
+if ($isLoggedIn) {
+    // Fetch the user's full name from the database
+    $stmt = $pdo->prepare("SELECT full_name FROM users WHERE userId = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $userFullName = $stmt->fetchColumn();
+}
+?>
+
+<style>
+    /* Default navbar style (no blur) */
+    .custom-navbar {
+        background-color: rgba(0, 0, 0, 0.4);
+    }
+
+    /* Navbar style when scrolled (with blur) */
+    .custom-navbar.scrolled {
+        background-color: rgba(0, 0, 0, 0.5);
+        /* Slightly darker when scrolled */
+    }
+</style>
+
+<nav class="navbar navbar-expand-lg fixed-top custom-navbar border-0">
+    <div class="container-fluid">
+        <a class="navbar-brand" href="#">
+            <img src="../img/general-img/majayjay-logo.webp" alt="Majayjay Logo" height="50">
+            <!-- <span class="dm-sans-text text-light">Majayjay, Laguna</span> -->
+        </a>
+        <button class="navbar-toggler bg-success-subtle shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+        </button>
+
+        <!-- Offcanvas menu -->
+        <div class="offcanvas offcanvas-end custom-offcanvas" tabindex="-1" id="offcanvasNavbar" aria-labelledby="offcanvasNavbarLabel">
+            <div class="offcanvas-header">
+                <img src="../img/general-img/majayjay-logo.webp" alt="Majayjay Logo" height="50">
+                <span class="dm-sans-text text-dark ms-2">Majayjay, Laguna</span>
+                <button type="button" class="btn-close" data-bs-dismiss="offcanvas" aria-label="Close"></button>
+            </div>
+            <div class="offcanvas-body">
+                <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
+                    <li class="nav-item me-3">
+                        <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../homepage/homepage.php?userID=<?= htmlspecialchars($userID) ?>">Home</a>
+                    </li>
+                    <li class="nav-item me-3">
+                        <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../Resort/page-0.php?userID=<?= htmlspecialchars($userID) ?>">Destinations</a>
+                    </li>
+                    <?php if (!$isLoggedIn): ?>
+                        <li class="nav-item me-3">
+                            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../businessowner/business-registration.php?userID=<?= htmlspecialchars($userID) ?>">Businesses</a>
+                        </li>
+                    <?php endif; ?>
+                    <li class="nav-item me-3">
+                        <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../services/services.php?userID=<?= htmlspecialchars($userID) ?>">Services</a>
+                    </li>
+                    <li class="nav-item me-5">
+                        <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../about/about.php?userID=<?= htmlspecialchars($userID) ?>">About</a>
+                    </li>
+                    <?php if ($isLoggedIn): ?>
+                        <li class="nav-item dropdown">
+                            <button class="nav-link dm-sans-text btn-nav text-light shadow dropdown-toggle no-caret" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                <i class="bi bi-person-circle me-1"></i>
+                                <?= htmlspecialchars($userFullName) ?>
+                            </button>
+                            <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                <li><a class="dropdown-item" href="../user/profile.php">Profile</a></li>
+                                <li><a class="dropdown-item" href="../../logout.php">Logout</a></li>
+                            </ul>
+                        </li>
+                    <?php else: ?>
+                        <li class="nav-item">
+                            <a class="nav-link text-light btn btn-nav shadow" href="../../login.php">Sign In</a>
+                        </li>
+                    <?php endif; ?>
+                </ul>
+            </div>
+        </div>
+    </div>
+</nav>
 
 <head>
     <meta charset="UTF-8">
@@ -36,11 +130,11 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <section id="home" class="homepage-container">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-around align-items-center" style="margin-top: 75px;">
-                    <div class="col-lg-5 mt-5">
+                <div class="row d-flex justify-content-center align-items-center" style="margin-top: 75px;">
+                    <div class="col-lg-5">
                         <div class="home-header text-center mx-4">
                             <h1 class="display-1 jaro-font">WELCOME TO <br><span class="element poetsen-one-regular"></span></h1>
-                            <p class="main-text fs-5 montserrat-font text-light mx-3" style=" text-align: justify;"><?= htmlspecialchars($content['description']) ?></p>
+                            <p class="main-text dm-sans-text text-light" style=" text-align: center;"><?= htmlspecialchars($content['description']) ?></p>
                         </div>
                     </div>
                     <div class="col-lg-6 collection m-0 p-0">
@@ -77,70 +171,71 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
 
-        <section id="discover" class="discover-container">
+        <section id="discover" class="discover-container rounded-top rounded-top-5">
             <div class="container-fluid">
-                <div class="row d-flex d-flex justify-content-center py-5">
-                    <div class="col-lg-3 col-sm-12 d-flex justify-content-center align-items-center">
-                        <div class="ms-auto px-5 me-0 text-end">
-                            <h4 class="text-color-1 fw-bold">DISCOVER</h4>
-                            <h1 class="text-dark">Our Tourist <br> Destinations</h1>
+                <div class="row d-flex d-flex justify-content-center py-4 g-3">
+                    <div class="col-12">
+                        <div class="text-center">
+                            <h2 class="text-success fw-bold">DISCOVER</h2>
+                            <h4 class="text-dark">Our Tourist Destinations</h4>
                             <p class="text-secondary">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla accusantium error voluptas recusandae assumenda sit, modi est amet unde fugiat?</p>
-                            <a href="../Resort/page-0.php" class="btn text-light bg-color-1 shadow mb-4">View More</a>
+                            <a href="../Resort/page-0.php" class="btn text-light btn-success shadow text-center">View More</a>
+                        </div>
+                    </div>
+                    <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-lg-5 col-md-6 col-12">
+                                <img src="../img/general-img/majayjay-church.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
+                            </div>
+                            <div class="col-md-6 col-12 my-3 text-dark text-center d-flex flex-column justify-content-center align-items-center">
+                                <h1 class="fw-bold">Delux Resorts</h1>
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus error autem laboriosam? Nesciunt rem veniam, maxime amet, repellat incidunt libero nobis exercitationem neque dolores alias itaque laboriosam accusamus est fuga praesentium quisquam totam repellendus! Distinctio modi architecto temporibus! Officia facere repudiandae atque repellat ut quidem numquam doloribus consectetur qui voluptates.</p>
+                                <a href="../Resort/page-0.php?tab=resort" class="btn text-light btn-success shadow">View More</a>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-9 col-12 d-flex justify-content-evenly align-items-center position-relative">
-                        <div class="scrolling-wrapper">
-                            <a href="" class="text-decoration-none">
-                                <div class="card mx-3 shadow rounded-0">
-                                    <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 discover-img p-3" alt="Card title 1">
-                                    <div class="card-body">
-                                        <p class="card-title m-0 p-0 fw-bold">Card title 1</p>
-                                    </div>
-                                </div>
-                            </a>
-                            <a href="" class="text-decoration-none">
-                                <div class="card mx-3 shadow rounded-0">
-                                    <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 discover-img p-3" alt="Card title 2">
-                                    <div class="card-body">
-                                        <p class="card-title m-0 p-0 fw-bold">Card title 2</p>
-                                    </div>
-                                </div>
-                            </a>
-                            <a href="" class="text-decoration-none">
-                                <div class="card mx-3 shadow rounded-0">
-                                    <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 discover-img p-3" alt="Card title 3">
-                                    <div class="card-body">
-                                        <p class="card-title m-0 p-0 fw-bold">Card title 3</p>
-                                    </div>
-                                </div>
-                            </a>
-                            <a href="" class="text-decoration-none">
-                                <div class="card mx-3 shadow rounded-0">
-                                    <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 discover-img p-3" alt="Card title 4">
-                                    <div class="card-body">
-                                        <p class="card-title m-0 p-0 fw-bold">Card title 4</p>
-                                    </div>
-                                </div>
-                            </a>
+                    <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-md-6 col-12 my-3 text-dark text-center d-flex flex-column justify-content-center align-items-center">
+                                <h1 class="fw-bold">Beautiful Farms</h1>
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus error autem laboriosam? Nesciunt rem veniam, maxime amet, repellat incidunt libero nobis exercitationem neque dolores alias itaque laboriosam accusamus est fuga praesentium quisquam totam repellendus! Distinctio modi architecto temporibus! Officia facere repudiandae atque repellat ut quidem numquam doloribus consectetur qui voluptates.</p>
+                                <a href="../Resort/page-0.php?tab=farms" class="btn text-light btn-success shadow">View More</a>
+                            </div>
+
+                            <div class="col-lg-5 col-md-6 col-12 pb-5">
+                                <img src="../img/general-img/bg.png" class="img-fluid object-fit-cover rounded shadow" alt="">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
+                        <div class="row d-flex justify-content-center">
+                            <div class="col-lg-5 col-md-6 col-12">
+                                <img src="../img/general-img/majayjay-church.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
+                            </div>
+                            <div class="col-md-6 col-12  my-3 text-dark text-center py-3 d-flex flex-column justify-content-center align-items-center">
+                                <h1 class="fw-bold">Majayjay Waterfalls</h1>
+                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus error autem laboriosam? Nesciunt rem veniam, maxime amet, repellat incidunt libero nobis exercitationem neque dolores alias itaque laboriosam accusamus est fuga praesentium quisquam totam repellendus! Distinctio modi architecto temporibus! Officia facere repudiandae atque repellat ut quidem numquam doloribus consectetur qui voluptates.</p>
+                                <a href="../Resort/page-0.php" class="btn text-light btn-success shadow">View More</a>
+                            </div>
                         </div>
                     </div>
                 </div>
-            </div>
         </section>
 
         <section id="about" class="about-container">
-            <div class="container-fluid p-5 bg-secondary-subtle">
+            <div class="container-fluid py-5 bg-secondary-subtle">
                 <div class="row d-flex justify-content-center">
                     <div class="col-lg-4 col-md-5 col-12 mb-5 mb-lg-0" style="min-height: 500px;">
                         <div class=" h-100 text-center">
-                            <img class=" w-100 h-100 shadow" src="../img/general-img/majayjay-church.jpg" style="object-fit: cover;">
+                            <img class="w-100 h-100 shadow" src="../img/general-img/majayjay-church.jpg" style="object-fit: cover;">
                         </div>
                     </div>
-                    <div class="col-lg-5 col-md-6 col-12 d-flex align-items-center">
+                    <div class="col-lg-5 col-md-6 col-11 d-flex align-items-center">
                         <div class="row">
                             <div class="col-12">
-                                <h5 class="text-color-1 fw-bold text-start">ABOUT US</h5>
+                                <h5 class="text-success fw-bold text-start">ABOUT US</h5>
                             </div>
                             <div class="col-12">
                                 <p class="about-content text-dark">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
@@ -151,7 +246,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                     nisi sequi tempore quisquam earum architecto nobis modi officiis provident ipsam mollitia blanditiis laboriosam consectetur similique accusantium!</p>
                             </div>
                             <div class="col-12 text-center ">
-                                <a href="#contact" class="btn bg-color-1 text-light shadow">Get in Touch</a>
+                                <a href="#contact" class="btn btn-success text-light shadow">Get in Touch</a>
                             </div>
                         </div>
                     </div>
@@ -159,9 +254,9 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
 
-        <section id="service" class="service-container">
-            <div class="container-fluid p-1">
-                <h5 class="text-center text-color-1 fw-bold mt-5">OUR SERVICES</h5>
+        <section id="service" class="service-container py-4">
+            <div class="container-fluid">
+                <h5 class="text-center text-success fw-bold">OUR SERVICES</h5>
                 <div class="service-cards">
                     <div class="row d-flex justify-content-center">
                         <div class="col-lg-3 d-flex justify-content-center">
@@ -169,7 +264,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <div class="card mb-3 rounded-0 shadow" style="width: 18rem;">
                                     <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
                                     <div class="card-body">
-                                        <p class="text-color-1 text-start fw-bold">Business Registration</p>
+                                        <p class="text-success text-start fw-bold">Business Registration</p>
                                         <p class="card-text text-dark text-start">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -181,7 +276,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <div class="card rounded-0 shadow" style="width: 18rem;">
                                     <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
                                     <div class="card-body">
-                                        <p class="text-color-1 text-start fw-bold">Online Reservation</p>
+                                        <p class="text-success text-start fw-bold">Online Reservation</p>
                                         <p class="card-text text-dark text-start">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
                                     </div>
                                 </div>
@@ -193,11 +288,11 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
         </section>
 
         <section id="contact" class="contact-container">
-            <div class="container-fluid p-5 bg-color-6">
+            <div class="container-fluid p-5 bg-success-subtle">
                 <div class="row justify-content-evenly">
                     <div class="col-lg-4 col-sm-12 gx-5 mb-4">
                         <div class="col-12">
-                            <h5 class="text-start text-color-1 fw-bold">CONTACT US</h5>
+                            <h5 class="text-start text-success fw-bold">CONTACT US</h5>
                         </div>
                         <div class="col-12">
                             <h3 class="text-start text-dark">Get in touch with us</h3>
@@ -219,7 +314,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                             <textarea class="form-control shadow" name="" rows="3"></textarea>
                         </div>
                         <div class="col-12 mb-1 d-grid">
-                            <button class="btn bg-color-1 text-light shadow">Submit</button>
+                            <button class="btn btn-success text-light shadow">Submit</button>
                         </div>
                     </div>
 
@@ -252,7 +347,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
 
-        <section class="footer-container bg-color-1">
+        <section class="footer-container bg-success">
             <div class="container-fluid ">
                 <div class="row ">
                     <div class="col-6 text-start mt-2">
