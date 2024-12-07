@@ -88,9 +88,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Insert into userdemographics table
-    $names = $_POST['name'];
-    $sexes = $_POST['sex'];
-    $locations = $_POST['location'];
+    $names = filter_var_array($_POST['name'], FILTER_SANITIZE_STRING);
+    $sexes = filter_var_array($_POST['sex'], FILTER_SANITIZE_STRING);
+    $locations = filter_var_array($_POST['location'], FILTER_SANITIZE_STRING);
     $totalnumAttendees = count($names);
     $totalmale = count(array_filter($sexes, fn($sex) => $sex === 'Male'));
     $totalfemale = count(array_filter($sexes, fn($sex) => $sex === 'Female'));
@@ -123,7 +123,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ]);
 
     // Send a success response
-    echo json_encode(['message' => 'Booking successful!', 'type' => 'success']);
+    echo json_encode(['message' => 'Booking successful! please wait', 'type' => 'success']);
     exit;
   } catch (PDOException $e) {
     // Handle database errors

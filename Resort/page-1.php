@@ -10,20 +10,54 @@ if (isset($_GET['userID'])) {
 // Get the businessInfoID from the URL, defaulting to 1 if not set
 $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
 
+// Initialize facilities, features, and rooms as empty arrays
+$facilities = [];
+$features = [];
+$rooms = [];
+
 try {
     // Query to fetch business media and related business information based on businessInfoID
     $stmt = $pdo->prepare("
-        SELECT bm.Thumbnail, bm.Quotation, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6, bif.BusinessName
+        SELECT bm.Thumbnail, bm.Quotation, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6, 
+               bif.BusinessName, bif.BusinessAddress, bif.BusinessContactNumber, bif.BusinessEmail
         FROM business_media bm
         JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
         WHERE bif.BusinessInfoID = :businessInfoID
     ");
     $stmt->execute(['businessInfoID' => $businessInfoID]);
     $business = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    // Query to fetch facilities based on businessInfoID
+    $stmtFacilities = $pdo->prepare("
+        SELECT FacilityName
+        FROM room_facilities
+        WHERE BusinessInfoID = :businessInfoID
+    ");
+    $stmtFacilities->execute(['businessInfoID' => $businessInfoID]);
+    $facilities = $stmtFacilities->fetchAll(PDO::FETCH_ASSOC);
+
+    // Query to fetch features based on businessInfoID
+    $stmtFeatures = $pdo->prepare("
+        SELECT FeatureName
+        FROM room_features
+        WHERE BusinessInfoID = :businessInfoID
+    ");
+    $stmtFeatures->execute(['businessInfoID' => $businessInfoID]);
+    $features = $stmtFeatures->fetchAll(PDO::FETCH_ASSOC);
+
+    // Query to fetch rooms based on businessInfoID
+    $stmtRooms = $pdo->prepare("
+        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, timeStart, timeEnd
+        FROM roominfotable
+        WHERE BusinessInfoID = :businessInfoID
+    ");
+    $stmtRooms->execute(['businessInfoID' => $businessInfoID]);
+    $rooms = $stmtRooms->fetchAll(PDO::FETCH_ASSOC);
 } catch (PDOException $e) {
     echo "Error: " . $e->getMessage();
 }
 ?>
+
 
 <!DOCTYPE html>
 <html lang="en">
@@ -173,7 +207,7 @@ try {
                                 <div class="card border border-secondary rounded mb-3">
                                     <div class="card-body">
                                         <h3 class="text-dark dm-sans-text fw-bold"><?php echo htmlspecialchars($business['BusinessName']); ?></h3>
-                                        <p class="text-dark dm-sans-text">Brgy. eneme, Majayjay, Laguna</p>
+                                        <p class="text-dark dm-sans-text"><?php echo htmlspecialchars($business['BusinessAddress']); ?></p>
                                         <hr class="text-dark">
                                         <h6 class="text-dark dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></h6>
                                     </div>
@@ -183,18 +217,15 @@ try {
                                     <div class="card-body">
                                         <h5 class="text-dark dm-sans-text fw-bold mb-4">Facilities</h5>
                                         <div class="row g-2 text-start">
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Free Wi-fi</p>
-                                            </div>
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Free Dinner</p>
-                                            </div>
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Air Conditioned</p>
-                                            </div>
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Balconies</p>
-                                            </div>
+                                            <?php if (!empty($facilities)): ?>
+                                                <?php foreach ($facilities as $facility): ?>
+                                                    <div class="col-lg-4 col-6">
+                                                        <p><i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($facility['FacilityName']); ?></p>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <p>No available facilities.</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
@@ -203,21 +234,19 @@ try {
                                     <div class="card-body">
                                         <h5 class="text-dark dm-sans-text fw-bold mb-4">Features</h5>
                                         <div class="row g-2 text-start">
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Free Wi-fi</p>
-                                            </div>
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Free Dinner</p>
-                                            </div>
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Air Conditioned</p>
-                                            </div>
-                                            <div class="col-lg-4 col-6">
-                                                <p><i class="bi bi-check-circle"></i> Balconies</p>
-                                            </div>
+                                            <?php if (!empty($features)): ?>
+                                                <?php foreach ($features as $feature): ?>
+                                                    <div class="col-lg-4 col-6">
+                                                        <p><i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($feature['FeatureName']); ?></p>
+                                                    </div>
+                                                <?php endforeach; ?>
+                                            <?php else: ?>
+                                                <p>No available features.</p>
+                                            <?php endif; ?>
                                         </div>
                                     </div>
                                 </div>
+
                             </div>
 
                             <div class="col-lg-4 col-12 mb-3">
@@ -225,9 +254,11 @@ try {
                                     <div class="card-body">
                                         <h5 class="text-dark text-center fw-bold dm-sans-text mb-3 bg-success-subtle rounded py-1">Business Information</h5>
                                         <h6 class="text-dark fw-bold dm-sans-text mb-3">Contact #:</h6>
-                                        <h6 class="text-dark text-center dm-sans-text mb-3">0921875218952</h6>
-                                        <h6 class="text-dark fw-bold dm-sans-text mb-3">Email Address:</h6>
-                                        <h6 class="text-dark text-center dm-sans-text mb-3">Majayjay@yahoo.com</h6>
+                                        <h6 class="text-dark text-center dm-sans-text mb-3"><?php echo htmlspecialchars($business['BusinessContactNumber']); ?></h6>
+                                        <?php if (!empty($business['BusinessEmail'])): ?>
+                                            <h6 class="text-dark fw-bold dm-sans-text mb-3">Email Address:</h6>
+                                            <h6 class="text-dark text-center dm-sans-text mb-3"><?php echo htmlspecialchars($business['BusinessEmail']); ?></h6>
+                                        <?php endif; ?>
                                     </div>
                                 </div>
                             </div>
@@ -237,96 +268,27 @@ try {
                     <div id="rooms" class="col-lg-8 col-md-10 col-11 mb-3">
                         <h5 class="text-dark dm-sans-text fw-bold ms-3 mb-3">Available Rooms</h5>
                         <div class="row g-3">
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb">
-                                <div class="card card-shadow">
-                                    <div class="img-container">
-                                        <img src="../img/businessowner-img/dalitiwan resort.jpg" class="card-img-top" alt="Room Image">
+                            <?php if (!empty($rooms)): ?>
+                                <?php foreach ($rooms as $room): ?>
+                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb">
+                                        <div class="card card-shadow">
+                                            <div class="img-container">
+                                                <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($room['image1']); ?>" class="card-img-top" alt="Room Image">
+                                            </div>
+                                            <div class="card-body">
+                                                <h3 class="card-title m-0 p-0 fw-bold cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h3>
+                                                <p class="card-text m-0 p-0 dm-sans-text text-secondary">Time Schedule: <?php echo date("g:i A", strtotime($room['timeStart'])) . ' - ' . date("g:i A", strtotime($room['timeEnd'])); ?></p>
+                                                <p class="card-text m-0 p-0 dm-sans-text text-secondary">Max Adult: <?php echo htmlspecialchars($room['adultMax']); ?></p>
+                                                <p class="card-text m-0 p-0 dm-sans-text text-secondary">Max Children: <?php echo htmlspecialchars($room['ChildrenMax']); ?></p>
+                                                <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($room['roomPrice']); ?></span>/Night</h6>
+                                                <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div class="card-body">
-                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Villa Gregoria de pasta</h3>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
-                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
-                                        <a href="../../resort/page-3.php" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                <div class="card card-shadow">
-                                    <div class="img-container">
-                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
-                                    </div>
-                                    <div class="card-body">
-                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
-                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
-                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                <div class="card card-shadow">
-                                    <div class="img-container">
-                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
-                                    </div>
-                                    <div class="card-body">
-                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
-                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
-                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                <div class="card card-shadow">
-                                    <div class="img-container">
-                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
-                                    </div>
-                                    <div class="card-body">
-                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
-                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
-                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                <div class="card card-shadow">
-                                    <div class="img-container">
-                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
-                                    </div>
-                                    <div class="card-body">
-                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
-                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
-                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-xl-3 col-lg-4 col-md-6 col-12">
-                                <div class="card card-shadow">
-                                    <div class="img-container">
-                                        <img src="../img/general-img/majayjay-church.jpg" class="card-img-top" alt="Room Image">
-                                    </div>
-                                    <div class="card-body">
-                                        <h3 class="card-title m-0 p-0 fw-bold cormorant-text">Room Name</h3>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Time Schedule: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Adult: </p>
-                                        <p class="card-text  m-0 p-0 dm-sans-text text-secondary">Max Children </p>
-                                        <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 12121</span>/Night</h6>
-                                        <a href="../../resort/page-3.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
-                                    </div>
-                                </div>
-                            </div>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p>No available rooms.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

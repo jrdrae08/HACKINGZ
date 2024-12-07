@@ -148,7 +148,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                             <?php else: ?>
                                 <?php foreach ($resortBusinesses as $business): ?>
                                     <div class="col-6 mb-3"> <!-- Adjust column sizes for different screens -->
-                                        <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
+                                        <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                                             <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                 <div class="row g-0">
                                                     <div class="col-xl-6 col-lg-6 col-md-6 col-12">
@@ -197,7 +197,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                             <?php else: ?>
                                 <?php foreach ($farmBusinesses as $business): ?>
                                     <div class="col-xl-6 col-lg-6 col-md-6 col-sm-12 mb-3"> <!-- Adjust column sizes for different screens -->
-                                        <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
+                                        <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                                             <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                 <div class="row g-0">
                                                     <div class="col-xl-6 col-lg-6 col-md-6 col-12">
