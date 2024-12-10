@@ -91,7 +91,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       $_SESSION['role'] = 'user';
       $_SESSION['username'] = $user['email'];
       $_SESSION['message_type'] = 'success';
-      header("Location: ../homepage/homepage.php?userID=" . $user['userID']);
+
+      // Redirect to the stored URL if it exists
+      if (isset($_SESSION['redirect_url'])) {
+        $redirect_url = $_SESSION['redirect_url'];
+        unset($_SESSION['redirect_url']);
+        // Append userID to the redirect URL
+        $redirect_url .= (strpos($redirect_url, '?') === false ? '?' : '&') . 'userID=' . $user['userID'];
+        header("Location: $redirect_url");
+      } else {
+        header("Location: ../homepage/homepage.php?userID=" . $user['userID']);
+      }
       exit;
     } else {
       $_SESSION['message'] = 'Invalid username or password.';

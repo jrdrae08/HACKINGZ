@@ -52,10 +52,10 @@ if ($isLoggedIn) {
       <div class="offcanvas-body">
         <ul class="navbar-nav justify-content-end flex-grow-1 pe-3">
           <li class="nav-item me-3">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../homepage/homepage.php?userID=<?= htmlspecialchars($userID) ?>">Home</a>
+            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../homepage/homepage.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">Home</a>
           </li>
           <li class="nav-item me-3">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../Resort/page-0.php?userID=<?= htmlspecialchars($userID) ?>">Destinations</a>
+            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../Resort/page-0.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">Destinations</a>
           </li>
           <?php if (!$isLoggedIn): ?>
             <li class="nav-item me-3">
@@ -63,10 +63,10 @@ if ($isLoggedIn) {
             </li>
           <?php endif; ?>
           <li class="nav-item me-3">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../services/services.php?userID=<?= htmlspecialchars($userID) ?>">Services</a>
+            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../services/services.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">Services</a>
           </li>
           <li class="nav-item me-5">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../about/about.php?userID=<?= htmlspecialchars($userID) ?>">About</a>
+            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../about/about.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">About</a>
           </li>
           <?php if ($isLoggedIn): ?>
             <li class="nav-item dropdown">

@@ -21,6 +21,17 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $gcash_reference = isset($_POST['gcash_reference']) ? filter_var($_POST['gcash_reference'], FILTER_SANITIZE_STRING) : null;
   $proofofpayment = isset($_FILES['proofofpayment']) ? $_FILES['proofofpayment'] : null;
 
+
+  // Check if the user has already booked the room
+  $stmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE roomID = :roomID AND userID = :userID AND status IN ('Pending', 'Accepted', 'Ongoing')");
+  $stmt->execute([':roomID' => $roomID, ':userID' => $userID]);
+  $existingBookingCount = $stmt->fetchColumn();
+
+  if ($existingBookingCount > 0) {
+    echo json_encode(['message' => 'You have already booked this room. Please check your reservation status', 'type' => 'danger']);
+    exit;
+  }
+
   // Handle file upload for proof of payment
   $proofOfPaymentPath = null;
   if ($proofofpayment && $proofofpayment['error'] == UPLOAD_ERR_OK) {

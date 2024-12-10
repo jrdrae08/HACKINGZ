@@ -1,5 +1,6 @@
 <?php
 // page-3.php
+session_start();
 include '../includes/db.php';
 
 // Get the roomID and businessInfoID from the URL, defaulting to 1 if not set
@@ -7,6 +8,10 @@ $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID']
 $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
 $userID = isset($_GET['userID']) ? (int) $_GET['userID'] : 1;
 
+
+if (!$userID) {
+    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
+}
 try {
     // Query to fetch room information based on roomID
     $stmt = $pdo->prepare("
@@ -380,6 +385,7 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
                                                         </div>
                                                     </div>
                                                 </div>
+                                                <p class="text-dark">Do you want to reserve this room? <a href="../login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">Click here to login</a></p>
 
                                                 <script>
                                                     document.addEventListener('DOMContentLoaded', function() {
@@ -462,141 +468,143 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
                                     </div>
                                 <?php endif; ?>
 
-                                <div class="card">
-                                    <div class="card-header">
-                                        <div class="card-title">
-                                            <h4 class="dm-sans-text text-center fw-bold">Booking Information</h4>
-                                        </div>
-                                        <!-- Progress Bar -->
-                                        <?php if ($hasPaymentMethod): ?>
-                                            <div class="progress my-3">
-                                                <div
-                                                    id="progressBar"
-                                                    class="progress-bar"
-                                                    role="progressbar"
-                                                    style="width: 50%;"
-                                                    aria-valuenow="50"
-                                                    aria-valuemin="0"
-                                                    aria-valuemax="100">
-                                                    <span>Step 1 of 2</span>
-                                                </div>
+
+                                <?php if ($userID): ?>
+                                    <div class="card">
+                                        <div class="card-header">
+                                            <div class="card-title">
+                                                <h4 class="dm-sans-text text-center fw-bold">Booking Information</h4>
                                             </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="container">
-                                            <form id="multiStepForm" method="POST" enctype="multipart/form-data" action="../../backends/subadmin/bookingreg.php?roomID=<?php echo $roomID; ?>&businessInfoID=<?php echo $businessInfoID; ?>&userID=<?php echo $userID; ?>">
-                                                <!-- Step 1 -->
-                                                <div id="step1" class="step">
-                                                    <h5 class="fw-bold">Customer Information</h5>
-                                                    <div class="row g-3">
-                                                        <div class="col-lg-6 col-12">
-                                                            <label for="fullname" class="dm-sans-text">Full Name</label>
-                                                            <input type="text" class="form-control shadow" name="fullname_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['full_name']); ?>" disabled>
-                                                            <input type="hidden" name="fullname" value="<?php echo htmlspecialchars($userInfo['full_name']); ?>">
-                                                        </div>
-                                                        <div class="col-lg-6 col-12">
-                                                            <label for="sex" class="dm-sans-text">Sex</label>
-                                                            <input type="text" name="sex_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['sex']); ?>" disabled>
-                                                            <input type="hidden" name="sex" value="<?php echo htmlspecialchars($userInfo['sex']); ?>">
-                                                        </div>
-                                                        <div class="col-lg-6 col-12">
-                                                            <label for="u_email" class="dm-sans-text">Email Address</label>
-                                                            <input type="email" name="u_email_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>" disabled>
-                                                            <input type="hidden" name="u_email" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>">
-                                                        </div>
-                                                        <div class="col-lg-6 col-12">
-                                                            <label for="u_contact" class="dm-sans-text">Contact Number</label>
-                                                            <input type="text" name="u_contact_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>" disabled>
-                                                            <input type="hidden" name="u_contact" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>">
-                                                        </div>
-                                                        <div class="col-lg-6 col-12">
-                                                            <label for="regadd" class="dm-sans-text">Address</label>
-                                                            <input type="text" class="form-control shadow" name="regadd_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['u_address']); ?>" disabled>
-                                                            <input type="hidden" name="regadd" value="<?php echo htmlspecialchars($userInfo['u_address']); ?>">
-                                                        </div>
-                                                        <div class="col-lg-6 col-12">
-                                                            <label for="locationType" class="dm-sans-text">Type of Location </label>
-                                                            <input type="text" name="locationType_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>" disabled>
-                                                            <input type="hidden" name="locationType" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>">
-                                                        </div>
-                                                        <hr class="mt-5">
-                                                        <h5 class="fw-bold">Companions' Information</h5>
-                                                        <div class="col-12">
-                                                            <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="Select Checkin and Checkout Date" required>
-                                                            <label for="daterange" class="fw-bold dm-sans-text">Select Checkin and Checkout Date</label>
-                                                            <script>
-                                                                $(document).ready(function() {
-                                                                    $('#daterange').daterangepicker({
-                                                                        locale: {
-                                                                            format: 'YYYY-MM-DD'
-                                                                        },
-                                                                        autoUpdateInput: false, // Prevents the input from being updated automatically
-                                                                        minDate: moment().startOf('day'), // Disable past dates
-                                                                        isInvalidDate: function(date) {
-                                                                            return date.isBefore(moment(), 'day'); // Disable past dates
+                                            <!-- Progress Bar -->
+                                            <?php if ($hasPaymentMethod): ?>
+                                                <div class="progress my-3">
+                                                    <div
+                                                        id="progressBar"
+                                                        class="progress-bar"
+                                                        role="progressbar"
+                                                        style="width: 50%;"
+                                                        aria-valuenow="50"
+                                                        aria-valuemin="0"
+                                                        aria-valuemax="100">
+                                                        <span>Step 1 of 2</span>
+                                                    </div>
+                                                </div>
+                                            <?php endif; ?>
+                                        </div>
+                                        <div class="card-body">
+                                            <div class="container">
+                                                <form id="multiStepForm" method="POST" enctype="multipart/form-data" action="../../backends/subadmin/bookingreg.php?roomID=<?php echo $roomID; ?>&businessInfoID=<?php echo $businessInfoID; ?>&userID=<?php echo $userID; ?>">
+                                                    <!-- Step 1 -->
+                                                    <div id="step1" class="step">
+                                                        <h5 class="fw-bold">Customer Information</h5>
+                                                        <div class="row g-3">
+                                                            <div class="col-lg-6 col-12">
+                                                                <label for="fullname" class="dm-sans-text">Full Name</label>
+                                                                <input type="text" class="form-control shadow" name="fullname_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['full_name']); ?>" disabled>
+                                                                <input type="hidden" name="fullname" value="<?php echo htmlspecialchars($userInfo['full_name']); ?>">
+                                                            </div>
+                                                            <div class="col-lg-6 col-12">
+                                                                <label for="sex" class="dm-sans-text">Sex</label>
+                                                                <input type="text" name="sex_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['sex']); ?>" disabled>
+                                                                <input type="hidden" name="sex" value="<?php echo htmlspecialchars($userInfo['sex']); ?>">
+                                                            </div>
+                                                            <div class="col-lg-6 col-12">
+                                                                <label for="u_email" class="dm-sans-text">Email Address</label>
+                                                                <input type="email" name="u_email_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>" disabled>
+                                                                <input type="hidden" name="u_email" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>">
+                                                            </div>
+                                                            <div class="col-lg-6 col-12">
+                                                                <label for="u_contact" class="dm-sans-text">Contact Number</label>
+                                                                <input type="text" name="u_contact_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>" disabled>
+                                                                <input type="hidden" name="u_contact" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>">
+                                                            </div>
+                                                            <div class="col-lg-6 col-12">
+                                                                <label for="regadd" class="dm-sans-text">Address</label>
+                                                                <input type="text" class="form-control shadow" name="regadd_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['u_address']); ?>" disabled>
+                                                                <input type="hidden" name="regadd" value="<?php echo htmlspecialchars($userInfo['u_address']); ?>">
+                                                            </div>
+                                                            <div class="col-lg-6 col-12">
+                                                                <label for="locationType" class="dm-sans-text">Type of Location </label>
+                                                                <input type="text" name="locationType_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>" disabled>
+                                                                <input type="hidden" name="locationType" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>">
+                                                            </div>
+                                                            <hr class="mt-5">
+                                                            <h5 class="fw-bold">Companions' Information</h5>
+                                                            <div class="col-12">
+                                                                <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="Select Checkin and Checkout Date" required>
+                                                                <label for="daterange" class="fw-bold dm-sans-text">Select Checkin and Checkout Date</label>
+                                                                <script>
+                                                                    $(document).ready(function() {
+                                                                        $('#daterange').daterangepicker({
+                                                                            locale: {
+                                                                                format: 'YYYY-MM-DD'
+                                                                            },
+                                                                            autoUpdateInput: false, // Prevents the input from being updated automatically
+                                                                            minDate: moment().startOf('day'), // Disable past dates
+                                                                            isInvalidDate: function(date) {
+                                                                                return date.isBefore(moment(), 'day'); // Disable past dates
+                                                                            }
+                                                                        });
+
+                                                                        $('#daterange').on('apply.daterangepicker', function(ev, picker) {
+                                                                            $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                                                                            checkInputs(); // Check inputs after selecting date range
+                                                                        });
+
+                                                                        $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
+                                                                            $(this).val('');
+                                                                            checkInputs(); // Check inputs after canceling date range
+                                                                        });
+                                                                    });
+                                                                </script>
+                                                            </div>
+
+                                                            <div class="col-12">
+                                                                <div class="row d-flex justify-content-evenly">
+                                                                    <div class="col-lg-6 col-6 mb-3">
+                                                                        <label class="dm-sans-text">Total Adults</label>
+                                                                        <input type="number" name="total_adults" class="form-control shadow" placeholder="">
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-6 mb-3">
+                                                                        <label class="dm-sans-text">Total Children</label>
+                                                                        <input type="number" name="total_children" class="form-control shadow" placeholder="">
+                                                                    </div>
+                                                                    <div class="col-12 text-center">
+                                                                        <button type="button" class="btn btn-primary dm-sans-text" id="generateFormButton" onclick="generateForm()" disabled>Generate Form</button>
+                                                                    </div>
+
+                                                                </div>
+                                                            </div>
+
+                                                            <div class="col-12 mb-3" id="attendeesContainer" style="max-height: 400px; overflow-x:hidden; overflow-y: auto;">
+                                                                <!-- Attendees will be dynamically added here -->
+                                                                <script>
+                                                                    // Initialize Notyf
+                                                                    const notyf = new Notyf({
+                                                                        duration: 5000,
+                                                                        position: {
+                                                                            x: 'right',
+                                                                            y: 'top'
                                                                         }
                                                                     });
 
-                                                                    $('#daterange').on('apply.daterangepicker', function(ev, picker) {
-                                                                        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-                                                                        checkInputs(); // Check inputs after selecting date range
-                                                                    });
+                                                                    function generateForm() {
+                                                                        const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
+                                                                        const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
+                                                                        const totalAttendees = totalAdults + totalChildren;
 
-                                                                    $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
-                                                                        $(this).val('');
-                                                                        checkInputs(); // Check inputs after canceling date range
-                                                                    });
-                                                                });
-                                                            </script>
-                                                        </div>
+                                                                        if (totalAttendees === 0) {
+                                                                            notyf.error('Please enter the number of adults or children.');
+                                                                            return;
+                                                                        }
 
-                                                        <div class="col-12">
-                                                            <div class="row d-flex justify-content-evenly">
-                                                                <div class="col-lg-6 col-6 mb-3">
-                                                                    <label class="dm-sans-text">Total Adults</label>
-                                                                    <input type="number" name="total_adults" class="form-control shadow" placeholder="">
-                                                                </div>
-                                                                <div class="col-lg-6 col-6 mb-3">
-                                                                    <label class="dm-sans-text">Total Children</label>
-                                                                    <input type="number" name="total_children" class="form-control shadow" placeholder="">
-                                                                </div>
-                                                                <div class="col-12 text-center">
-                                                                    <button type="button" class="btn btn-primary dm-sans-text" id="generateFormButton" onclick="generateForm()" disabled>Generate Form</button>
-                                                                </div>
+                                                                        const attendeesContainer = document.getElementById('attendeesContainer');
+                                                                        attendeesContainer.innerHTML = ''; // Clear previous entries
 
-                                                            </div>
-                                                        </div>
-
-                                                        <div class="col-12 mb-3" id="attendeesContainer" style="max-height: 400px; overflow-x:hidden; overflow-y: auto;">
-                                                            <!-- Attendees will be dynamically added here -->
-                                                            <script>
-                                                                // Initialize Notyf
-                                                                const notyf = new Notyf({
-                                                                    duration: 5000,
-                                                                    position: {
-                                                                        x: 'right',
-                                                                        y: 'top'
-                                                                    }
-                                                                });
-
-                                                                function generateForm() {
-                                                                    const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
-                                                                    const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
-                                                                    const totalAttendees = totalAdults + totalChildren;
-
-                                                                    if (totalAttendees === 0) {
-                                                                        notyf.error('Please enter the number of adults or children.');
-                                                                        return;
-                                                                    }
-
-                                                                    const attendeesContainer = document.getElementById('attendeesContainer');
-                                                                    attendeesContainer.innerHTML = ''; // Clear previous entries
-
-                                                                    for (let i = 1; i <= totalAttendees; i++) {
-                                                                        const attendeeDiv = document.createElement('div');
-                                                                        attendeeDiv.classList.add('col-lg-12', 'mb-3');
-                                                                        attendeeDiv.innerHTML = `
+                                                                        for (let i = 1; i <= totalAttendees; i++) {
+                                                                            const attendeeDiv = document.createElement('div');
+                                                                            attendeeDiv.classList.add('col-lg-12', 'mb-3');
+                                                                            attendeeDiv.innerHTML = `
                 <div class="row mb-3">
                     <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
                     <div class="col-xl-6 col-12">
@@ -624,233 +632,234 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
                     </div>
                 </div>
             `;
-                                                                        attendeesContainer.appendChild(attendeeDiv);
-                                                                    }
-
-                                                                    checkInputs(); // Check inputs after generating the form
-                                                                }
-
-                                                                function checkInputs() {
-                                                                    const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
-                                                                    const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
-                                                                    const daterange = document.querySelector('input[name="daterange"]').value;
-                                                                    const attendeesContainer = document.getElementById('attendeesContainer');
-                                                                    const generateFormButton = document.getElementById('generateFormButton');
-                                                                    const nextStepButton = document.getElementById('nextStep');
-                                                                    const registerButton = document.getElementById('registerButton');
-
-                                                                    if ((totalAdults > 0 || totalChildren > 0) && daterange) {
-                                                                        generateFormButton.disabled = false;
-                                                                    } else {
-                                                                        generateFormButton.disabled = true;
-                                                                    }
-
-                                                                    let allAttendeesValid = true;
-                                                                    const attendees = attendeesContainer.querySelectorAll('.row.mb-3');
-                                                                    attendees.forEach(attendee => {
-                                                                        const name = attendee.querySelector('input[name="name[]"]').value.trim();
-                                                                        const sex = attendee.querySelector('select[name="sex[]"]').value;
-                                                                        const location = attendee.querySelector('select[name="location[]"]').value;
-                                                                        if (!name || !sex || !location) {
-                                                                            allAttendeesValid = false;
+                                                                            attendeesContainer.appendChild(attendeeDiv);
                                                                         }
+
+                                                                        checkInputs(); // Check inputs after generating the form
+                                                                    }
+
+                                                                    function checkInputs() {
+                                                                        const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
+                                                                        const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
+                                                                        const daterange = document.querySelector('input[name="daterange"]').value;
+                                                                        const attendeesContainer = document.getElementById('attendeesContainer');
+                                                                        const generateFormButton = document.getElementById('generateFormButton');
+                                                                        const nextStepButton = document.getElementById('nextStep');
+                                                                        const registerButton = document.getElementById('registerButton');
+
+                                                                        if ((totalAdults > 0 || totalChildren > 0) && daterange) {
+                                                                            generateFormButton.disabled = false;
+                                                                        } else {
+                                                                            generateFormButton.disabled = true;
+                                                                        }
+
+                                                                        let allAttendeesValid = true;
+                                                                        const attendees = attendeesContainer.querySelectorAll('.row.mb-3');
+                                                                        attendees.forEach(attendee => {
+                                                                            const name = attendee.querySelector('input[name="name[]"]').value.trim();
+                                                                            const sex = attendee.querySelector('select[name="sex[]"]').value;
+                                                                            const location = attendee.querySelector('select[name="location[]"]').value;
+                                                                            if (!name || !sex || !location) {
+                                                                                allAttendeesValid = false;
+                                                                            }
+                                                                        });
+
+                                                                        if (attendees.length > 0 && daterange && (totalAdults > 0 || totalChildren > 0) && allAttendeesValid) {
+                                                                            if (nextStepButton) {
+                                                                                nextStepButton.disabled = false;
+                                                                            }
+                                                                            if (!nextStepButton) {
+                                                                                registerButton.disabled = false;
+                                                                            }
+                                                                        } else {
+                                                                            if (nextStepButton) {
+                                                                                nextStepButton.disabled = true;
+                                                                            }
+                                                                            if (!nextStepButton) {
+                                                                                registerButton.disabled = true;
+                                                                            }
+                                                                        }
+                                                                    }
+                                                                    document.querySelector('input[name="total_adults"]').addEventListener('input', function() {
+                                                                        const daterange = document.querySelector('input[name="daterange"]').value;
+                                                                        if (!daterange && this.value > 0) {
+                                                                            notyf.error('Please select a check-in and check-out date.');
+                                                                        }
+                                                                        checkInputs();
                                                                     });
 
-                                                                    if (attendees.length > 0 && daterange && (totalAdults > 0 || totalChildren > 0) && allAttendeesValid) {
-                                                                        if (nextStepButton) {
-                                                                            nextStepButton.disabled = false;
+                                                                    document.querySelector('input[name="total_children"]').addEventListener('input', function() {
+                                                                        const daterange = document.querySelector('input[name="daterange"]').value;
+                                                                        if (!daterange && this.value > 0) {
+                                                                            notyf.error('Please select a check-in and check-out date before adding a adult and chidren.');
                                                                         }
-                                                                        if (!nextStepButton) {
-                                                                            registerButton.disabled = false;
-                                                                        }
-                                                                    } else {
-                                                                        if (nextStepButton) {
-                                                                            nextStepButton.disabled = true;
-                                                                        }
-                                                                        if (!nextStepButton) {
-                                                                            registerButton.disabled = true;
-                                                                        }
-                                                                    }
+                                                                        checkInputs();
+                                                                    });
+
+                                                                    document.querySelector('input[name="total_adults"]').addEventListener('input', checkInputs);
+                                                                    document.querySelector('input[name="total_children"]').addEventListener('input', checkInputs);
+                                                                    document.querySelector('input[name="daterange"]').addEventListener('input', checkInputs);
+                                                                    document.getElementById('attendeesContainer').addEventListener('input', checkInputs);
+                                                                </script>
+                                                            </div>
+                                                            <div class="col-lg-12 d-grid">
+                                                                <?php if ($hasPaymentMethod): ?>
+                                                                    <button type="button" id="nextStep" class="btn btn-success dm-sans-text mb-2" disabled>Proceed to Payment</button>
+                                                                <?php else: ?>
+                                                                    <button type="button" class="btn btn-success dm-sans-text" id="registerButton" data-bs-toggle="modal" data-bs-target="#reservationConfirmationModal" disabled>Confirm Booking</button>
+                                                                <?php endif; ?>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+
+                                                    <!-- Step 2 -->
+                                                    <div id="step2" class="step d-none">
+                                                        <div class="row g-2">
+                                                            <div class="col-lg-12">
+                                                                <h5 class="fw-bold">Payment Information</h5>
+                                                            </div>
+
+                                                            <!-- Payment Information -->
+                                                            <div class="col-lg-12 text-center mb-3">
+                                                                <div>
+                                                                    <p class="dm-sans-text">Please scan the GCash QR Code of the Resort and send a total amount of <?php echo htmlspecialchars($price); ?> for the down payment.</p>
+                                                                </div>
+                                                                <div>
+                                                                    <img src="<?php echo htmlspecialchars($gcashInfo['bgcashQrImage']); ?>" class="img-fluid" alt="GCash QR Code" height="30">
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Proof of Payment Upload -->
+                                                            <div class="col-lg-12 mb-3">
+                                                                <p class="text-center dm-sans-text">Name: <?php echo htmlspecialchars($gcashInfo['bgcashname']); ?></p>
+                                                                <p class="text-center dm-sans-text">Number: <?php echo htmlspecialchars($gcashInfo['bgcashnum']); ?></p>
+                                                            </div>
+                                                            <div class="col-lg-12 mb-3">
+                                                                <label for="proofofpayment" class="mb-1 d-block dm-sans-text text-start">Proof of Payment</label>
+                                                                <input type="file" name="proofofpayment" id="proofofpayment" class="form-control shadow" accept="image/*" <?php echo $hasPaymentMethod ? 'required' : ''; ?>>
+                                                            </div>
+                                                            <div class="col-lg-12 mb-3">
+                                                                <label>G-Cash Reference Number</label>
+                                                                <input type="text" name="gcash_reference" id="gcash_reference" class="form-control shadow" placeholder="Enter the reference number of your transaction" <?php echo $hasPaymentMethod ? 'required' : ''; ?>>
+                                                            </div>
+                                                            <div class="col-12 bg-success-subtle text-center rounded border-0">
+                                                                <i class="bi bi-info-circle me-1"></i><span class="fw-bold ">Business owner will review your transaction before accepting your reservation.</span>
+                                                            </div>
+
+                                                            <div class="col-lg-12 my-3">
+                                                                <div class="d-grid col-12 mx-auto">
+                                                                    <button type="button" class="btn btn-secondary mb-2" id="previousStep">Back</button>
+                                                                </div>
+                                                                <div class="d-grid col-12 mx-auto">
+                                                                    <button type="button" class="btn btn-success" id="registerButton" data-bs-toggle="modal" data-bs-target="#reservationConfirmationModal" disabled>Confirm Booking</button>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
+                                                    <script>
+                                                        document.addEventListener('DOMContentLoaded', () => {
+                                                            const notyf = new Notyf({
+                                                                duration: 3000,
+                                                                position: {
+                                                                    x: 'right',
+                                                                    y: 'top'
                                                                 }
-                                                                document.querySelector('input[name="total_adults"]').addEventListener('input', function() {
-                                                                    const daterange = document.querySelector('input[name="daterange"]').value;
-                                                                    if (!daterange && this.value > 0) {
-                                                                        notyf.error('Please select a check-in and check-out date.');
-                                                                    }
-                                                                    checkInputs();
-                                                                });
-
-                                                                document.querySelector('input[name="total_children"]').addEventListener('input', function() {
-                                                                    const daterange = document.querySelector('input[name="daterange"]').value;
-                                                                    if (!daterange && this.value > 0) {
-                                                                        notyf.error('Please select a check-in and check-out date before adding a adult and chidren.');
-                                                                    }
-                                                                    checkInputs();
-                                                                });
-
-                                                                document.querySelector('input[name="total_adults"]').addEventListener('input', checkInputs);
-                                                                document.querySelector('input[name="total_children"]').addEventListener('input', checkInputs);
-                                                                document.querySelector('input[name="daterange"]').addEventListener('input', checkInputs);
-                                                                document.getElementById('attendeesContainer').addEventListener('input', checkInputs);
-                                                            </script>
-                                                        </div>
-                                                        <div class="col-lg-12 d-grid">
-                                                            <?php if ($hasPaymentMethod): ?>
-                                                                <button type="button" id="nextStep" class="btn btn-success dm-sans-text mb-2" disabled>Proceed to Payment</button>
-                                                            <?php else: ?>
-                                                                <button type="button" class="btn btn-success dm-sans-text" id="registerButton" data-bs-toggle="modal" data-bs-target="#reservationConfirmationModal" disabled>Confirm Booking</button>
-                                                            <?php endif; ?>
-                                                        </div>
-
-                                                    </div>
-                                                </div>
-
-                                                <!-- Step 2 -->
-                                                <div id="step2" class="step d-none">
-                                                    <div class="row g-2">
-                                                        <div class="col-lg-12">
-                                                            <h5 class="fw-bold">Payment Information</h5>
-                                                        </div>
-
-                                                        <!-- Payment Information -->
-                                                        <div class="col-lg-12 text-center mb-3">
-                                                            <div>
-                                                                <p class="dm-sans-text">Please scan the GCash QR Code of the Resort and send a total amount of <?php echo htmlspecialchars($price); ?> for the down payment.</p>
-                                                            </div>
-                                                            <div>
-                                                                <img src="<?php echo htmlspecialchars($gcashInfo['bgcashQrImage']); ?>" class="img-fluid" alt="GCash QR Code" height="30">
-                                                            </div>
-                                                        </div>
-
-                                                        <!-- Proof of Payment Upload -->
-                                                        <div class="col-lg-12 mb-3">
-                                                            <p class="text-center dm-sans-text">Name: <?php echo htmlspecialchars($gcashInfo['bgcashname']); ?></p>
-                                                            <p class="text-center dm-sans-text">Number: <?php echo htmlspecialchars($gcashInfo['bgcashnum']); ?></p>
-                                                        </div>
-                                                        <div class="col-lg-12 mb-3">
-                                                            <label for="proofofpayment" class="mb-1 d-block dm-sans-text text-start">Proof of Payment</label>
-                                                            <input type="file" name="proofofpayment" id="proofofpayment" class="form-control shadow" accept="image/*" <?php echo $hasPaymentMethod ? 'required' : ''; ?>>
-                                                        </div>
-                                                        <div class="col-lg-12 mb-3">
-                                                            <label>G-Cash Reference Number</label>
-                                                            <input type="text" name="gcash_reference" id="gcash_reference" class="form-control shadow" placeholder="Enter the reference number of your transaction" <?php echo $hasPaymentMethod ? 'required' : ''; ?>>
-                                                        </div>
-                                                        <div class="col-12 bg-success-subtle text-center rounded border-0">
-                                                            <i class="bi bi-info-circle me-1"></i><span class="fw-bold ">Business owner will review your transaction before accepting your reservation.</span>
-                                                        </div>
-
-                                                        <div class="col-lg-12 my-3">
-                                                            <div class="d-grid col-12 mx-auto">
-                                                                <button type="button" class="btn btn-secondary mb-2" id="previousStep">Back</button>
-                                                            </div>
-                                                            <div class="d-grid col-12 mx-auto">
-                                                                <button type="button" class="btn btn-success" id="registerButton" data-bs-toggle="modal" data-bs-target="#reservationConfirmationModal" disabled>Confirm Booking</button>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <script>
-                                                    document.addEventListener('DOMContentLoaded', () => {
-                                                        const notyf = new Notyf({
-                                                            duration: 3000,
-                                                            position: {
-                                                                x: 'right',
-                                                                y: 'top'
-                                                            }
-                                                        });
-
-                                                        const form = document.getElementById('multiStepForm');
-                                                        const confirmButton = document.getElementById('confirmReservationButton');
-
-                                                        confirmButton.addEventListener('click', async () => {
-                                                            const formData = new FormData(form);
-                                                            const response = await fetch(form.action, {
-                                                                method: 'POST',
-                                                                body: formData
                                                             });
 
-                                                            const result = await response.json();
+                                                            const form = document.getElementById('multiStepForm');
+                                                            const confirmButton = document.getElementById('confirmReservationButton');
 
-                                                            if (result.type === 'success') {
-                                                                notyf.success(result.message);
-                                                                setTimeout(() => {
-                                                                    window.location.href = '../../resort/page-3.php?roomID=<?php echo $roomID; ?>&businessInfoID=<?php echo $businessInfoID; ?>&userID=<?php echo $userID; ?>';
-                                                                }, 3000);
-                                                            } else {
-                                                                notyf.error(result.message);
-                                                            }
+                                                            confirmButton.addEventListener('click', async () => {
+                                                                const formData = new FormData(form);
+                                                                const response = await fetch(form.action, {
+                                                                    method: 'POST',
+                                                                    body: formData
+                                                                });
 
-                                                            // Close the modal
-                                                            const reservationConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('reservationConfirmationModal'));
-                                                            reservationConfirmationModal.hide();
+                                                                const result = await response.json();
+
+                                                                if (result.type === 'success') {
+                                                                    notyf.success(result.message);
+                                                                    setTimeout(() => {
+                                                                        window.location.href = '../../resort/page-3.php?roomID=<?php echo $roomID; ?>&businessInfoID=<?php echo $businessInfoID; ?>&userID=<?php echo $userID; ?>';
+                                                                    }, 3000);
+                                                                } else {
+                                                                    notyf.error(result.message);
+                                                                }
+
+                                                                // Close the modal
+                                                                const reservationConfirmationModal = bootstrap.Modal.getInstance(document.getElementById('reservationConfirmationModal'));
+                                                                reservationConfirmationModal.hide();
+                                                            });
                                                         });
-                                                    });
 
-                                                    const progressBar = document.getElementById('progressBar');
-                                                    const step1 = document.getElementById('step1');
-                                                    const step2 = document.getElementById('step2');
-                                                    const registerButton = document.getElementById('registerButton');
-                                                    const proofOfPayment = document.getElementById('proofofpayment');
-                                                    const gcashReference = document.getElementById('gcash_reference');
+                                                        const progressBar = document.getElementById('progressBar');
+                                                        const step1 = document.getElementById('step1');
+                                                        const step2 = document.getElementById('step2');
+                                                        const registerButton = document.getElementById('registerButton');
+                                                        const proofOfPayment = document.getElementById('proofofpayment');
+                                                        const gcashReference = document.getElementById('gcash_reference');
 
-                                                    document.getElementById('nextStep').addEventListener('click', function() {
-                                                        step1.classList.add('d-none');
-                                                        step2.classList.remove('d-none');
-                                                        progressBar.style.width = '100%';
-                                                        progressBar.setAttribute('aria-valuenow', '100');
-                                                        progressBar.textContent = 'Step 2 of 2';
-                                                        checkStep2Inputs(); // Check inputs when proceeding to step 2
-                                                    });
+                                                        document.getElementById('nextStep').addEventListener('click', function() {
+                                                            step1.classList.add('d-none');
+                                                            step2.classList.remove('d-none');
+                                                            progressBar.style.width = '100%';
+                                                            progressBar.setAttribute('aria-valuenow', '100');
+                                                            progressBar.textContent = 'Step 2 of 2';
+                                                            checkStep2Inputs(); // Check inputs when proceeding to step 2
+                                                        });
 
-                                                    document.getElementById('previousStep').addEventListener('click', function() {
-                                                        step2.classList.add('d-none');
-                                                        step1.classList.remove('d-none');
-                                                        progressBar.style.width = '50%';
-                                                        progressBar.setAttribute('aria-valuenow', '50');
-                                                        progressBar.textContent = 'Step 1 of 2';
-                                                        registerButton.disabled = true; // Disable the confirm button when going back to step 1
-                                                    });
+                                                        document.getElementById('previousStep').addEventListener('click', function() {
+                                                            step2.classList.add('d-none');
+                                                            step1.classList.remove('d-none');
+                                                            progressBar.style.width = '50%';
+                                                            progressBar.setAttribute('aria-valuenow', '50');
+                                                            progressBar.textContent = 'Step 1 of 2';
+                                                            registerButton.disabled = true; // Disable the confirm button when going back to step 1
+                                                        });
 
-                                                    function checkStep2Inputs() {
-                                                        if (proofOfPayment.files.length > 0 && gcashReference.value.trim() !== '') {
+                                                        function checkStep2Inputs() {
+                                                            if (proofOfPayment.files.length > 0 && gcashReference.value.trim() !== '') {
+                                                                registerButton.disabled = false;
+                                                            } else {
+                                                                registerButton.disabled = true;
+                                                            }
+                                                        }
+
+                                                        proofOfPayment.addEventListener('change', checkStep2Inputs);
+                                                        gcashReference.addEventListener('input', checkStep2Inputs);
+
+                                                        // Enable the confirm button if there is no payment method
+                                                        <?php if (!$hasPaymentMethod): ?>
                                                             registerButton.disabled = false;
-                                                        } else {
-                                                            registerButton.disabled = true;
-                                                        }
-                                                    }
+                                                        <?php endif; ?>
 
-                                                    proofOfPayment.addEventListener('change', checkStep2Inputs);
-                                                    gcashReference.addEventListener('input', checkStep2Inputs);
+                                                        // Format GCash reference number as xxxx xxx xxxxxx and limit to 13 digits
+                                                        gcashReference.addEventListener('input', function() {
+                                                            let value = gcashReference.value.replace(/\D/g, ''); // Remove non-digit characters
+                                                            if (value.length > 13) {
+                                                                value = value.slice(0, 13); // Limit to 13 digits
+                                                            }
+                                                            if (value.length > 4) {
+                                                                value = value.slice(0, 4) + ' ' + value.slice(4);
+                                                            }
+                                                            if (value.length > 8) {
+                                                                value = value.slice(0, 8) + ' ' + value.slice(8);
+                                                            }
+                                                            gcashReference.value = value;
+                                                        });
 
-                                                    // Enable the confirm button if there is no payment method
-                                                    <?php if (!$hasPaymentMethod): ?>
-                                                        registerButton.disabled = false;
-                                                    <?php endif; ?>
-
-                                                    // Format GCash reference number as xxxx xxx xxxxxx and limit to 13 digits
-                                                    gcashReference.addEventListener('input', function() {
-                                                        let value = gcashReference.value.replace(/\D/g, ''); // Remove non-digit characters
-                                                        if (value.length > 13) {
-                                                            value = value.slice(0, 13); // Limit to 13 digits
-                                                        }
-                                                        if (value.length > 4) {
-                                                            value = value.slice(0, 4) + ' ' + value.slice(4);
-                                                        }
-                                                        if (value.length > 8) {
-                                                            value = value.slice(0, 8) + ' ' + value.slice(8);
-                                                        }
-                                                        gcashReference.value = value;
-                                                    });
-
-                                                    // Remove spaces before submitting the form
-                                                    document.getElementById('multiStepForm').addEventListener('submit', function() {
-                                                        gcashReference.value = gcashReference.value.replace(/\s/g, ''); // Remove spaces
-                                                    });
-                                                </script>
+                                                        // Remove spaces before submitting the form
+                                                        document.getElementById('multiStepForm').addEventListener('submit', function() {
+                                                            gcashReference.value = gcashReference.value.replace(/\s/g, ''); // Remove spaces
+                                                        });
+                                                    </script>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
+                                <?php endif; ?>
 
 
                             </div>

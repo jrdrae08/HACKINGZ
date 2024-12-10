@@ -142,14 +142,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     <th>Location</th>
                                                                 </tr>
                                                             </thead>
-                                                            <tbody>
-                                                                <tr>
-                                                                    <td>Jordan Rae</td>
-                                                                    <td>Male</td>
-                                                                    <td>This City/Municipality</td>
-                                                                </tr>
+                                                            <tbody id="infoTableBody">
+                                                                <!-- Attendees will be dynamically added here -->
                                                             </tbody>
                                                         </table>
+                                                        <p><strong>Proof of Payment</strong> <img id="modal-proofof-payment" src="" alt="Proof of Payment" style="width: 100%;"></p>
+                                                        <p><strong>Reference Number:</strong> <span id="modal-reference-number"></span></p>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -188,8 +186,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                 <td>${reservation.roomName}</td>
                                 <td>${reservation.customerName}</td>
                                 <td>
-                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom" data-name="${reservation.customerName}" data-address="${reservation.address}" data-contact="${reservation.contactNumber}" data-id-type="${reservation.id_type}" data-front-id="${reservation.front_id}" data-back-id="${reservation.back_id}"><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                        data-name="${reservation.customerName}"
+                                        data-address="${reservation.address}"
+                                        data-contact="${reservation.contactNumber}"
+                                        data-id-type="${reservation.id_type}"
+                                        data-front-id="${reservation.front_id}"
+                                        data-back-id="${reservation.back_id}"
+                                        data-total-attendees="${reservation.totalnumAttendees}"
+                                        data-total-male="${reservation.totalmale}"
+                                        data-total-female="${reservation.totalfemale}"
+                                        data-this-city="${reservation.thisCity}"
+                                        data-other-city="${reservation.otherCity}"
+                                        data-other-province="${reservation.otherProvince}"
+                                        data-foreign-country="${reservation.foreignCountry}"
+                                        data-attendee-names="${reservation.attendeeNames}"
+                                        data-attendee-sexes="${reservation.attendeeSexes}"
+                                        data-attendee-locations="${reservation.attendeeLocations}"
+                                        data-proof-of-payment="${reservation.proofOfPayment}"
+                                        data-reference-number="${reservation.gcashReference}"
+                                    ><i class="bi bi-eye"></i></button>
                                     <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+                                    <button class="btn btn-danger m-1"><i class="bi bi-close-lg"></i></button>
                                 </td>
                                 <td>New</td>
                             </tr>
@@ -210,6 +228,50 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                         $('#modal-back-id').attr('src', backId).parent().show();
                                                                     } else {
                                                                         $('#modal-back-id').parent().hide();
+                                                                    }
+
+                                                                    // Set user demographics
+                                                                    $('#modal-total-attendees').text($(this).data('total-attendees'));
+                                                                    $('#modal-total-male').text($(this).data('total-male'));
+                                                                    $('#modal-total-female').text($(this).data('total-female'));
+                                                                    $('#modal-this-city').text($(this).data('this-city'));
+                                                                    $('#modal-other-city').text($(this).data('other-city'));
+                                                                    $('#modal-other-province').text($(this).data('other-province'));
+                                                                    $('#modal-foreign-country').text($(this).data('foreign-country'));
+
+                                                                    // Populate the information table
+                                                                    let attendeeNames = $(this).data('attendee-names').split(',');
+                                                                    let attendeeSexes = $(this).data('attendee-sexes').split(',');
+                                                                    let attendeeLocations = $(this).data('attendee-locations').split(',');
+
+                                                                    let infoTableBody = $('#viewroom tbody');
+                                                                    infoTableBody.empty(); // Clear existing rows
+
+                                                                    for (let i = 0; i < attendeeNames.length; i++) {
+                                                                        let row = `
+                                <tr>
+                                    <td>${attendeeNames[i]}</td>
+                                    <td>${attendeeSexes[i]}</td>
+                                    <td>${attendeeLocations[i]}</td>
+                                </tr>
+                            `;
+                                                                        infoTableBody.append(row);
+                                                                    }
+
+                                                                    // Set proof of payment and reference number
+                                                                    let proofOfPayment = $(this).data('proof-of-payment');
+                                                                    let referenceNumber = $(this).data('reference-number');
+
+                                                                    if (proofOfPayment) {
+                                                                        $('#modal-proofof-payment').attr('src', proofOfPayment).parent().show();
+                                                                    } else {
+                                                                        $('#modal-proofof-payment').parent().hide();
+                                                                    }
+
+                                                                    if (referenceNumber) {
+                                                                        $('#modal-reference-number').text(referenceNumber).parent().show();
+                                                                    } else {
+                                                                        $('#modal-reference-number').parent().hide();
                                                                     }
                                                                 });
                                                             } else {
