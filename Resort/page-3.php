@@ -225,22 +225,11 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
 
         <section class="first-page" id="first-page">
             <div class="container-fluid">
-                <div class="row page-nav-select d-flex justify-content-between align-items-center">
+                <div class="row page-nav-select d-flex justify-content-between align-items-center mt-5">
                     <div class="col-2 py-3 d-flex justify-content-center align-items-center">
                         <a href="../../resort/page-1.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>">
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
                         </a>
-                    </div>
-
-                    <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
-                                <a href="../../resort/page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="page-nav active text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
-                            </div>
-                            <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
-                                <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
-                            </div>
-                        </div>
                     </div>
                 </div>
 
@@ -1027,27 +1016,45 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
             });
         }
 
-        function disableBookedDates(bookedDates) {
-            $("#checkin, #departure").datepicker({
-                dateFormat: 'yy-mm-dd',
-                beforeShowDay: function(date) {
-                    const dateString = $.datepicker.formatDate('yy-mm-dd', date);
-                    const today = new Date();
-                    today.setHours(0, 0, 0, 0); // Set to the beginning of today
-
-                    const isBooked = bookedDates.some(bookedDate => bookedDate.date === dateString && bookedDate.status === 'Accepted');
-
-                    if (date < today || isBooked) {
-                        return [false, 'booked', 'Unavailable'];
-                    }
-                    return [true, ''];
+        function fetchReservedDates(roomID) {
+            return $.ajax({
+                url: '../../backends/subadmin/fetch_reserved_dates.php',
+                method: 'GET',
+                data: {
+                    roomID: roomID
                 },
-                onSelect: function(selectedDate) {
-                    const option = this.id === "checkin" ? "minDate" : "maxDate";
-                    const instance = $(this).data("datepicker");
-                    const date = $.datepicker.parseDate(instance.settings.dateFormat || $.datepicker._defaults.dateFormat, selectedDate, instance.settings);
-                    $("#checkin, #departure").not(this).datepicker("option", option, date);
+                dataType: 'json'
+            });
+        }
+
+        function disableReservedDates(reservedDates) {
+            $('#daterange').daterangepicker({
+                locale: {
+                    format: 'YYYY-MM-DD'
+                },
+                autoUpdateInput: false, // Prevents the input from being updated automatically
+                minDate: moment().startOf('day'), // Disable past dates
+                isInvalidDate: function(date) {
+                    const dateString = date.format('YYYY-MM-DD');
+                    return reservedDates.includes(dateString) || date.isBefore(moment(), 'day'); // Disable past dates and reserved dates
+                },
+                isCustomDate: function(date) {
+                    const dateString = date.format('YYYY-MM-DD');
+                    if (reservedDates.includes(dateString)) {
+                        return 'booked-date'; // Apply custom class to reserved dates
+                    }
+                    return '';
                 }
+            });
+
+            $('#daterange').on('apply.daterangepicker', function(ev, picker) {
+                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                checkInputs(); // Check inputs after selecting date range
+            });
+
+            $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
+                $(this).val('');
+                checkInputs(); // Check inputs after canceling date range
             });
         }
 
@@ -1057,31 +1064,23 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
             }
         });
 
-        $("#reservationForm").on('submit', function(event) {
-            event.preventDefault();
-            const formData = $(this).serialize();
-            $.ajax({
-                url: $(this).attr('action'),
-                method: 'POST',
-                data: formData,
-                dataType: 'json',
-                success: function(response) {
-                    if (response.status === 'success') {
-                        notyf.success(`Reservation successful! Your reference number is: ${response.referenceNum}`);
-                        setTimeout(() => {
-                            location.reload();
-                        }, 3000); // Reload the page after 3 seconds
-                    } else {
-                        notyf.error(response.message);
-                    }
-                },
-                error: function() {
-                    notyf.error('An error occurred. Please try again later.');
-                }
-            });
+        fetchReservedDates(roomID).done(function(response) {
+            if (response.status === 'success' && response.reservedDates) {
+                disableReservedDates(response.reservedDates);
+            } else {
+                notyf.error('Failed to fetch reserved dates.');
+            }
+        }).fail(function() {
+            notyf.error('An error occurred while fetching reserved dates.');
         });
     });
 </script>
+<style>
+    .booked-date {
+        background-color: red !important;
+        color: white !important;
+    }
+</style>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/swiper@11/swiper-bundle.min.js"></script>
 <script src="https://unpkg.com/typed.js@2.1.0/dist/typed.umd.js"></script>

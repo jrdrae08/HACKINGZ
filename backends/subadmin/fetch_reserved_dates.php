@@ -17,7 +17,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'GET') {
     $stmt = $pdo->prepare("
             SELECT checkin, departure
             FROM reservations
-            WHERE roomID = :roomID
+            WHERE roomID = :roomID AND status = 'Accepted'
         ");
     $stmt->execute(['roomID' => $roomID]);
     $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);

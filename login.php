@@ -63,7 +63,7 @@ session_start();
                                     <button type="submit" class="btn btn-success">Log in</button>
                                     <a href="" class="text-decoration-none text-secondary">forgot password?</a>
                                     <hr>
-                                    <a href="../user/user_registration.php" class="btn btn-primary">SIGN UP</a>
+                                    <a href="../user/user-registration.php" class="btn btn-primary">SIGN UP</a>
                                 </div>
                             </div>
                         </div>

@@ -478,6 +478,145 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 </table>
                                             </div>
                                         </div>
+                                        <script>
+                                            $(document).ready(function() {
+                                                const notyf = new Notyf({
+                                                    duration: 5000,
+                                                    position: {
+                                                        x: 'right',
+                                                        y: 'top'
+                                                    }
+                                                });
+
+                                                function fetchUpcomingReservations() {
+                                                    $.ajax({
+                                                        url: '../../backends/subadmin/fetch_upcoming_reservations.php', // Update the path as needed
+                                                        method: 'GET',
+                                                        dataType: 'json',
+                                                        success: function(response) {
+                                                            if (response.status === 'success') {
+                                                                let reservations = response.data;
+                                                                let tbody = $('#upcoming-reservations');
+                                                                tbody.empty(); // Clear existing rows
+
+                                                                reservations.forEach(function(reservation) {
+                                                                    let timeBooked = new Date(reservation.timeBooked);
+                                                                    let formattedTimeBooked = timeBooked.toLocaleString('en-US', {
+                                                                        hour: 'numeric',
+                                                                        minute: 'numeric',
+                                                                        hour12: true
+                                                                    }) + ' ' + timeBooked.toLocaleString('en-US', {
+                                                                        month: 'long',
+                                                                        day: 'numeric',
+                                                                        year: 'numeric'
+                                                                    });
+
+                                                                    let row = `
+                                <tr>
+                                    <td>${formattedTimeBooked}</td>
+                                    <td>${reservation.roomName}</td>
+                                    <td>${reservation.customerName}</td>
+                                    <td>
+                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                            data-name="${reservation.customerName}"
+                                            data-address="${reservation.address}"
+                                            data-contact="${reservation.contactNumber}"
+                                            data-id-type="${reservation.id_type}"
+                                            data-front-id="${reservation.front_id}"
+                                            data-back-id="${reservation.back_id}"
+                                            data-total-attendees="${reservation.totalnumAttendees}"
+                                            data-total-male="${reservation.totalmale}"
+                                            data-total-female="${reservation.totalfemale}"
+                                            data-this-city="${reservation.thisCity}"
+                                            data-other-city="${reservation.otherCity}"
+                                            data-other-province="${reservation.otherProvince}"
+                                            data-foreign-country="${reservation.foreignCountry}"
+                                            data-attendee-names="${reservation.attendeeNames}"
+                                            data-attendee-sexes="${reservation.attendeeSexes}"
+                                            data-attendee-locations="${reservation.attendeeLocations}"
+                                            data-proof-of-payment="${reservation.proofOfPayment}"
+                                            data-reference-number="${reservation.gcashReference}"
+                                        ><i class="bi bi-eye"></i></button>
+                                    </td>
+                                    <td>Accepted</td>
+                                </tr>
+                            `;
+                                                                    tbody.append(row);
+                                                                });
+
+                                                                // Add event listener for view details buttons
+                                                                $('.view-details').on('click', function() {
+                                                                    $('#modal-name').text($(this).data('name'));
+                                                                    $('#modal-address').text($(this).data('address'));
+                                                                    $('#modal-contact').text($(this).data('contact'));
+                                                                    $('#modal-id-type').text($(this).data('id-type'));
+                                                                    $('#modal-front-id').attr('src', $(this).data('front-id'));
+
+                                                                    let backId = $(this).data('back-id');
+                                                                    if (backId) {
+                                                                        $('#modal-back-id').attr('src', backId).parent().show();
+                                                                    } else {
+                                                                        $('#modal-back-id').parent().hide();
+                                                                    }
+
+                                                                    // Set user demographics
+                                                                    $('#modal-total-attendees').text($(this).data('total-attendees'));
+                                                                    $('#modal-total-male').text($(this).data('total-male'));
+                                                                    $('#modal-total-female').text($(this).data('total-female'));
+                                                                    $('#modal-this-city').text($(this).data('this-city'));
+                                                                    $('#modal-other-city').text($(this).data('other-city'));
+                                                                    $('#modal-other-province').text($(this).data('other-province'));
+                                                                    $('#modal-foreign-country').text($(this).data('foreign-country'));
+
+                                                                    // Populate the information table
+                                                                    let attendeeNames = $(this).data('attendee-names').split(',');
+                                                                    let attendeeSexes = $(this).data('attendee-sexes').split(',');
+                                                                    let attendeeLocations = $(this).data('attendee-locations').split(',');
+
+                                                                    let infoTableBody = $('#viewroom tbody');
+                                                                    infoTableBody.empty(); // Clear existing rows
+
+                                                                    for (let i = 0; i < attendeeNames.length; i++) {
+                                                                        let row = `
+                                    <tr>
+                                        <td>${attendeeNames[i]}</td>
+                                        <td>${attendeeSexes[i]}</td>
+                                        <td>${attendeeLocations[i]}</td>
+                                    </tr>
+                                `;
+                                                                        infoTableBody.append(row);
+                                                                    }
+
+                                                                    // Set proof of payment and reference number
+                                                                    let proofOfPayment = $(this).data('proof-of-payment');
+                                                                    let referenceNumber = $(this).data('reference-number');
+
+                                                                    if (proofOfPayment) {
+                                                                        $('#modal-proofof-payment').attr('src', proofOfPayment).parent().show();
+                                                                    } else {
+                                                                        $('#modal-proofof-payment').parent().hide();
+                                                                    }
+
+                                                                    if (referenceNumber) {
+                                                                        $('#modal-reference-number').text(referenceNumber).parent().show();
+                                                                    } else {
+                                                                        $('#modal-reference-number').parent().hide();
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                $('#upcoming-reservations').html('<tr><td colspan="5">No upcoming reservations found.</td></tr>');
+                                                            }
+                                                        },
+                                                        error: function() {
+                                                            $('#upcoming-reservations').html('<tr><td colspan="5">An error occurred while fetching upcoming reservations.</td></tr>');
+                                                        }
+                                                    });
+                                                }
+
+                                                // Fetch upcoming reservations on page load
+                                                fetchUpcomingReservations();
+                                            });
+                                        </script>
 
 
                                         <!-- Ongoing -->
