@@ -9,9 +9,6 @@ $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
 $userID = isset($_GET['userID']) ? (int) $_GET['userID'] : 1;
 
 
-if (!$userID) {
-    $_SESSION['redirect_url'] = $_SERVER['REQUEST_URI'];
-}
 try {
     // Query to fetch room information based on roomID
     $stmt = $pdo->prepare("

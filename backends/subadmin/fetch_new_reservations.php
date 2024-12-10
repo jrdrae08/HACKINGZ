@@ -12,7 +12,7 @@ $businessInfoID = $_SESSION['business_info_id'];
 
 try {
   $stmt = $pdo->prepare("
-    SELECT DISTINCT r.datetime AS timeBooked, ri.roomName, r.fullname AS customerName, r.regadd AS address, r.regnum AS contactNumber, u.id_type, u.front_id, u.back_id,
+    SELECT DISTINCT r.revID, r.datetime AS timeBooked, ri.roomName, r.fullname AS customerName, r.regadd AS address, r.regnum AS contactNumber, u.id_type, u.front_id, u.back_id,
            ud.totalnumAttendees, ud.totalmale, ud.totalfemale, ud.thisCity, ud.otherCity, ud.otherProvince, ud.foreignCountry, ud.name AS attendeeNames, ud.sex AS attendeeSexes, ud.location AS attendeeLocations,
            up.proofOfPayment, up.gcashReference
     FROM reservations r
@@ -20,7 +20,7 @@ try {
     JOIN users u ON r.userID = u.userId
     LEFT JOIN userdemographics ud ON r.userID = ud.userID AND r.roomID = ud.roomID AND ri.BusinessInfoID = ud.BusinessInfoID AND r.datetime = ud.created_at
     LEFT JOIN userpayment up ON r.roomID = up.roomID AND r.userID = up.userID AND ri.BusinessInfoID = up.businessinfoID
-    WHERE ri.BusinessInfoID = :businessInfoID
+    WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Pending'
     ORDER BY r.datetime DESC
   ");
   $stmt->execute(['businessInfoID' => $businessInfoID]);
