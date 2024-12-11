@@ -13,7 +13,7 @@ $revID = $_GET['revID'];
 
 try {
   $stmt = $pdo->prepare("
-    SELECT ri.roomName, ri.roomPrice, ri.timeStart, ri.timeEnd, r.checkin, r.departure, r.status, b.BusinessName, b.BusinessAddress, ud.totalnumAttendees, up.proofOfPayment, up.gcashReference
+    SELECT r.roomID, r.userID, ri.BusinessInfoID, ri.roomName, ri.roomPrice, ri.timeStart, ri.timeEnd, r.checkin, r.departure, r.status, b.BusinessName, b.BusinessAddress, ud.totalnumAttendees, up.proofOfPayment, up.gcashReference
     FROM reservations r
     JOIN roominfotable ri ON r.roomID = ri.roomID
     JOIN businessinformationform b ON ri.BusinessInfoID = b.BusinessInfoID

@@ -122,7 +122,7 @@ try {
                     <p><strong>Total Companions:</strong> <span id="totalCompanions"></span></p>
                     <hr>
                     <div class="d-flex justify-content-center">
-                      <p>Want to view this room?<a href=" " data-bs-dismiss="modal"> Click here</a></p>
+                      <p>Want to view this room?<a id="viewRoomLink" target="_blank"> Click here</a></p>
                     </div>
                   </div>
                   <div class="col-md-6 col-12" id="paymentInfo" style="display: none;">
@@ -196,6 +196,10 @@ try {
                 } else {
                   paymentInfo.style.display = 'none';
                 }
+
+                // Set the href attribute for the view room link
+                const viewRoomLink = document.getElementById('viewRoomLink');
+                viewRoomLink.href = `../../resort/page-3.php?roomID=${data.roomID}&businessInfoID=${data.BusinessInfoID}&userID=${data.userID}`;
               })
               .catch(error => {
                 console.error('Error fetching reservation details:', error);
