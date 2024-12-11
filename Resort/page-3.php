@@ -8,11 +8,10 @@ $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID']
 $roomID = isset($_GET['roomID']) ? (int) $_GET['roomID'] : 1;
 $userID = isset($_GET['userID']) ? (int) $_GET['userID'] : 1;
 
-
 try {
     // Query to fetch room information based on roomID
     $stmt = $pdo->prepare("
-        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, BusinessInfoID
+        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, RoomDescriptions, image1, image2, image3, image4, image5, image6, BusinessInfoID, timeStart, timeEnd
         FROM roominfotable
         WHERE roomID = :roomID
     ");
@@ -39,11 +38,11 @@ try {
 
     // Query to fetch active features based on roomID and BusinessInfoID
     $stmtFeatures = $pdo->prepare("
-SELECT rf.FeatureName
-FROM room_features rf
-JOIN room_features_mapping rfm ON rf.FeatureID = rfm.FeatureID
-WHERE rfm.roomID = :roomID AND rfm.BusinessInfoID = :businessInfoID AND rfm.IsActive = 1
-");
+        SELECT rf.FeatureName
+        FROM room_features rf
+        JOIN room_features_mapping rfm ON rf.FeatureID = rfm.FeatureID
+        WHERE rfm.roomID = :roomID AND rfm.BusinessInfoID = :businessInfoID AND rfm.IsActive = 1
+    ");
     $stmtFeatures->execute(['roomID' => $roomID, 'businessInfoID' => $businessInfoID]);
     $features = $stmtFeatures->fetchAll(PDO::FETCH_ASSOC);
 
@@ -59,10 +58,10 @@ WHERE rfm.roomID = :roomID AND rfm.BusinessInfoID = :businessInfoID AND rfm.IsAc
 
     // Query to fetch related rooms based on businessInfoID, excluding the current roomID (related rooms are rooms from the same business)
     $stmtRelatedRooms = $pdo->prepare("
-SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, image1, timeStart, timeEnd
-FROM roominfotable
-WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
-");
+        SELECT roomID, roomName, roomPrice, adultMax, ChildrenMax, image1, timeStart, timeEnd
+        FROM roominfotable
+        WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
+    ");
     $stmtRelatedRooms->execute(['businessInfoID' => $businessInfoID, 'roomID' => $roomID]);
     $relatedRooms = $stmtRelatedRooms->fetchAll(PDO::FETCH_ASSOC);
 
@@ -357,7 +356,7 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
                                                     <div class="card-body">
                                                         <div class="text-center">
                                                             <h5 class="text-dark dm-sans-text fw-bold">Available Schedules</h5>
-                                                            <p class="text-dark dm-sans-text">12:00 PM to 6:00 AM</p>
+                                                            <p class="text-dark dm-sans-text"><?php echo date("g:i A", strtotime($room['timeStart'])) . ' to ' . date("g:i A", strtotime($room['timeEnd'])); ?></p>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -371,7 +370,9 @@ WHERE BusinessInfoID = :businessInfoID AND roomID != :roomID
                                                         </div>
                                                     </div>
                                                 </div>
-                                                <p class="text-dark">Do you want to reserve this room? <a href="../login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">Click here to login</a></p>
+                                                <?php if (!$userID): ?>
+                                                    <p class="text-dark">Do you want to reserve this room? <a href="../login.php?redirect=<?php echo urlencode($_SERVER['REQUEST_URI']); ?>">Click here to login</a></p>
+                                                <?php endif; ?>
 
                                                 <script>
                                                     document.addEventListener('DOMContentLoaded', function() {

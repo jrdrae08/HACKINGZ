@@ -122,17 +122,6 @@ try {
                             <i class="bi bi-arrow-left-circle fw-bold text-light fs-1 text-shadow-light"></i>
                         </a>
                     </div>
-
-                    <div class="col-xl-6 col-lg-6 col-10 py-3 align-items-center">
-                        <div class="row d-flex justify-content-center">
-                            <div class="col-lg-4 col-md-6 col-5 d-flex justify-content-center mb-3">
-                                <a href="../../resort/page-2.php?businessInfoID=<?php echo urlencode($businessInfoID); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Accommodations</a>
-                            </div>
-                            <div class="col-lg-2 col-md-6 col-5 d-flex justify-content-center mb-3">
-                                <a href="" class="page-nav text-light rounded-0 cormorant-text fw-bold text-shadow-light">Events</a>
-                            </div>
-                        </div>
-                    </div>
                 </div>
 
                 <div class="first-page-title pb-5">

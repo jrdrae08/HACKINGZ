@@ -537,6 +537,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                             data-proof-of-payment="${reservation.proofOfPayment}"
                                             data-reference-number="${reservation.gcashReference}"
                                         ><i class="bi bi-eye"></i></button>
+                                         <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+                                        
                                     </td>
                                     <td>Accepted</td>
                                 </tr>
