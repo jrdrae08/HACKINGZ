@@ -222,12 +222,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     }
                                                 });
 
-                                                let revID, status;
+                                                let revIDToApprove;
 
                                                 // Event listener for accept reservation buttons using event delegation
                                                 $(document).on('click', '.accept-reservation', function() {
-                                                    revID = $(this).data('revid');
-                                                    status = $(this).data('status');
+                                                    revIDToApprove = $(this).data('revid');
                                                     $('#confirmationModalApprove').modal('show');
                                                 });
 
@@ -238,13 +237,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         method: 'POST',
                                                         contentType: 'application/json',
                                                         data: JSON.stringify({
-                                                            revID: revID,
-                                                            status: status
+                                                            revID: revIDToApprove,
+                                                            status: 'Accepted'
                                                         }),
                                                         dataType: 'json',
                                                         success: function(response) {
                                                             if (response.status === 'success') {
-                                                                fetchNewReservations(); // Refresh the reservations list
+                                                                fetchUpcomingReservations(); // Refresh the reservations list
                                                                 $('#confirmationModalApprove').modal('hide');
                                                                 notyf.success('Reservation approved successfully!');
                                                             } else {
@@ -257,83 +256,15 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     });
                                                 });
 
-                                                // Event listener for reject reservation buttons using event delegation
-                                                $(document).on('click', '.cancel-reservation', function() {
-                                                    revID = $(this).data('revid');
-                                                    status = $(this).data('status');
-                                                    $('#confirmationModalReject').modal('show');
-                                                    checkRejectButtonState();
-                                                });
-
-                                                // Event listener for confirm reject button in the modal
-                                                $('#confirmReject').on('click', function() {
-                                                    let reasons = [];
-                                                    $('#rejectReasons input:checked').each(function() {
-                                                        if ($(this).attr('id') !== 'checkbox3') {
-                                                            reasons.push($(this).next('label').text());
-                                                        }
-                                                    });
-                                                    if ($('#checkbox3').is(':checked')) {
-                                                        reasons.push($('#otherReasonText').val());
-                                                    }
-
+                                                function fetchUpcomingReservations() {
                                                     $.ajax({
-                                                        url: '../../backends/subadmin/update_reservation_status.php',
-                                                        method: 'POST',
-                                                        contentType: 'application/json',
-                                                        data: JSON.stringify({
-                                                            revID: revID,
-                                                            status: status,
-                                                            reasons: reasons
-                                                        }),
-                                                        dataType: 'json',
-                                                        success: function(response) {
-                                                            if (response.status === 'success') {
-                                                                fetchNewReservations(); // Refresh the reservations list
-                                                                $('#confirmationModalReject').modal('hide');
-                                                                notyf.success('Reservation rejected successfully!');
-                                                            } else {
-                                                                notyf.error(response.message);
-                                                            }
-                                                        },
-                                                        error: function() {
-                                                            notyf.error('An error occurred while updating the reservation status.');
-                                                        }
-                                                    });
-                                                });
-
-                                                // Show/hide other reason text area
-                                                $('#checkbox3').on('change', function() {
-                                                    if ($(this).is(':checked')) {
-                                                        $('#otherReasonDiv').show();
-                                                    } else {
-                                                        $('#otherReasonDiv').hide();
-                                                    }
-                                                    checkRejectButtonState();
-                                                });
-
-                                                // Enable/disable the reject button based on checkbox states
-                                                $('#rejectReasons input[type="checkbox"]').on('change', function() {
-                                                    checkRejectButtonState();
-                                                });
-
-                                                function checkRejectButtonState() {
-                                                    if ($('#rejectReasons input[type="checkbox"]:checked').length > 0) {
-                                                        $('#confirmReject').prop('disabled', false);
-                                                    } else {
-                                                        $('#confirmReject').prop('disabled', true);
-                                                    }
-                                                }
-
-                                                function fetchNewReservations() {
-                                                    $.ajax({
-                                                        url: '../../backends/subadmin/fetch_new_reservations.php', // Update the path as needed
+                                                        url: '../../backends/subadmin/fetch_upcoming_reservations.php', // Update the path as needed
                                                         method: 'GET',
                                                         dataType: 'json',
                                                         success: function(response) {
                                                             if (response.status === 'success') {
                                                                 let reservations = response.data;
-                                                                let tbody = $('#new-reservations');
+                                                                let tbody = $('#upcoming-reservations');
                                                                 tbody.empty(); // Clear existing rows
 
                                                                 reservations.forEach(function(reservation) {
@@ -349,37 +280,36 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                                <tr>
-                                    <td>${formattedTimeBooked}</td>
-                                    <td>${reservation.roomName}</td>
-                                    <td>${reservation.customerName}</td>
-                                    <td>
-                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                            data-name="${reservation.customerName}"
-                                            data-address="${reservation.address}"
-                                            data-contact="${reservation.contactNumber}"
-                                            data-id-type="${reservation.id_type}"
-                                            data-front-id="${reservation.front_id}"
-                                            data-back-id="${reservation.back_id}"
-                                            data-total-attendees="${reservation.totalnumAttendees}"
-                                            data-total-male="${reservation.totalmale}"
-                                            data-total-female="${reservation.totalfemale}"
-                                            data-this-city="${reservation.thisCity}"
-                                            data-other-city="${reservation.otherCity}"
-                                            data-other-province="${reservation.otherProvince}"
-                                            data-foreign-country="${reservation.foreignCountry}"
-                                            data-attendee-names="${reservation.attendeeNames}"
-                                            data-attendee-sexes="${reservation.attendeeSexes}"
-                                            data-attendee-locations="${reservation.attendeeLocations}"
-                                            data-proof-of-payment="${reservation.proofOfPayment}"
-                                            data-reference-number="${reservation.gcashReference}"
-                                        ><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-success m-1 accept-reservation" data-revid="${reservation.revID}" data-status="Accepted"><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-danger m-1 cancel-reservation" data-revid="${reservation.revID}" data-status="Rejected"><i class="bi bi-x-lg"></i></button>
-                                    </td>
-                                    <td>New</td>
-                                </tr>
-                            `;
+              <tr>
+                <td>${formattedTimeBooked}</td>
+                <td>${reservation.roomName}</td>
+                <td>${reservation.customerName}</td>
+                <td>
+                  <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                    data-name="${reservation.customerName}"
+                    data-address="${reservation.address}"
+                    data-contact="${reservation.contactNumber}"
+                    data-id-type="${reservation.id_type}"
+                    data-front-id="${reservation.front_id}"
+                    data-back-id="${reservation.back_id}"
+                    data-total-attendees="${reservation.totalnumAttendees}"
+                    data-total-male="${reservation.totalmale}"
+                    data-total-female="${reservation.totalfemale}"
+                    data-this-city="${reservation.thisCity}"
+                    data-other-city="${reservation.otherCity}"
+                    data-other-province="${reservation.otherProvince}"
+                    data-foreign-country="${reservation.foreignCountry}"
+                    data-attendee-names="${reservation.attendeeNames}"
+                    data-attendee-sexes="${reservation.attendeeSexes}"
+                    data-attendee-locations="${reservation.attendeeLocations}"
+                    data-proof-of-payment="${reservation.proofOfPayment}"
+                    data-reference-number="${reservation.gcashReference}"
+                  ><i class="bi bi-eye"></i></button>
+                 <button class="btn btn-success m-1 accept-reservation" data-revid="${reservation.revID}"><i class="bi bi-check-lg"></i></button>
+                </td>
+                <td>Accepted</td>
+              </tr>
+            `;
                                                                     tbody.append(row);
                                                                 });
 
@@ -417,12 +347,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                     for (let i = 0; i < attendeeNames.length; i++) {
                                                                         let row = `
-                                    <tr>
-                                        <td>${attendeeNames[i]}</td>
-                                        <td>${attendeeSexes[i]}</td>
-                                        <td>${attendeeLocations[i]}</td>
-                                    </tr>
-                                `;
+                <tr>
+                  <td>${attendeeNames[i]}</td>
+                  <td>${attendeeSexes[i]}</td>
+                  <td>${attendeeLocations[i]}</td>
+                </tr>
+              `;
                                                                         infoTableBody.append(row);
                                                                     }
 
@@ -443,18 +373,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     }
                                                                 });
                                                             } else {
-                                                                $('#new-reservations').html('<tr><td colspan="5">No reservations found.</td></tr>');
+                                                                $('#upcoming-reservations').html('<tr><td colspan="5">No upcoming reservations found.</td></tr>');
                                                             }
                                                         },
                                                         error: function() {
-                                                            $('#new-reservations').html('<tr><td colspan="5">An error occurred while fetching reservations.</td></tr>');
+                                                            $('#upcoming-reservations').html('<tr><td colspan="5">An error occurred while fetching upcoming reservations.</td></tr>');
                                                         }
                                                     });
                                                 }
 
-                                                // Fetch new reservations on page load
-                                                fetchNewReservations();
+                                                // Fetch upcoming reservations on page load
+                                                fetchUpcomingReservations();
                                             });
+                                        </script>
                                         </script>
 
 
@@ -478,6 +409,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 </table>
                                             </div>
                                         </div>
+
                                         <script>
                                             $(document).ready(function() {
                                                 const notyf = new Notyf({
@@ -486,6 +418,112 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         x: 'right',
                                                         y: 'top'
                                                     }
+                                                });
+
+                                                let revIDToApprove;
+
+                                                // Event listener for accept reservation buttons using event delegation
+                                                $(document).on('click', '.upcoming-reservation', function() {
+                                                    revIDToApprove = $(this).data('revid');
+                                                    const totalAttendees = $(this).data('total-attendees');
+                                                    const isUpcoming = $(this).data('is-upcoming');
+                                                    const attendeeNames = $(this).data('attendee-names') ? $(this).data('attendee-names').split(',').map(name => name.trim()) : [];
+                                                    const attendeeSexes = $(this).data('attendee-sexes') ? $(this).data('attendee-sexes').split(',').map(sex => sex.trim()) : [];
+                                                    const attendeeLocations = $(this).data('attendee-locations') ? $(this).data('attendee-locations').split(',').map(location => location.trim()) : [];
+
+                                                    console.log('Attendee Names:', attendeeNames);
+                                                    console.log('Attendee Sexes:', attendeeSexes);
+                                                    console.log('Attendee Locations:', attendeeLocations);
+
+                                                    if (isUpcoming) {
+                                                        generateAttendeeFormFields(totalAttendees, attendeeNames, attendeeSexes, attendeeLocations);
+                                                        $('#confirmationUpcomingModal').modal('show');
+                                                    } else {
+                                                        $('#confirmationModalApprove').modal('show');
+                                                    }
+                                                });
+
+                                                // Function to generate attendee form fields
+                                                function generateAttendeeFormFields(totalAttendees, attendeeNames = [], attendeeSexes = [], attendeeLocations = []) {
+                                                    const container = $('#attendeeInfoContainer');
+                                                    container.empty(); // Clear existing fields
+
+                                                    for (let i = 1; i <= totalAttendees; i++) {
+                                                        const name = attendeeNames[i - 1] || '';
+                                                        const sex = attendeeSexes[i - 1] || '';
+                                                        const location = attendeeLocations[i - 1] || '';
+
+                                                        console.log(`Attendee ${i}: Name=${name}, Sex=${sex}, Location=${location}`);
+
+                                                        const attendeeFields = `
+                    <div class="row mb-3">
+                        <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                        <div class="col-xl-5 col-12">
+                            <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" value="${name}" required>
+                        </div>
+                        <div class="col-xl-5 col-12">
+                            <div class="row g-2">
+                                <div class="col-xl-12 col-6">
+                                    <select name="sex[]" class="form-select shadow" required>
+                                        <option value="">Select Sex</option>
+                                        <option value="Male" ${sex === 'Male' ? 'selected' : ''}>Male</option>
+                                        <option value="Female" ${sex === 'Female' ? 'selected' : ''}>Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-xl-12 col-6">
+                                    <select name="location[]" class="form-select shadow" required>
+                                        <option value="">Select Location</option>
+                                        <option value="This City/Municipality" ${location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
+                                        <option value="Other City/Municipality" ${location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
+                                        <option value="Other Province" ${location === 'Other Province' ? 'selected' : ''}>Other Province</option>
+                                        <option value="Foreign Country" ${location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-2 mt-3"><button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button></div>
+                        <hr class="mt-2">
+                    </div>
+                `;
+                                                        container.append(attendeeFields);
+                                                    }
+                                                }
+
+                                                // Event listener for the form submission in the upcoming modal
+                                                $('#confirmApprove').on('click', function() {
+                                                    const formData = $('#approveForm').serializeArray();
+                                                    const attendeeData = {};
+
+                                                    formData.forEach(field => {
+                                                        if (!attendeeData[field.name]) {
+                                                            attendeeData[field.name] = [];
+                                                        }
+                                                        attendeeData[field.name].push(field.value);
+                                                    });
+
+                                                    $.ajax({
+                                                        url: '../../backends/subadmin/update_reservation_status.php',
+                                                        method: 'POST',
+                                                        contentType: 'application/json',
+                                                        data: JSON.stringify({
+                                                            revID: revIDToApprove,
+                                                            status: 'Accepted',
+                                                            attendees: attendeeData
+                                                        }),
+                                                        dataType: 'json',
+                                                        success: function(response) {
+                                                            if (response.status === 'success') {
+                                                                fetchUpcomingReservations(); // Refresh the reservations list
+                                                                $('#confirmationUpcomingModal').modal('hide');
+                                                                notyf.success('Reservation approved successfully!');
+                                                            } else {
+                                                                notyf.error(response.message);
+                                                            }
+                                                        },
+                                                        error: function() {
+                                                            notyf.error('An error occurred while updating the reservation status.');
+                                                        }
+                                                    });
                                                 });
 
                                                 function fetchUpcomingReservations() {
@@ -537,8 +575,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                             data-proof-of-payment="${reservation.proofOfPayment}"
                                             data-reference-number="${reservation.gcashReference}"
                                         ><i class="bi bi-eye"></i></button>
-                                         <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
-                                        
+                                        <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
                                     </td>
                                     <td>Accepted</td>
                                 </tr>
@@ -571,9 +608,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     $('#modal-foreign-country').text($(this).data('foreign-country'));
 
                                                                     // Populate the information table
-                                                                    let attendeeNames = $(this).data('attendee-names').split(',');
-                                                                    let attendeeSexes = $(this).data('attendee-sexes').split(',');
-                                                                    let attendeeLocations = $(this).data('attendee-locations').split(',');
+                                                                    let attendeeNames = $(this).data('attendee-names').split(',').map(name => name.trim());
+                                                                    let attendeeSexes = $(this).data('attendee-sexes').split(',').map(sex => sex.trim());
+                                                                    let attendeeLocations = $(this).data('attendee-locations').split(',').map(location => location.trim());
 
                                                                     let infoTableBody = $('#viewroom tbody');
                                                                     infoTableBody.empty(); // Clear existing rows
@@ -619,6 +656,27 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 fetchUpcomingReservations();
                                             });
                                         </script>
+                                        <!-- Confirmation Modal for Approval -->
+                                        <div class="modal fade" id="confirmationUpcomingModal" tabindex="-1" aria-labelledby="confirmationUpcomingModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="confirmationUpcomingModalLabel">Confirm Approval</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to approve this reservation?
+                                                        <form id="approveForm">
+                                                            <div id="attendeeInfoContainer"></div>
+                                                        </form>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-success" id="confirmApprove">Approve</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
 
                                         <!-- Ongoing -->
@@ -630,7 +688,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                             <th scope="col">Room Name</th>
                                                             <th scope="col">Time In</th>
                                                             <th scope="col">Time Out</th>
-                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col">Time Left</th>
                                                             <th scope="col">Action</th>
                                                             <th scope="col">Remarks</th>
                                                         </tr>

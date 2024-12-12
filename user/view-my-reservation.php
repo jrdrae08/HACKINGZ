@@ -38,6 +38,10 @@ try {
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
+  <!-- Notify Links -->
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
+  <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
   <link rel="stylesheet" href="../user/user.css">
 </head>
 
@@ -80,7 +84,9 @@ try {
                               <td><?php echo htmlspecialchars($reservation['status']); ?></td>
                               <td>
                                 <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom" onclick="fetchReservationDetails(<?php echo $reservation['revID']; ?>)"><i class="bi bi-eye"></i></button>
-                                <button class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#cancelModal"><i class="bi bi-x-lg"></i></button>
+                                <?php if ($reservation['status'] !== 'Cancel'): ?>
+                                  <button class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#cancelModal"><i class="bi bi-x-lg"></i></button>
+                                <?php endif; ?>
                               </td>
                             </tr>
                           <?php endforeach; ?>
@@ -232,11 +238,80 @@ try {
               </div>
               <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                <button type="submit" form="cancelForm" class="btn btn-danger" id="submitCancellation">Submit Cancellation</button>
+                <button type="submit" form="cancelForm" class="btn btn-danger">Cancel Reservation</button>
               </div>
             </div>
           </div>
         </div>
+
+        <script>
+          document.addEventListener('DOMContentLoaded', function() {
+            let revIDToCancel;
+
+            // Initialize Notyf
+            const notyf = new Notyf({
+              duration: 5000,
+              position: {
+                x: 'right',
+                y: 'top'
+              }
+            });
+
+            // Event listener for cancel reservation buttons
+            document.querySelectorAll('.btn-danger').forEach(button => {
+              button.addEventListener('click', function() {
+                const parentRow = this.closest('tr');
+                if (parentRow) {
+                  const viewButton = parentRow.querySelector('button[data-bs-toggle="modal"]');
+                  if (viewButton) {
+                    revIDToCancel = viewButton.getAttribute('onclick').match(/\d+/)[0];
+                  } else {
+                    console.error('View button not found in the parent row.');
+                  }
+                } else {
+                  console.error('Parent row not found.');
+                }
+              });
+            });
+
+            // Event listener for the cancellation form submission
+            document.getElementById('cancelForm').addEventListener('submit', function(event) {
+              event.preventDefault();
+
+              const reasonCancel = document.getElementById('cancelReason').value;
+
+              fetch('../../backends/user/cancel_reservation.php', {
+                  method: 'POST',
+                  headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                  },
+                  body: new URLSearchParams({
+                    revID: revIDToCancel,
+                    reasonCancel: reasonCancel
+                  })
+                })
+                .then(response => response.json())
+                .then(data => {
+                  if (data.status === 'success') {
+                    notyf.success('Reservation cancelled successfully.');
+                    setTimeout(() => {
+                      location.reload(); // Reload the page to reflect the changes
+                    }, 1000);
+                  } else {
+                    notyf.error(data.message);
+                  }
+                })
+                .catch(error => {
+                  console.error('Error:', error);
+                  if (error instanceof SyntaxError) {
+                    notyf.error('Invalid server response. Please contact support.');
+                  } else {
+                    notyf.error('An error occurred while cancelling the reservation.');
+                  }
+                });
+            });
+          });
+        </script>
       </main>
 
       <a href="#" class="theme-toggle">
