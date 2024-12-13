@@ -489,6 +489,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 });
 
                                                 let revIDToApprove;
+                                                let attendeeData = {
+                                                    name: [],
+                                                    sex: [],
+                                                    location: []
+                                                };
 
                                                 // Event listener for accept reservation buttons using event delegation
                                                 $(document).on('click', '.upcoming-reservation', function() {
@@ -498,6 +503,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     const attendeeNames = $(this).data('attendee-names') ? $(this).data('attendee-names').split(',').map(name => name.trim()) : [];
                                                     const attendeeSexes = $(this).data('attendee-sexes') ? $(this).data('attendee-sexes').split(',').map(sex => sex.trim()) : [];
                                                     const attendeeLocations = $(this).data('attendee-locations') ? $(this).data('attendee-locations').split(',').map(location => location.trim()) : [];
+
+                                                    attendeeData = {
+                                                        name: attendeeNames,
+                                                        sex: attendeeSexes,
+                                                        location: attendeeLocations
+                                                    };
 
                                                     console.log('Attendee Names:', attendeeNames);
                                                     console.log('Attendee Sexes:', attendeeSexes);
@@ -524,7 +535,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         console.log(`Attendee ${i}: Name=${name}, Sex=${sex}, Location=${location}`);
 
                                                         const attendeeFields = `
-                <div class="row mb-3">
+                <div class="row mb-3 attendee-row" data-attendee-index="${i}">
                     <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
                     <div class="col-xl-5 col-12">
                         <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" value="${name}" required>
@@ -549,7 +560,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                             </div>
                         </div>
                     </div>
-                    <div class="col-2 mt-3"><button class="btn btn-danger m-1"><i class="bi bi-x-lg"></i></button></div>
+                    <div class="col-2 mt-3">
+                        <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
+                    </div>
                     <hr class="mt-2">
                 </div>
             `;
@@ -557,41 +570,59 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     }
                                                 }
 
+                                                // Event listener for delete attendee button
+                                                $(document).on('click', '.delete-attendee', function() {
+                                                    const attendeeRow = $(this).closest('.attendee-row');
+                                                    const attendeeIndex = attendeeRow.data('attendee-index') - 1; // Convert to zero-based index
+                                                    attendeeRow.remove();
+
+                                                    // Remove the attendee from the attendeeData object
+                                                    attendeeData.name.splice(attendeeIndex, 1);
+                                                    attendeeData.sex.splice(attendeeIndex, 1);
+                                                    attendeeData.location.splice(attendeeIndex, 1);
+
+                                                    console.log('Updated Attendee Data:', attendeeData);
+                                                });
+
                                                 // Event listener for the form submission in the upcoming modal
                                                 $('#confirmOngoing').on('click', function() {
                                                     const formData = $('#approveForm').serializeArray();
-                                                    const attendeeData = {};
+                                                    const updatedAttendeeData = {
+                                                        name: [],
+                                                        sex: [],
+                                                        location: []
+                                                    };
 
                                                     formData.forEach(field => {
-                                                        if (!attendeeData[field.name]) {
-                                                            attendeeData[field.name] = [];
+                                                        const fieldName = field.name.replace('[]', ''); // Remove the '[]' from the field name
+                                                        if (!updatedAttendeeData[fieldName]) {
+                                                            updatedAttendeeData[fieldName] = [];
                                                         }
-                                                        attendeeData[field.name].push(field.value);
+                                                        updatedAttendeeData[fieldName].push(field.value);
                                                     });
 
+                                                    console.log('Final Attendee Data:', updatedAttendeeData);
+
                                                     $.ajax({
-                                                        url: '../../backends/subadmin/update_ongoinguserdmog_status.php',
+                                                        url: '../../backends/subadmin/update_userdemogreserve.php', // Update the path as needed
                                                         method: 'POST',
                                                         contentType: 'application/json',
                                                         data: JSON.stringify({
                                                             revID: revIDToApprove,
-                                                            status: 'Ongoing',
-                                                            attendees: attendeeData
+                                                            attendeeData: updatedAttendeeData
                                                         }),
                                                         dataType: 'json',
                                                         success: function(response) {
                                                             if (response.status === 'success') {
                                                                 fetchUpcomingReservations(); // Refresh the reservations list
                                                                 $('#confirmationUpcomingModal').modal('hide');
-                                                                notyf.success('Reservation approved successfully!');
+                                                                notyf.success('Attendee information updated successfully!');
                                                             } else {
-                                                                console.error('Error:', response.error);
                                                                 notyf.error(response.message);
                                                             }
                                                         },
-                                                        error: function(xhr, status, error) {
-                                                            console.error('AJAX Error:', error);
-                                                            notyf.error('An error occurred while updating the reservation status.');
+                                                        error: function() {
+                                                            notyf.error('An error occurred while updating the attendee information.');
                                                         }
                                                     });
                                                 });
