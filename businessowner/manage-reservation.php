@@ -495,6 +495,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     location: []
                                                 };
 
+                                                // Disable the Approve button initially
+                                                $('#confirmOngoing').prop('disabled', true);
+
                                                 // Event listener for accept reservation buttons using event delegation
                                                 $(document).on('click', '.upcoming-reservation', function() {
                                                     revIDToApprove = $(this).data('revid');
@@ -509,10 +512,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         sex: attendeeSexes,
                                                         location: attendeeLocations
                                                     };
-
-                                                    console.log('Attendee Names:', attendeeNames);
-                                                    console.log('Attendee Sexes:', attendeeSexes);
-                                                    console.log('Attendee Locations:', attendeeLocations);
 
                                                     if (isUpcoming) {
                                                         generateAttendeeFormFields(totalAttendees, attendeeNames, attendeeSexes, attendeeLocations);
@@ -531,8 +530,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         const name = attendeeNames[i - 1] || '';
                                                         const sex = attendeeSexes[i - 1] || '';
                                                         const location = attendeeLocations[i - 1] || '';
-
-                                                        console.log(`Attendee ${i}: Name=${name}, Sex=${sex}, Location=${location}`);
 
                                                         const attendeeFields = `
                 <div class="attendee-container">
@@ -570,6 +567,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
             `;
                                                         container.append(attendeeFields);
                                                     }
+
+                                                    // Add event listeners to the new fields
+                                                    addFieldEventListeners();
+
+                                                    // Check if all fields have values to enable the Approve button
+                                                    checkAttendeeFields();
                                                 }
 
                                                 // Event listener for delete attendee button
@@ -583,7 +586,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     attendeeData.sex.splice(attendeeIndex, 1);
                                                     attendeeData.location.splice(attendeeIndex, 1);
 
-                                                    console.log('Updated Attendee Data:', attendeeData);
+                                                    // Check if all fields have values to enable the Approve button
+                                                    checkAttendeeFields();
                                                 });
 
                                                 // Event listener for adding new attendee
@@ -626,7 +630,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
             </div>
         `;
                                                     container.append(newAttendeeFields);
+
+                                                    // Add event listeners to the new fields
+                                                    addFieldEventListeners();
+
+                                                    // Check if all fields have values to enable the Approve button
+                                                    checkAttendeeFields();
                                                 });
+
+                                                // Function to add event listeners to the attendee fields
+                                                function addFieldEventListeners() {
+                                                    $('#attendeeInfoContainer input[name="name[]"], #attendeeInfoContainer select[name="sex[]"], #attendeeInfoContainer select[name="location[]"]').on('input change', function() {
+                                                        checkAttendeeFields();
+                                                    });
+                                                }
+
+                                                // Function to check if all attendee fields have values
+                                                function checkAttendeeFields() {
+                                                    let allFieldsFilled = true;
+                                                    $('#attendeeInfoContainer .attendee-container').each(function() {
+                                                        const name = $(this).find('input[name="name[]"]').val();
+                                                        const sex = $(this).find('select[name="sex[]"]').val();
+                                                        const location = $(this).find('select[name="location[]"]').val();
+
+                                                        if (!name || !sex || !location) {
+                                                            allFieldsFilled = false;
+                                                            return false; // Exit the loop
+                                                        }
+                                                    });
+
+                                                    $('#confirmOngoing').prop('disabled', !allFieldsFilled);
+                                                }
 
                                                 // Event listener for the form submission in the upcoming modal
                                                 $('#confirmOngoing').on('click', function() {
@@ -644,8 +678,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         }
                                                         updatedAttendeeData[fieldName].push(field.value);
                                                     });
-
-                                                    console.log('Final Attendee Data:', updatedAttendeeData);
 
                                                     $.ajax({
                                                         url: '../../backends/subadmin/update_userdemogreserve.php', // Update the path as needed
