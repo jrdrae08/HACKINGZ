@@ -535,33 +535,35 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         console.log(`Attendee ${i}: Name=${name}, Sex=${sex}, Location=${location}`);
 
                                                         const attendeeFields = `
-                <div class="row mb-3 attendee-row" data-attendee-index="${i}">
-                    <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
-                    <div class="col-xl-5 col-12">
-                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" value="${name}" required>
-                    </div>
-                    <div class="col-xl-5 col-12">
-                        <div class="row g-2">
-                            <div class="col-xl-12 col-6">
-                                <select name="sex[]" class="form-select shadow" required>
-                                    <option value="">Select Sex</option>
-                                    <option value="Male" ${sex === 'Male' ? 'selected' : ''}>Male</option>
-                                    <option value="Female" ${sex === 'Female' ? 'selected' : ''}>Female</option>
-                                </select>
-                            </div>
-                            <div class="col-xl-12 col-6">
-                                <select name="location[]" class="form-select shadow" required>
-                                    <option value="">Select Location</option>
-                                    <option value="This City/Municipality" ${location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
-                                    <option value="Other City/Municipality" ${location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
-                                    <option value="Other Province" ${location === 'Other Province' ? 'selected' : ''}>Other Province</option>
-                                    <option value="Foreign Country" ${location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
-                                </select>
+                <div class="attendee-container">
+                    <div class="row mb-3 attendee-row" data-attendee-index="${i}">
+                        <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                        <div class="col-xl-5 col-12">
+                            <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" value="${name}" required>
+                        </div>
+                        <div class="col-xl-5 col-12">
+                            <div class="row g-2">
+                                <div class="col-xl-12 col-6">
+                                    <select name="sex[]" class="form-select shadow" required>
+                                        <option value="">Select Sex</option>
+                                        <option value="Male" ${sex === 'Male' ? 'selected' : ''}>Male</option>
+                                        <option value="Female" ${sex === 'Female' ? 'selected' : ''}>Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-xl-12 col-6">
+                                    <select name="location[]" class="form-select shadow" required>
+                                        <option value="">Select Location</option>
+                                        <option value="This City/Municipality" ${location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
+                                        <option value="Other City/Municipality" ${location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
+                                        <option value="Other Province" ${location === 'Other Province' ? 'selected' : ''}>Other Province</option>
+                                        <option value="Foreign Country" ${location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
-                    </div>
-                    <div class="col-2 mt-3">
-                        <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
+                        <div class="col-2 mt-3">
+                            <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
+                        </div>
                     </div>
                     <hr class="mt-2">
                 </div>
@@ -572,10 +574,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                 // Event listener for delete attendee button
                                                 $(document).on('click', '.delete-attendee', function() {
-                                                    const attendeeRow = $(this).closest('.attendee-row');
-                                                    const attendeeIndex = attendeeRow.data('attendee-index') - 1; // Convert to zero-based index
-                                                    attendeeRow.next('hr').remove(); // Remove the next sibling <hr> element
-                                                    attendeeRow.remove();
+                                                    const attendeeContainer = $(this).closest('.attendee-container');
+                                                    const attendeeIndex = attendeeContainer.find('.attendee-row').data('attendee-index') - 1; // Convert to zero-based index
+                                                    attendeeContainer.remove();
 
                                                     // Remove the attendee from the attendeeData object
                                                     attendeeData.name.splice(attendeeIndex, 1);
@@ -583,6 +584,48 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     attendeeData.location.splice(attendeeIndex, 1);
 
                                                     console.log('Updated Attendee Data:', attendeeData);
+                                                });
+
+                                                // Event listener for adding new attendee
+                                                $('#addAttendee').on('click', function() {
+                                                    const container = $('#attendeeInfoContainer');
+                                                    const newIndex = container.children('.attendee-container').length + 1;
+
+                                                    const newAttendeeFields = `
+            <div class="attendee-container">
+                <div class="row mb-3 attendee-row" data-attendee-index="${newIndex}">
+                    <p class="mb-0 dm-sans-text">Name of Attendee ${newIndex}</p>
+                    <div class="col-xl-5 col-12">
+                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                    </div>
+                    <div class="col-xl-5 col-12">
+                        <div class="row g-2">
+                            <div class="col-xl-12 col-6">
+                                <select name="sex[]" class="form-select shadow" required>
+                                    <option value="">Select Sex</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-12 col-6">
+                                <select name="location[]" class="form-select shadow" required>
+                                    <option value="">Select Location</option>
+                                    <option value="This City/Municipality">This City/Municipality</option>
+                                    <option value="Other City/Municipality">Other City/Municipality</option>
+                                    <option value="Other Province">Other Province</option>
+                                    <option value="Foreign Country">Foreign Country</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-2 mt-3">
+                        <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
+                    </div>
+                </div>
+                <hr class="mt-2">
+            </div>
+        `;
+                                                    container.append(newAttendeeFields);
                                                 });
 
                                                 // Event listener for the form submission in the upcoming modal
@@ -758,6 +801,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 fetchUpcomingReservations();
                                             });
                                         </script>
+
                                         <!-- Confirmation Modal for Approval -->
                                         <div class="modal fade" id="confirmationUpcomingModal" tabindex="-1" aria-labelledby="confirmationUpcomingModalLabel" aria-hidden="true">
                                             <div class="modal-dialog">
@@ -770,6 +814,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         Are you sure you want to approve this reservation?
                                                         <form id="approveForm">
                                                             <div id="attendeeInfoContainer"></div>
+                                                            <button type="button" class="btn btn-primary" id="addAttendee"><i class="bi bi-plus-lg"></i> Add Attendee</button>
                                                         </form>
                                                     </div>
                                                     <div class="modal-footer">
