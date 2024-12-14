@@ -21,7 +21,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $gcash_reference = isset($_POST['gcash_reference']) ? filter_var($_POST['gcash_reference'], FILTER_SANITIZE_STRING) : null;
   $proofofpayment = isset($_FILES['proofofpayment']) ? $_FILES['proofofpayment'] : null;
 
-
   // Check if the user has already booked the room
   $stmt = $pdo->prepare("SELECT COUNT(*) FROM reservations WHERE roomID = :roomID AND userID = :userID AND status IN ('Pending', 'Accepted', 'Ongoing')");
   $stmt->execute([':roomID' => $roomID, ':userID' => $userID]);

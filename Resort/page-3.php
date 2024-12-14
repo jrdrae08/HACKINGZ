@@ -188,6 +188,10 @@ try {
             /* Ensure aspect ratio is maintained */
         }
 
+        .hidden-field {
+            display: none;
+        }
+
         /* Media Query for Small Devices (Mobile) */
         @media (max-width: 576px) {
             .image-overlay img {
@@ -491,9 +495,9 @@ try {
                                                                 <input type="hidden" name="fullname" value="<?php echo htmlspecialchars($userInfo['full_name']); ?>">
                                                             </div>
                                                             <div class="col-lg-6 col-12">
-                                                                <label for="sex" class="dm-sans-text">Sex</label>
-                                                                <input type="text" name="sex_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['sex']); ?>" disabled>
-                                                                <input type="hidden" name="sex" value="<?php echo htmlspecialchars($userInfo['sex']); ?>">
+                                                                <label for="u_contact" class="dm-sans-text">Contact Number</label>
+                                                                <input type="text" name="u_contact_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>" disabled>
+                                                                <input type="hidden" name="u_contact" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>">
                                                             </div>
                                                             <div class="col-lg-6 col-12">
                                                                 <label for="u_email" class="dm-sans-text">Email Address</label>
@@ -501,16 +505,16 @@ try {
                                                                 <input type="hidden" name="u_email" value="<?php echo htmlspecialchars($userInfo['u_email']); ?>">
                                                             </div>
                                                             <div class="col-lg-6 col-12">
-                                                                <label for="u_contact" class="dm-sans-text">Contact Number</label>
-                                                                <input type="text" name="u_contact_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>" disabled>
-                                                                <input type="hidden" name="u_contact" value="<?php echo htmlspecialchars($userInfo['u_contact']); ?>">
-                                                            </div>
-                                                            <div class="col-lg-6 col-12">
                                                                 <label for="regadd" class="dm-sans-text">Address</label>
                                                                 <input type="text" class="form-control shadow" name="regadd_display" placeholder=" " value="<?php echo htmlspecialchars($userInfo['u_address']); ?>" disabled>
                                                                 <input type="hidden" name="regadd" value="<?php echo htmlspecialchars($userInfo['u_address']); ?>">
                                                             </div>
-                                                            <div class="col-lg-6 col-12">
+                                                            <div class="col-lg-6 col-12 hidden-field">
+                                                                <label for="sex" class="dm-sans-text">Sex</label>
+                                                                <input type="text" name="sex_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['sex']); ?>" disabled>
+                                                                <input type="hidden" name="sex" value="<?php echo htmlspecialchars($userInfo['sex']); ?>">
+                                                            </div>
+                                                            <div class="col-lg-6 col-12 hidden-field">
                                                                 <label for="locationType" class="dm-sans-text">Type of Location </label>
                                                                 <input type="text" name="locationType_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>" disabled>
                                                                 <input type="hidden" name="locationType" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>">
@@ -588,37 +592,78 @@ try {
                                                                         const attendeesContainer = document.getElementById('attendeesContainer');
                                                                         attendeesContainer.innerHTML = ''; // Clear previous entries
 
-                                                                        for (let i = 1; i <= totalAttendees; i++) {
+                                                                        // Add the user's information as the first attendee
+                                                                        const userInfo = {
+                                                                            name: document.querySelector('input[name="fullname"]').value,
+                                                                            sex: document.querySelector('input[name="sex"]').value,
+                                                                            location: document.querySelector('input[name="locationType"]').value
+                                                                        };
+
+                                                                        const userAttendeeDiv = document.createElement('div');
+                                                                        userAttendeeDiv.classList.add('col-lg-12', 'mb-3');
+                                                                        userAttendeeDiv.innerHTML = `
+        <div class="row mb-3">
+            <p class="mb-0 dm-sans-text">Name of Attendee 1</p>
+            <div class="col-xl-6 col-12">
+                <input type="text" class="form-control shadow mb-2" name="name[]" value="${userInfo.name}" disabled>
+                <input type="hidden" name="name[]" value="${userInfo.name}">
+            </div>
+            <div class="col-xl-6 col-12">
+                <div class="row g-2">
+                    <div class="col-xl-12 col-6">
+                        <select name="sex[]" class="form-select shadow" disabled>
+                            <option value="Male" ${userInfo.sex === 'Male' ? 'selected' : ''}>Male</option>
+                            <option value="Female" ${userInfo.sex === 'Female' ? 'selected' : ''}>Female</option>
+                        </select>
+                        <input type="hidden" name="sex[]" value="${userInfo.sex}">
+                    </div>
+                    <div class="col-xl-12 col-6">
+                        <select name="location[]" class="form-select shadow" disabled>
+                            <option value="This City/Municipality" ${userInfo.location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
+                            <option value="Other City/Municipality" ${userInfo.location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
+                            <option value="Other Province" ${userInfo.location === 'Other Province' ? 'selected' : ''}>Other Province</option>
+                            <option value="Foreign Country" ${userInfo.location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
+                        </select>
+                        <input type="hidden" name="location[]" value="${userInfo.location}">
+                    </div>
+                </div>
+            </div>
+        </div>
+    `;
+                                                                        attendeesContainer.appendChild(userAttendeeDiv);
+
+                                                                        // Add the remaining attendees
+                                                                        for (let i = 2; i <= totalAttendees + 1; i++) {
                                                                             const attendeeDiv = document.createElement('div');
                                                                             attendeeDiv.classList.add('col-lg-12', 'mb-3');
                                                                             attendeeDiv.innerHTML = `
-                <div class="row mb-3">
-                    <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
-                    <div class="col-xl-6 col-12">
-                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
-                    </div>
-                    <div class="col-xl-6 col-12">
-                        <div class="row g-2">
-                            <div class="col-xl-12 col-6">
-                                <select name="sex[]" class="form-select shadow" required>
-                                    <option value="">Select Sex</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </div>
-                            <div class="col-xl-12 col-6">
-                                <select name="location[]" class="form-select shadow" required>
-                                    <option value="">Select Location</option>
-                                    <option value="This City/Municipality">This City/Municipality</option>
-                                    <option value="Other City/Municipality">Other City/Municipality</option>
-                                    <option value="Other Province">Other Province</option>
-                                    <option value="Foreign Country">Foreign Country</option>
-                                </select>
-                            </div>
+            <div class="row mb-3">
+                <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                <div class="col-xl-6 col-12">
+                    <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                </div>
+                <div class="col-xl-6 col-12">
+                    <div class="row g-2">
+                        <div class="col-xl-12 col-6">
+                            <select name="sex[]" class="form-select shadow" required>
+                                <option value="">Select Sex</option>
+                                <option value="Male">Male</option>
+                                <option value="Female">Female</option>
+                            </select>
+                        </div>
+                        <div class="col-xl-12 col-6">
+                            <select name="location[]" class="form-select shadow" required>
+                                <option value="">Select Location</option>
+                                <option value="This City/Municipality">This City/Municipality</option>
+                                <option value="Other City/Municipality">Other City/Municipality</option>
+                                <option value="Other Province">Other Province</option>
+                                <option value="Foreign Country">Foreign Country</option>
+                            </select>
                         </div>
                     </div>
                 </div>
-            `;
+            </div>
+        `;
                                                                             attendeesContainer.appendChild(attendeeDiv);
                                                                         }
 
