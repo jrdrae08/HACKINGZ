@@ -574,6 +574,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 $(document).on('click', '.delete-attendee', function() {
                                                     const attendeeRow = $(this).closest('.attendee-row');
                                                     const attendeeIndex = attendeeRow.data('attendee-index') - 1; // Convert to zero-based index
+                                                    attendeeRow.next('hr').remove(); // Remove the next sibling <hr> element
                                                     attendeeRow.remove();
 
                                                     // Remove the attendee from the attendeeData object
