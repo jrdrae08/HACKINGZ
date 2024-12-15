@@ -170,12 +170,12 @@ try {
                 });
 
                 // Format the check-in and check-out times
-                const checkinTime = new Date(`1970-01-01T${data.timeStart}Z`).toLocaleTimeString('en-US', {
+                const checkinTime = new Date(`1970-01-01T${data.timeStart}`).toLocaleTimeString('en-US', {
                   hour: 'numeric',
                   minute: 'numeric',
                   hour12: true
                 });
-                const checkoutTime = new Date(`1970-01-01T${data.timeEnd}Z`).toLocaleTimeString('en-US', {
+                const checkoutTime = new Date(`1970-01-01T${data.timeEnd}`).toLocaleTimeString('en-US', {
                   hour: 'numeric',
                   minute: 'numeric',
                   hour12: true
