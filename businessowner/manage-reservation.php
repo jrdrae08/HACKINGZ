@@ -872,23 +872,209 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                             <th scope="col">Remarks</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody>
-                                                        <tr>
-                                                            <td>Room 5</td>
-                                                            <td>01:00PM 11/26/24</td>
-                                                            <td>01:00PM 11/28/24</td>
-                                                            <td>John Angel Manalo</td>
-                                                            <th>
-
-                                                                <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom"><i class="bi bi-eye"></i></button>
-                                                                <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
-                                                            </th>
-                                                            <td>New</td>
-                                                        </tr>
+                                                    <tbody id="ongoing-reservations">
+                                                        <!-- Data will be populated here by JavaScript -->
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
+
+                                        <script>
+                                            $(document).ready(function() {
+                                                function fetchReservations() {
+                                                    $.ajax({
+                                                        url: '../../backends/subadmin/fetch_ongoing_reservations.php', // Update the path as needed
+                                                        method: 'GET',
+                                                        dataType: 'json',
+                                                        success: function(response) {
+                                                            if (response.status === 'success') {
+                                                                let upcomingReservations = response.upcoming;
+                                                                let ongoingReservations = response.ongoing;
+                                                                let upcomingTbody = $('#upcoming-reservations');
+                                                                let ongoingTbody = $('#ongoing-reservations');
+                                                                upcomingTbody.empty(); // Clear existing rows
+                                                                ongoingTbody.empty(); // Clear existing rows
+
+                                                                // Populate upcoming reservations
+                                                                upcomingReservations.forEach(function(reservation) {
+                                                                    let timeBooked = new Date(reservation.timeBooked);
+                                                                    let formattedTimeBooked = timeBooked.toLocaleString('en-US', {
+                                                                        hour: 'numeric',
+                                                                        minute: 'numeric',
+                                                                        hour12: true
+                                                                    }) + ' ' + timeBooked.toLocaleString('en-US', {
+                                                                        month: 'long',
+                                                                        day: 'numeric',
+                                                                        year: 'numeric'
+                                                                    });
+
+                                                                    let row = `
+                            <tr>
+                                <td>${formattedTimeBooked}</td>
+                                <td>${reservation.roomName}</td>
+                                <td>${reservation.customerName}</td>
+                                <td>
+                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                        data-name="${reservation.customerName}"
+                                        data-address="${reservation.address}"
+                                        data-contact="${reservation.contactNumber}"
+                                        data-id-type="${reservation.id_type}"
+                                        data-front-id="${reservation.front_id}"
+                                        data-back-id="${reservation.back_id}"
+                                        data-total-attendees="${reservation.totalnumAttendees}"
+                                        data-total-male="${reservation.totalmale}"
+                                        data-total-female="${reservation.totalfemale}"
+                                        data-this-city="${reservation.thisCity}"
+                                        data-other-city="${reservation.otherCity}"
+                                        data-other-province="${reservation.otherProvince}"
+                                        data-foreign-country="${reservation.foreignCountry}"
+                                        data-attendee-names="${reservation.attendeeNames}"
+                                        data-attendee-sexes="${reservation.attendeeSexes}"
+                                        data-attendee-locations="${reservation.attendeeLocations}"
+                                        data-proof-of-payment="${reservation.proofOfPayment}"
+                                        data-reference-number="${reservation.gcashReference}"
+                                    ><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
+                                </td>
+                                <td>Accepted</td>
+                            </tr>
+                        `;
+                                                                    upcomingTbody.append(row);
+                                                                });
+
+                                                                // Populate ongoing reservations
+                                                                ongoingReservations.forEach(function(reservation) {
+                                                                    let checkinTime = new Date(`1970-01-01T${reservation.timeStart}`).toLocaleTimeString('en-US', {
+                                                                        hour: 'numeric',
+                                                                        minute: 'numeric',
+                                                                        hour12: true
+                                                                    });
+                                                                    let checkoutTime = new Date(`1970-01-01T${reservation.timeEnd}`).toLocaleTimeString('en-US', {
+                                                                        hour: 'numeric',
+                                                                        minute: 'numeric',
+                                                                        hour12: true
+                                                                    });
+                                                                    let checkinDate = new Date(reservation.checkin).toLocaleDateString('en-US', {
+                                                                        month: 'long',
+                                                                        day: 'numeric',
+                                                                        year: 'numeric'
+                                                                    });
+                                                                    let checkoutDate = new Date(reservation.departure).toLocaleDateString('en-US', {
+                                                                        month: 'long',
+                                                                        day: 'numeric',
+                                                                        year: 'numeric'
+                                                                    });
+
+                                                                    let row = `
+                            <tr>
+                                <td>${reservation.roomName}</td>
+                                <td>${checkinTime} ${checkinDate}</td>
+                                <td>${checkoutTime} ${checkoutDate}</td>
+                                <td>${reservation.customerName}</td>
+                                <td>
+                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                        data-name="${reservation.customerName}"
+                                        data-address="${reservation.address}"
+                                        data-contact="${reservation.contactNumber}"
+                                        data-id-type="${reservation.id_type}"
+                                        data-front-id="${reservation.front_id}"
+                                        data-back-id="${reservation.back_id}"
+                                        data-total-attendees="${reservation.totalnumAttendees}"
+                                        data-total-male="${reservation.totalmale}"
+                                        data-total-female="${reservation.totalfemale}"
+                                        data-this-city="${reservation.thisCity}"
+                                        data-other-city="${reservation.otherCity}"
+                                        data-other-province="${reservation.otherProvince}"
+                                        data-foreign-country="${reservation.foreignCountry}"
+                                        data-attendee-names="${reservation.attendeeNames}"
+                                        data-attendee-sexes="${reservation.attendeeSexes}"
+                                        data-attendee-locations="${reservation.attendeeLocations}"
+                                        data-proof-of-payment="${reservation.proofOfPayment}"
+                                        data-reference-number="${reservation.gcashReference}"
+                                    ><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+                                </td>
+                                <td>Ongoing</td>
+                            </tr>
+                        `;
+                                                                    ongoingTbody.append(row);
+                                                                });
+
+                                                                // Add event listener for view details buttons
+                                                                $('.view-details').on('click', function() {
+                                                                    $('#modal-name').text($(this).data('name'));
+                                                                    $('#modal-address').text($(this).data('address'));
+                                                                    $('#modal-contact').text($(this).data('contact'));
+                                                                    $('#modal-id-type').text($(this).data('id-type'));
+                                                                    $('#modal-front-id').attr('src', $(this).data('front-id'));
+
+                                                                    let backId = $(this).data('back-id');
+                                                                    if (backId) {
+                                                                        $('#modal-back-id').attr('src', backId).parent().show();
+                                                                    } else {
+                                                                        $('#modal-back-id').parent().hide();
+                                                                    }
+
+                                                                    // Set user demographics
+                                                                    $('#modal-total-attendees').text($(this).data('total-attendees'));
+                                                                    $('#modal-total-male').text($(this).data('total-male'));
+                                                                    $('#modal-total-female').text($(this).data('total-female'));
+                                                                    $('#modal-this-city').text($(this).data('this-city'));
+                                                                    $('#modal-other-city').text($(this).data('other-city'));
+                                                                    $('#modal-other-province').text($(this).data('other-province'));
+                                                                    $('#modal-foreign-country').text($(this).data('foreign-country'));
+
+                                                                    // Populate the information table
+                                                                    let attendeeNames = $(this).data('attendee-names').split(',').map(name => name.trim());
+                                                                    let attendeeSexes = $(this).data('attendee-sexes').split(',').map(sex => sex.trim());
+                                                                    let attendeeLocations = $(this).data('attendee-locations').split(',').map(location => location.trim());
+
+                                                                    let infoTableBody = $('#viewroom tbody');
+                                                                    infoTableBody.empty(); // Clear existing rows
+
+                                                                    for (let i = 0; i < attendeeNames.length; i++) {
+                                                                        let row = `
+                                <tr>
+                                    <td>${attendeeNames[i]}</td>
+                                    <td>${attendeeSexes[i]}</td>
+                                    <td>${attendeeLocations[i]}</td>
+                                </tr>
+                            `;
+                                                                        infoTableBody.append(row);
+                                                                    }
+
+                                                                    // Set proof of payment and reference number
+                                                                    let proofOfPayment = $(this).data('proof-of-payment');
+                                                                    let referenceNumber = $(this).data('reference-number');
+
+                                                                    if (proofOfPayment) {
+                                                                        $('#modal-proofof-payment').attr('src', proofOfPayment).parent().show();
+                                                                    } else {
+                                                                        $('#modal-proofof-payment').parent().hide();
+                                                                    }
+
+                                                                    if (referenceNumber) {
+                                                                        $('#modal-reference-number').text(referenceNumber).parent().show();
+                                                                    } else {
+                                                                        $('#modal-reference-number').parent().hide();
+                                                                    }
+                                                                });
+                                                            } else {
+                                                                $('#upcoming-reservations').html('<tr><td colspan="5">No upcoming reservations found.</td></tr>');
+                                                                $('#ongoing-reservations').html('<tr><td colspan="5">No ongoing reservations found.</td></tr>');
+                                                            }
+                                                        },
+                                                        error: function() {
+                                                            $('#upcoming-reservations').html('<tr><td colspan="5">An error occurred while fetching upcoming reservations.</td></tr>');
+                                                            $('#ongoing-reservations').html('<tr><td colspan="5">An error occurred while fetching ongoing reservations.</td></tr>');
+                                                        }
+                                                    });
+                                                }
+
+                                                // Fetch reservations on page load
+                                                fetchReservations();
+                                            });
+                                        </script>
 
                                         <!-- archived -->
                                         <div class="tab-pane fade" id="pills-archive" role="tabpanel" aria-labelledby="pills-archive-tab" tabindex="0">

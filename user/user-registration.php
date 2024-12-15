@@ -141,12 +141,12 @@
                       <label for="id_type" class="mb-1 d-block text-start">Select ID Type</label>
                       <select name="id_type" id="id_type" class="form-control shadow" required onchange="checkSection2Fields()">
                         <option value="" disabled selected>Select ID Type</option>
-                        <option value="passport">Passport</option>
-                        <option value="driver_license">Driver's License</option>
-                        <option value="national_id">National ID</option>
-                        <option value="voter_id">Voter ID</option>
-                        <option value="social_security">Social Security ID</option>
-                        <option value="student_id">Student ID</option>
+                        <option value="Passport">Passport</option>
+                        <option value="Driver's License">Driver's License</option>
+                        <option value="National ID">National ID</option>
+                        <option value="Voter ID">Voter ID</option>
+                        <option value="Social Security ID">Social Security ID</option>
+                        <option value="Student ID">Student ID</option>
                         <option value="other">Other</option>
                       </select>
                     </div>
