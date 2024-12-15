@@ -49,7 +49,7 @@ try {
   // Update existing attendee data
   $stmt = $pdo->prepare("
         UPDATE userdemographics
-        SET name = :name, sex = :sex, location = :location, totalnumAttendees = :totalnumAttendees, totalmale = :totalmale, totalfemale = :totalfemale, thisCity = :thisCity, otherCity = :otherCity, otherProvince = :otherProvince, foreignCountry = :foreignCountry
+        SET name = :name, sex = :sex, location = :location, totalnumAttendees = :totalnumAttendees, totalmale = :totalmale, totalfemale = :totalfemale, thisCity = :thisCity, otherCity = :otherCity, otherProvince = :otherProvince, foreignCountry = :foreignCountry, isAccepted = 'Accepted'
         WHERE userID = :userID AND roomID = :roomID AND BusinessInfoID = :businessInfoID
     ");
 
@@ -68,6 +68,10 @@ try {
     'otherProvince' => count(array_filter($attendeeData['location'], fn($location) => $location === 'Other Province')),
     'foreignCountry' => count(array_filter($attendeeData['location'], fn($location) => $location === 'Foreign Country'))
   ]);
+
+  // Update the reservations table
+  $stmt = $pdo->prepare("UPDATE reservations SET status = 'Ongoing' WHERE revID = :revID");
+  $stmt->execute(['revID' => $revID]);
 
   $pdo->commit();
   echo json_encode(['status' => 'success']);

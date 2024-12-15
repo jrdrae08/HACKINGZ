@@ -692,13 +692,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                             if (response.status === 'success') {
                                                                 fetchUpcomingReservations(); // Refresh the reservations list
                                                                 $('#confirmationUpcomingModal').modal('hide');
-                                                                notyf.success('Attendee information updated successfully!');
+                                                                notyf.success('Reservation approved successfully!');
                                                             } else {
                                                                 notyf.error(response.message);
                                                             }
                                                         },
                                                         error: function() {
-                                                            notyf.error('An error occurred while updating the attendee information.');
+                                                            notyf.error('An error occurred while approving the reservation.');
                                                         }
                                                     });
                                                 });
@@ -843,7 +843,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                       Please check the companions if they are all present here.
+                                                        Please check the companions if they are all present here.
                                                         <form id="approveForm" class="mt-3">
                                                             <div id="attendeeInfoContainer"></div>
                                                             <button type="button" class="btn btn-primary" id="addAttendee"><i class="bi bi-plus-lg"></i> Add Attendee</button>
