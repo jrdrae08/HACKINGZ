@@ -831,42 +831,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         }
                                                     });
                                                 }
-
-                                                // Fetch upcoming reservations on page load
-                                                fetchUpcomingReservations();
-
-                                                // Function to calculate and display time left
-                                                function calculateTimeLeft(timeStart, timeEnd) {
-                                                    const now = moment().tz('Asia/Hong_Kong');
-                                                    const startTime = moment.tz(timeStart, 'HH:mm A', 'Asia/Hong_Kong');
-                                                    const endTime = moment.tz(timeEnd, 'HH:mm A', 'Asia/Hong_Kong');
-
-                                                    let duration = moment.duration(endTime.diff(now));
-                                                    if (now.isAfter(startTime)) {
-                                                        duration = moment.duration(endTime.diff(now));
-                                                    } else {
-                                                        duration = moment.duration(endTime.diff(startTime));
-                                                    }
-
-                                                    const hours = Math.floor(duration.asHours());
-                                                    const minutes = Math.floor(duration.minutes());
-                                                    const seconds = Math.floor(duration.seconds());
-
-                                                    return `${hours}h ${minutes}m ${seconds}s`;
-                                                }
-
-                                                // Function to update ongoing reservations
-                                                function updateOngoingReservations() {
-                                                    $('#ongoing-reservations tr').each(function() {
-                                                        const timeStart = $(this).data('time-start');
-                                                        const timeEnd = $(this).data('time-end');
-                                                        const timeLeft = calculateTimeLeft(timeStart, timeEnd);
-                                                        $(this).find('.time-left').text(timeLeft);
-                                                    });
-                                                }
-
-                                                // Update ongoing reservations every second
-                                                setInterval(updateOngoingReservations, 1000);
                                             });
                                         </script>
 
@@ -1002,37 +966,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                                <tr data-time-start="${reservation.timeStart}" data-time-end="${reservation.timeEnd}">
-                                    <td>${reservation.roomName}</td>
-                                    <td>${checkinTime} ${checkinDate}</td>
-                                    <td>${checkoutTime} ${checkoutDate}</td>
-                                    <td class="time-left"></td>
-                                    <td>
-                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                            data-name="${reservation.customerName}"
-                                            data-address="${reservation.address}"
-                                            data-contact="${reservation.contactNumber}"
-                                            data-id-type="${reservation.id_type}"
-                                            data-front-id="${reservation.front_id}"
-                                            data-back-id="${reservation.back_id}"
-                                            data-total-attendees="${reservation.totalnumAttendees}"
-                                            data-total-male="${reservation.totalmale}"
-                                            data-total-female="${reservation.totalfemale}"
-                                            data-this-city="${reservation.thisCity}"
-                                            data-other-city="${reservation.otherCity}"
-                                            data-other-province="${reservation.otherProvince}"
-                                            data-foreign-country="${reservation.foreignCountry}"
-                                            data-attendee-names="${reservation.attendeeNames}"
-                                            data-attendee-sexes="${reservation.attendeeSexes}"
-                                            data-attendee-locations="${reservation.attendeeLocations}"
-                                            data-proof-of-payment="${reservation.proofOfPayment}"
-                                            data-reference-number="${reservation.gcashReference}"
-                                        ><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
-                                    </td>
-                                    <td>Ongoing</td>
-                                </tr>
-                            `;
+        <tr data-checkin="${reservation.checkin}" data-departure="${reservation.departure}" data-time-start="${reservation.timeStart}" data-time-end="${reservation.timeEnd}">
+            <td>${reservation.roomName}</td>
+            <td>${checkinTime} ${checkinDate}</td>
+            <td>${checkoutTime} ${checkoutDate}</td>
+            <td class="time-left"></td>
+            <td>
+                <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                    data-name="${reservation.customerName}"
+                    data-address="${reservation.address}"
+                    data-contact="${reservation.contactNumber}"
+                    data-id-type="${reservation.id_type}"
+                    data-front-id="${reservation.front_id}"
+                    data-back-id="${reservation.back_id}"
+                    data-total-attendees="${reservation.totalnumAttendees}"
+                    data-total-male="${reservation.totalmale}"
+                    data-total-female="${reservation.totalfemale}"
+                    data-this-city="${reservation.thisCity}"
+                    data-other-city="${reservation.otherCity}"
+                    data-other-province="${reservation.otherProvince}"
+                    data-foreign-country="${reservation.foreignCountry}"
+                    data-attendee-names="${reservation.attendeeNames}"
+                    data-attendee-sexes="${reservation.attendeeSexes}"
+                    data-attendee-locations="${reservation.attendeeLocations}"
+                    data-proof-of-payment="${reservation.proofOfPayment}"
+                    data-reference-number="${reservation.gcashReference}"
+                ><i class="bi bi-eye"></i></button>
+                <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+            </td>
+            <td>Ongoing</td>
+        </tr>
+    `;
                                                                     ongoingTbody.append(row);
                                                                 });
 
@@ -1111,8 +1075,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 }
 
                                                 // Function to calculate and display time left
-                                                function calculateTimeLeft(timeStart, timeEnd) {
+                                                function calculateTimeLeft(checkin, departure, timeStart, timeEnd) {
                                                     const now = moment().tz('Asia/Hong_Kong');
+                                                    const checkinTime = moment.tz(checkin, 'YYYY-MM-DD HH:mm', 'Asia/Hong_Kong');
+                                                    const departureTime = moment.tz(departure, 'YYYY-MM-DD HH:mm', 'Asia/Hong_Kong');
                                                     const startTime = moment.tz(timeStart, 'HH:mm A', 'Asia/Hong_Kong');
                                                     const endTime = moment.tz(timeEnd, 'HH:mm A', 'Asia/Hong_Kong');
 
@@ -1121,11 +1087,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         endTime.add(1, 'day');
                                                     }
 
-                                                    let duration = moment.duration(endTime.diff(now));
-                                                    if (now.isAfter(startTime)) {
-                                                        duration = moment.duration(endTime.diff(now));
+                                                    // Calculate the duration based on checkin and departure
+                                                    let duration;
+                                                    if (now.isBetween(checkinTime, departureTime)) {
+                                                        duration = moment.duration(departureTime.diff(now));
+                                                    } else if (now.isBefore(checkinTime)) {
+                                                        duration = moment.duration(departureTime.diff(checkinTime));
                                                     } else {
-                                                        duration = moment.duration(endTime.diff(startTime));
+                                                        duration = moment.duration(0);
                                                     }
 
                                                     const hours = Math.floor(duration.asHours());
@@ -1143,9 +1112,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 // Function to update ongoing reservations
                                                 function updateOngoingReservations() {
                                                     $('#ongoing-reservations tr').each(function() {
+                                                        const checkin = $(this).data('checkin');
+                                                        const departure = $(this).data('departure');
                                                         const timeStart = $(this).data('time-start');
                                                         const timeEnd = $(this).data('time-end');
-                                                        const timeLeft = calculateTimeLeft(timeStart, timeEnd);
+                                                        const timeLeft = calculateTimeLeft(checkin, departure, timeStart, timeEnd);
                                                         $(this).find('.time-left').text(timeLeft);
                                                     });
                                                 }
