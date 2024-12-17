@@ -21,6 +21,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Convertion of timezone -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment-timezone/0.5.34/moment-timezone-with-data.min.js"></script>
     <link rel="stylesheet" href="../css/businessowner.css">
     <style>
         /* Hide the dropdown arrow */
@@ -532,39 +535,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         const location = attendeeLocations[i - 1] || '';
 
                                                         const attendeeFields = `
-                <div class="attendee-container">
-                    <div class="row mb-3 attendee-row" data-attendee-index="${i}">
-                        <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
-                        <div class="col-xl-5 col-12">
-                            <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" value="${name}" required>
-                        </div>
-                        <div class="col-xl-5 col-12">
-                            <div class="row g-2">
-                                <div class="col-xl-12 col-6">
-                                    <select name="sex[]" class="form-select shadow" required>
-                                        <option value="">Select Sex</option>
-                                        <option value="Male" ${sex === 'Male' ? 'selected' : ''}>Male</option>
-                                        <option value="Female" ${sex === 'Female' ? 'selected' : ''}>Female</option>
-                                    </select>
-                                </div>
-                                <div class="col-xl-12 col-6">
-                                    <select name="location[]" class="form-select shadow" required>
-                                        <option value="">Select Location</option>
-                                        <option value="This City/Municipality" ${location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
-                                        <option value="Other City/Municipality" ${location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
-                                        <option value="Other Province" ${location === 'Other Province' ? 'selected' : ''}>Other Province</option>
-                                        <option value="Foreign Country" ${location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
-                                    </select>
+                    <div class="attendee-container">
+                        <div class="row mb-3 attendee-row" data-attendee-index="${i}">
+                            <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                            <div class="col-xl-5 col-12">
+                                <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" value="${name}" required>
+                            </div>
+                            <div class="col-xl-5 col-12">
+                                <div class="row g-2">
+                                    <div class="col-xl-12 col-6">
+                                        <select name="sex[]" class="form-select shadow" required>
+                                            <option value="">Select Sex</option>
+                                            <option value="Male" ${sex === 'Male' ? 'selected' : ''}>Male</option>
+                                            <option value="Female" ${sex === 'Female' ? 'selected' : ''}>Female</option>
+                                        </select>
+                                    </div>
+                                    <div class="col-xl-12 col-6">
+                                        <select name="location[]" class="form-select shadow" required>
+                                            <option value="">Select Location</option>
+                                            <option value="This City/Municipality" ${location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
+                                            <option value="Other City/Municipality" ${location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
+                                            <option value="Other Province" ${location === 'Other Province' ? 'selected' : ''}>Other Province</option>
+                                            <option value="Foreign Country" ${location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
+                                        </select>
+                                    </div>
                                 </div>
                             </div>
+                            <div class="col-2 mt-3">
+                                <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
+                            </div>
                         </div>
-                        <div class="col-2 mt-3">
-                            <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
-                        </div>
+                        <hr class="mt-2">
                     </div>
-                    <hr class="mt-2">
-                </div>
-            `;
+                `;
                                                         container.append(attendeeFields);
                                                     }
 
@@ -596,39 +599,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     const newIndex = container.children('.attendee-container').length + 1;
 
                                                     const newAttendeeFields = `
-            <div class="attendee-container">
-                <div class="row mb-3 attendee-row" data-attendee-index="${newIndex}">
-                    <p class="mb-0 dm-sans-text">Name of Attendee ${newIndex}</p>
-                    <div class="col-xl-5 col-12">
-                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
-                    </div>
-                    <div class="col-xl-5 col-12">
-                        <div class="row g-2">
-                            <div class="col-xl-12 col-6">
-                                <select name="sex[]" class="form-select shadow" required>
-                                    <option value="">Select Sex</option>
-                                    <option value="Male">Male</option>
-                                    <option value="Female">Female</option>
-                                </select>
-                            </div>
-                            <div class="col-xl-12 col-6">
-                                <select name="location[]" class="form-select shadow" required>
-                                    <option value="">Select Location</option>
-                                    <option value="This City/Municipality">This City/Municipality</option>
-                                    <option value="Other City/Municipality">Other City/Municipality</option>
-                                    <option value="Other Province">Other Province</option>
-                                    <option value="Foreign Country">Foreign Country</option>
-                                </select>
+                <div class="attendee-container">
+                    <div class="row mb-3 attendee-row" data-attendee-index="${newIndex}">
+                        <p class="mb-0 dm-sans-text">Name of Attendee ${newIndex}</p>
+                        <div class="col-xl-5 col-12">
+                            <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                        </div>
+                        <div class="col-xl-5 col-12">
+                            <div class="row g-2">
+                                <div class="col-xl-12 col-6">
+                                    <select name="sex[]" class="form-select shadow" required>
+                                        <option value="">Select Sex</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                    </select>
+                                </div>
+                                <div class="col-xl-12 col-6">
+                                    <select name="location[]" class="form-select shadow" required>
+                                        <option value="">Select Location</option>
+                                        <option value="This City/Municipality">This City/Municipality</option>
+                                        <option value="Other City/Municipality">Other City/Municipality</option>
+                                        <option value="Other Province">Other Province</option>
+                                        <option value="Foreign Country">Foreign Country</option>
+                                    </select>
+                                </div>
                             </div>
                         </div>
+                        <div class="col-2 mt-3">
+                            <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
+                        </div>
                     </div>
-                    <div class="col-2 mt-3">
-                        <button type="button" class="btn btn-danger m-1 delete-attendee"><i class="bi bi-x-lg"></i></button>
-                    </div>
+                    <hr class="mt-2">
                 </div>
-                <hr class="mt-2">
-            </div>
-        `;
+            `;
                                                     container.append(newAttendeeFields);
 
                                                     // Add event listeners to the new fields
@@ -727,36 +730,36 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                            <tr>
-                                <td>${formattedTimeBooked}</td>
-                                <td>${reservation.roomName}</td>
-                                <td>${reservation.customerName}</td>
-                                <td>
-                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                        data-name="${reservation.customerName}"
-                                        data-address="${reservation.address}"
-                                        data-contact="${reservation.contactNumber}"
-                                        data-id-type="${reservation.id_type}"
-                                        data-front-id="${reservation.front_id}"
-                                        data-back-id="${reservation.back_id}"
-                                        data-total-attendees="${reservation.totalnumAttendees}"
-                                        data-total-male="${reservation.totalmale}"
-                                        data-total-female="${reservation.totalfemale}"
-                                        data-this-city="${reservation.thisCity}"
-                                        data-other-city="${reservation.otherCity}"
-                                        data-other-province="${reservation.otherProvince}"
-                                        data-foreign-country="${reservation.foreignCountry}"
-                                        data-attendee-names="${reservation.attendeeNames}"
-                                        data-attendee-sexes="${reservation.attendeeSexes}"
-                                        data-attendee-locations="${reservation.attendeeLocations}"
-                                        data-proof-of-payment="${reservation.proofOfPayment}"
-                                        data-reference-number="${reservation.gcashReference}"
-                                    ><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
-                                </td>
-                                <td>Accepted</td>
-                            </tr>
-                        `;
+                                <tr>
+                                    <td>${formattedTimeBooked}</td>
+                                    <td>${reservation.roomName}</td>
+                                    <td>${reservation.customerName}</td>
+                                    <td>
+                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                            data-name="${reservation.customerName}"
+                                            data-address="${reservation.address}"
+                                            data-contact="${reservation.contactNumber}"
+                                            data-id-type="${reservation.id_type}"
+                                            data-front-id="${reservation.front_id}"
+                                            data-back-id="${reservation.back_id}"
+                                            data-total-attendees="${reservation.totalnumAttendees}"
+                                            data-total-male="${reservation.totalmale}"
+                                            data-total-female="${reservation.totalfemale}"
+                                            data-this-city="${reservation.thisCity}"
+                                            data-other-city="${reservation.otherCity}"
+                                            data-other-province="${reservation.otherProvince}"
+                                            data-foreign-country="${reservation.foreignCountry}"
+                                            data-attendee-names="${reservation.attendeeNames}"
+                                            data-attendee-sexes="${reservation.attendeeSexes}"
+                                            data-attendee-locations="${reservation.attendeeLocations}"
+                                            data-proof-of-payment="${reservation.proofOfPayment}"
+                                            data-reference-number="${reservation.gcashReference}"
+                                        ><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
+                                    </td>
+                                    <td>Accepted</td>
+                                </tr>
+                            `;
                                                                     tbody.append(row);
                                                                 });
 
@@ -794,12 +797,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                     for (let i = 0; i < attendeeNames.length; i++) {
                                                                         let row = `
-                                <tr>
-                                    <td>${attendeeNames[i]}</td>
-                                    <td>${attendeeSexes[i]}</td>
-                                    <td>${attendeeLocations[i]}</td>
-                                </tr>
-                            `;
+                                    <tr>
+                                        <td>${attendeeNames[i]}</td>
+                                        <td>${attendeeSexes[i]}</td>
+                                        <td>${attendeeLocations[i]}</td>
+                                    </tr>
+                                `;
                                                                         infoTableBody.append(row);
                                                                     }
 
@@ -831,6 +834,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                 // Fetch upcoming reservations on page load
                                                 fetchUpcomingReservations();
+
+                                                // Function to calculate and display time left
+                                                function calculateTimeLeft(timeStart, timeEnd) {
+                                                    const now = moment().tz('Asia/Hong_Kong');
+                                                    const startTime = moment.tz(timeStart, 'HH:mm A', 'Asia/Hong_Kong');
+                                                    const endTime = moment.tz(timeEnd, 'HH:mm A', 'Asia/Hong_Kong');
+
+                                                    let duration = moment.duration(endTime.diff(now));
+                                                    if (now.isAfter(startTime)) {
+                                                        duration = moment.duration(endTime.diff(now));
+                                                    } else {
+                                                        duration = moment.duration(endTime.diff(startTime));
+                                                    }
+
+                                                    const hours = Math.floor(duration.asHours());
+                                                    const minutes = Math.floor(duration.minutes());
+                                                    const seconds = Math.floor(duration.seconds());
+
+                                                    return `${hours}h ${minutes}m ${seconds}s`;
+                                                }
+
+                                                // Function to update ongoing reservations
+                                                function updateOngoingReservations() {
+                                                    $('#ongoing-reservations tr').each(function() {
+                                                        const timeStart = $(this).data('time-start');
+                                                        const timeEnd = $(this).data('time-end');
+                                                        const timeLeft = calculateTimeLeft(timeStart, timeEnd);
+                                                        $(this).find('.time-left').text(timeLeft);
+                                                    });
+                                                }
+
+                                                // Update ongoing reservations every second
+                                                setInterval(updateOngoingReservations, 1000);
                                             });
                                         </script>
 
@@ -909,36 +945,36 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                            <tr>
-                                <td>${formattedTimeBooked}</td>
-                                <td>${reservation.roomName}</td>
-                                <td>${reservation.customerName}</td>
-                                <td>
-                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                        data-name="${reservation.customerName}"
-                                        data-address="${reservation.address}"
-                                        data-contact="${reservation.contactNumber}"
-                                        data-id-type="${reservation.id_type}"
-                                        data-front-id="${reservation.front_id}"
-                                        data-back-id="${reservation.back_id}"
-                                        data-total-attendees="${reservation.totalnumAttendees}"
-                                        data-total-male="${reservation.totalmale}"
-                                        data-total-female="${reservation.totalfemale}"
-                                        data-this-city="${reservation.thisCity}"
-                                        data-other-city="${reservation.otherCity}"
-                                        data-other-province="${reservation.otherProvince}"
-                                        data-foreign-country="${reservation.foreignCountry}"
-                                        data-attendee-names="${reservation.attendeeNames}"
-                                        data-attendee-sexes="${reservation.attendeeSexes}"
-                                        data-attendee-locations="${reservation.attendeeLocations}"
-                                        data-proof-of-payment="${reservation.proofOfPayment}"
-                                        data-reference-number="${reservation.gcashReference}"
-                                    ><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
-                                </td>
-                                <td>Accepted</td>
-                            </tr>
-                        `;
+                                <tr>
+                                    <td>${formattedTimeBooked}</td>
+                                    <td>${reservation.roomName}</td>
+                                    <td>${reservation.customerName}</td>
+                                    <td>
+                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                            data-name="${reservation.customerName}"
+                                            data-address="${reservation.address}"
+                                            data-contact="${reservation.contactNumber}"
+                                            data-id-type="${reservation.id_type}"
+                                            data-front-id="${reservation.front_id}"
+                                            data-back-id="${reservation.back_id}"
+                                            data-total-attendees="${reservation.totalnumAttendees}"
+                                            data-total-male="${reservation.totalmale}"
+                                            data-total-female="${reservation.totalfemale}"
+                                            data-this-city="${reservation.thisCity}"
+                                            data-other-city="${reservation.otherCity}"
+                                            data-other-province="${reservation.otherProvince}"
+                                            data-foreign-country="${reservation.foreignCountry}"
+                                            data-attendee-names="${reservation.attendeeNames}"
+                                            data-attendee-sexes="${reservation.attendeeSexes}"
+                                            data-attendee-locations="${reservation.attendeeLocations}"
+                                            data-proof-of-payment="${reservation.proofOfPayment}"
+                                            data-reference-number="${reservation.gcashReference}"
+                                        ><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
+                                    </td>
+                                    <td>Accepted</td>
+                                </tr>
+                            `;
                                                                     upcomingTbody.append(row);
                                                                 });
 
@@ -966,37 +1002,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                            <tr>
-                                <td>${reservation.roomName}</td>
-                                <td>${checkinTime} ${checkinDate}</td>
-                                <td>${checkoutTime} ${checkoutDate}</td>
-                                <td>${reservation.customerName}</td>
-                                <td>
-                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                        data-name="${reservation.customerName}"
-                                        data-address="${reservation.address}"
-                                        data-contact="${reservation.contactNumber}"
-                                        data-id-type="${reservation.id_type}"
-                                        data-front-id="${reservation.front_id}"
-                                        data-back-id="${reservation.back_id}"
-                                        data-total-attendees="${reservation.totalnumAttendees}"
-                                        data-total-male="${reservation.totalmale}"
-                                        data-total-female="${reservation.totalfemale}"
-                                        data-this-city="${reservation.thisCity}"
-                                        data-other-city="${reservation.otherCity}"
-                                        data-other-province="${reservation.otherProvince}"
-                                        data-foreign-country="${reservation.foreignCountry}"
-                                        data-attendee-names="${reservation.attendeeNames}"
-                                        data-attendee-sexes="${reservation.attendeeSexes}"
-                                        data-attendee-locations="${reservation.attendeeLocations}"
-                                        data-proof-of-payment="${reservation.proofOfPayment}"
-                                        data-reference-number="${reservation.gcashReference}"
-                                    ><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
-                                </td>
-                                <td>Ongoing</td>
-                            </tr>
-                        `;
+                                <tr data-time-start="${reservation.timeStart}" data-time-end="${reservation.timeEnd}">
+                                    <td>${reservation.roomName}</td>
+                                    <td>${checkinTime} ${checkinDate}</td>
+                                    <td>${checkoutTime} ${checkoutDate}</td>
+                                    <td class="time-left"></td>
+                                    <td>
+                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                            data-name="${reservation.customerName}"
+                                            data-address="${reservation.address}"
+                                            data-contact="${reservation.contactNumber}"
+                                            data-id-type="${reservation.id_type}"
+                                            data-front-id="${reservation.front_id}"
+                                            data-back-id="${reservation.back_id}"
+                                            data-total-attendees="${reservation.totalnumAttendees}"
+                                            data-total-male="${reservation.totalmale}"
+                                            data-total-female="${reservation.totalfemale}"
+                                            data-this-city="${reservation.thisCity}"
+                                            data-other-city="${reservation.otherCity}"
+                                            data-other-province="${reservation.otherProvince}"
+                                            data-foreign-country="${reservation.foreignCountry}"
+                                            data-attendee-names="${reservation.attendeeNames}"
+                                            data-attendee-sexes="${reservation.attendeeSexes}"
+                                            data-attendee-locations="${reservation.attendeeLocations}"
+                                            data-proof-of-payment="${reservation.proofOfPayment}"
+                                            data-reference-number="${reservation.gcashReference}"
+                                        ><i class="bi bi-eye"></i></button>
+                                        <button class="btn btn-success m-1"><i class="bi bi-check-lg"></i></button>
+                                    </td>
+                                    <td>Ongoing</td>
+                                </tr>
+                            `;
                                                                     ongoingTbody.append(row);
                                                                 });
 
@@ -1034,12 +1070,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                     for (let i = 0; i < attendeeNames.length; i++) {
                                                                         let row = `
-                                <tr>
-                                    <td>${attendeeNames[i]}</td>
-                                    <td>${attendeeSexes[i]}</td>
-                                    <td>${attendeeLocations[i]}</td>
-                                </tr>
-                            `;
+                                    <tr>
+                                        <td>${attendeeNames[i]}</td>
+                                        <td>${attendeeSexes[i]}</td>
+                                        <td>${attendeeLocations[i]}</td>
+                                    </tr>
+                                `;
                                                                         infoTableBody.append(row);
                                                                     }
 
@@ -1059,6 +1095,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                         $('#modal-reference-number').parent().hide();
                                                                     }
                                                                 });
+
+                                                                // Update time left for ongoing reservations
+                                                                updateOngoingReservations();
                                                             } else {
                                                                 $('#upcoming-reservations').html('<tr><td colspan="5">No upcoming reservations found.</td></tr>');
                                                                 $('#ongoing-reservations').html('<tr><td colspan="5">No ongoing reservations found.</td></tr>');
@@ -1071,8 +1110,51 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     });
                                                 }
 
+                                                // Function to calculate and display time left
+                                                function calculateTimeLeft(timeStart, timeEnd) {
+                                                    const now = moment().tz('Asia/Hong_Kong');
+                                                    const startTime = moment.tz(timeStart, 'HH:mm A', 'Asia/Hong_Kong');
+                                                    const endTime = moment.tz(timeEnd, 'HH:mm A', 'Asia/Hong_Kong');
+
+                                                    // Adjust endTime if it is on the next day
+                                                    if (endTime.isBefore(startTime)) {
+                                                        endTime.add(1, 'day');
+                                                    }
+
+                                                    let duration = moment.duration(endTime.diff(now));
+                                                    if (now.isAfter(startTime)) {
+                                                        duration = moment.duration(endTime.diff(now));
+                                                    } else {
+                                                        duration = moment.duration(endTime.diff(startTime));
+                                                    }
+
+                                                    const hours = Math.floor(duration.asHours());
+                                                    const minutes = Math.floor(duration.minutes());
+                                                    const seconds = Math.floor(duration.seconds());
+
+                                                    // Ensure the time left is not negative
+                                                    if (hours < 0 || minutes < 0 || seconds < 0) {
+                                                        return "0h 0m 0s";
+                                                    }
+
+                                                    return `${hours}h ${minutes}m ${seconds}s`;
+                                                }
+
+                                                // Function to update ongoing reservations
+                                                function updateOngoingReservations() {
+                                                    $('#ongoing-reservations tr').each(function() {
+                                                        const timeStart = $(this).data('time-start');
+                                                        const timeEnd = $(this).data('time-end');
+                                                        const timeLeft = calculateTimeLeft(timeStart, timeEnd);
+                                                        $(this).find('.time-left').text(timeLeft);
+                                                    });
+                                                }
+
                                                 // Fetch reservations on page load
                                                 fetchReservations();
+
+                                                // Update ongoing reservations every second
+                                                setInterval(updateOngoingReservations, 1000);
                                             });
                                         </script>
 
