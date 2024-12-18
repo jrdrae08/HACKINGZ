@@ -28,6 +28,8 @@ try {
 
   if ($reservations) {
     echo json_encode(['status' => 'success', 'data' => $reservations]);
+  }else {
+    echo json_encode(['status' => 'error', 'message' => 'No reservations found.']);
   }
 } catch (Exception $e) {
   error_log($e->getMessage());
