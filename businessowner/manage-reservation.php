@@ -21,10 +21,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
     <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <!-- DataTables CSS -->
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
-    <!-- DataTables JS -->
-    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+    <!-- script for filtering the table -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/list.js/2.3.1/list.min.js"></script>
     <link rel="stylesheet" href="../css/businessowner.css">
     <style>
         /* Hide the dropdown arrow */
@@ -86,7 +84,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                         <div class="col-lg-3 col-sm-12">
                                             <form class="d-flex" role="search">
-                                                <input class="form-control shadow me-2" type="search" placeholder="Search" aria-label="Search">
+                                                <input class="form-control shadow me-2" placeholder="Search" class="search" aria-label="Search">
                                                 <button class="btn btn-outline-success" type="submit">Search</button>
                                             </form>
                                         </div>
@@ -97,17 +95,28 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                     <div class="tab-content" id="pills-tabContent">
                                         <div class="tab-pane fade show active" id="pills-new" role="tabpanel" aria-labelledby="pills-new-tab" tabindex="0">
                                             <div class="table-responsive">
+                                                <form class="d-flex col-lg-5 col-sm-12 ms-auto" role="search">
+                                                    <input class="form-control shadow me-2 search" placeholder="Search" aria-label="Search">
+                                                    <select id="sortDropdown">
+                                                        <option value="customerName-asc">Sort by Customer Name (A-Z)</option>
+                                                        <option value="customerName-desc">Sort by Customer Name (Z-A)</option>
+                                                        <option value="timeBooked-asc">Sort by Time Booked (Asc)</option>
+                                                        <option value="timeBooked-desc">Sort by Time Booked (Desc)</option>
+                                                        <option value="roomName-asc">Sort by Room Name (A-Z)</option>
+                                                        <option value="roomName-desc">Sort by Room Name (Z-A)</option>
+                                                    </select>
+                                                </form>
                                                 <table class="table table-striped" id="reservationsTable">
                                                     <thead>
                                                         <tr>
-                                                            <th scope="col">Time Booked</th>
-                                                            <th scope="col">Room Name</th>
-                                                            <th scope="col">Customer Name</th>
+                                                            <th scope="col" data-sort="timeBooked">Time Booked</th>
+                                                            <th scope="col" data-sort="roomName">Room Name</th>
+                                                            <th scope="col" data-sort="customerName">Customer Name</th>
                                                             <th scope="col">Action</th>
                                                             <th scope="col">Remarks</th>
                                                         </tr>
                                                     </thead>
-                                                    <tbody id="new-reservations">
+                                                    <tbody class="list" id="new-reservations">
                                                         <!-- Reservations will be dynamically added here -->
                                                     </tbody>
                                                 </table>
@@ -353,37 +362,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                                <tr>
-                                    <td>${formattedTimeBooked}</td>
-                                    <td>${reservation.roomName}</td>
-                                    <td>${reservation.customerName}</td>
-                                    <td>
-                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                            data-name="${reservation.customerName}"
-                                            data-address="${reservation.address}"
-                                            data-contact="${reservation.contactNumber}"
-                                            data-id-type="${reservation.id_type}"
-                                            data-front-id="${reservation.front_id}"
-                                            data-back-id="${reservation.back_id}"
-                                            data-total-attendees="${reservation.totalnumAttendees}"
-                                            data-total-male="${reservation.totalmale}"
-                                            data-total-female="${reservation.totalfemale}"
-                                            data-this-city="${reservation.thisCity}"
-                                            data-other-city="${reservation.otherCity}"
-                                            data-other-province="${reservation.otherProvince}"
-                                            data-foreign-country="${reservation.foreignCountry}"
-                                            data-attendee-names="${reservation.attendeeNames}"
-                                            data-attendee-sexes="${reservation.attendeeSexes}"
-                                            data-attendee-locations="${reservation.attendeeLocations}"
-                                            data-proof-of-payment="${reservation.proofOfPayment}"
-                                            data-reference-number="${reservation.gcashReference}"
-                                        ><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-success m-1 accept-reservation" data-revid="${reservation.revID}" data-status="Accepted"><i class="bi bi-check-lg"></i></button>
-                                        <button class="btn btn-danger m-1 cancel-reservation" data-revid="${reservation.revID}" data-status="Rejected"><i class="bi bi-x-lg"></i></button>
-                                    </td>
-                                    <td>New</td>
-                                </tr>
-                            `;
+                                    <tr>
+                                        <td class="timeBooked">${formattedTimeBooked}</td>
+                                        <td class="roomName">${reservation.roomName}</td>
+                                        <td class="customerName">${reservation.customerName}</td>
+                                        <td>
+                                            <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                                data-name="${reservation.customerName}"
+                                                data-address="${reservation.address}"
+                                                data-contact="${reservation.contactNumber}"
+                                                data-id-type="${reservation.id_type}"
+                                                data-front-id="${reservation.front_id}"
+                                                data-back-id="${reservation.back_id}"
+                                                data-total-attendees="${reservation.totalnumAttendees}"
+                                                data-total-male="${reservation.totalmale}"
+                                                data-total-female="${reservation.totalfemale}"
+                                                data-this-city="${reservation.thisCity}"
+                                                data-other-city="${reservation.otherCity}"
+                                                data-other-province="${reservation.otherProvince}"
+                                                data-foreign-country="${reservation.foreignCountry}"
+                                                data-attendee-names="${reservation.attendeeNames}"
+                                                data-attendee-sexes="${reservation.attendeeSexes}"
+                                                data-attendee-locations="${reservation.attendeeLocations}"
+                                                data-proof-of-payment="${reservation.proofOfPayment}"
+                                                data-reference-number="${reservation.gcashReference}"
+                                            ><i class="bi bi-eye"></i></button>
+                                            <button class="btn btn-success m-1 accept-reservation" data-revid="${reservation.revID}" data-status="Accepted"><i class="bi bi-check-lg"></i></button>
+                                            <button class="btn btn-danger m-1 cancel-reservation" data-revid="${reservation.revID}" data-status="Rejected"><i class="bi bi-x-lg"></i></button>
+                                        </td>
+                                        <td>New</td>
+                                    </tr>
+                                `;
                                                                     tbody.append(row);
                                                                 });
 
@@ -421,12 +430,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                     for (let i = 0; i < attendeeNames.length; i++) {
                                                                         let row = `
-                                    <tr>
-                                        <td>${attendeeNames[i]}</td>
-                                        <td>${attendeeSexes[i]}</td>
-                                        <td>${attendeeLocations[i]}</td>
-                                    </tr>
-                                `;
+                                        <tr>
+                                            <td>${attendeeNames[i]}</td>
+                                            <td>${attendeeSexes[i]}</td>
+                                            <td>${attendeeLocations[i]}</td>
+                                        </tr>
+                                    `;
                                                                         infoTableBody.append(row);
                                                                     }
 
@@ -445,6 +454,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     } else {
                                                                         $('#modal-reference-number').parent().hide();
                                                                     }
+                                                                });
+
+                                                                // Initialize List.js
+                                                                var options = {
+                                                                    valueNames: ['timeBooked', 'roomName', 'customerName']
+                                                                };
+                                                                var reservationsList = new List('pills-new', options);
+
+                                                                // Handle sorting based on dropdown selection
+                                                                $('#sortDropdown').on('change', function() {
+                                                                    var selectedOption = $(this).val();
+                                                                    var [sortField, sortOrder] = selectedOption.split('-');
+                                                                    reservationsList.sort(sortField, {
+                                                                        order: sortOrder
+                                                                    });
                                                                 });
                                                             } else {
                                                                 $('#new-reservations').html('<tr><td colspan="5">No reservations found.</td></tr>');
