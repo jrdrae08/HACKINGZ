@@ -39,6 +39,10 @@ $totalInActive = getTotalInactive($pdo);
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
     <link rel="stylesheet" href="../css/admin.css">
 
@@ -239,7 +243,7 @@ $totalInActive = getTotalInactive($pdo);
                                     <!-- pending business -->
                                     <div class="tab-content" id="pills-tabContent">
                                         <div class="tab-pane fade " id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabindex="0">
-                                            <table class="table">
+                                            <table id="pendingBusinessesTable" class="table">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Date Registered</th>
@@ -249,17 +253,9 @@ $totalInActive = getTotalInactive($pdo);
                                                         <th scope="col">Remarks</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="pendingBusinessesTable">
-                                                </tbody>
+
                                             </table>
 
-                                            <!-- Pagination controls -->
-                                            <?php if (count($pendingBusinesses) > 10): ?>
-                                                <nav>
-                                                    <ul class="pagination justify-content-center" id="pagination-pending">
-                                                    </ul>
-                                                </nav>
-                                            <?php endif; ?>
                                             <!-- Confirmation Modal for Pending -->
                                             <div class="modal fade" id="confirmationModalPending" tabindex="-1" aria-labelledby="confirmationModalLabelPending" aria-hidden="true">
                                                 <div class="modal-dialog modal-dialog-centered">
@@ -303,20 +299,21 @@ $totalInActive = getTotalInactive($pdo);
                                                 document.addEventListener('DOMContentLoaded', function() {
                                                     let actionType = '';
                                                     let applicationId = '';
-                                                    const rowsPerPage = 10;
-                                                    let currentPage = 1;
 
                                                     const pendingBusinesses = <?php echo json_encode($pendingBusinesses); ?>;
 
-                                                    function displayPendingBusinesses(page) {
-                                                        const table = document.getElementById('pendingBusinessesTable');
-                                                        table.innerHTML = '';
+                                                    function displayPendingBusinesses() {
+                                                        const table = $('#pendingBusinessesTable').DataTable({
+                                                            columnDefs: [{
+                                                                    orderable: false,
+                                                                    targets: 3
+                                                                } // Disable sorting on the "Actions" column
+                                                            ]
+                                                        });
+                                                        table.clear(); // Clear the table
 
-                                                        const start = (page - 1) * rowsPerPage;
-                                                        const end = start + rowsPerPage;
-                                                        const paginatedBusinesses = pendingBusinesses.slice(start, end);
-
-                                                        paginatedBusinesses.forEach(business => {
+                                                        // Loop through all businesses and display them
+                                                        pendingBusinesses.forEach(business => {
                                                             let status = '';
                                                             if (business.isReapply == 1) {
                                                                 status = 'Reapply';
@@ -326,70 +323,45 @@ $totalInActive = getTotalInactive($pdo);
                                                                 status = ' ';
                                                             }
 
-                                                            const row = document.createElement('tr');
-                                                            if ((status === 'New' || status === 'Reapply') && business.IsRead == 0) {
-                                                                row.classList.add('highlight-new');
-                                                            }
-
-                                                            row.innerHTML = `
-                <td>${business['Date Registered']}</td>
-                <td>${business['BusinessType']}</td>
-                <td>${business['BusinessName']}</td>
-                <td>
-                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-application-id="${business.ApplicationID}" data-business='${JSON.stringify(business)}'>
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-success m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-check-lg"></i></button>
-                    <button class="btn btn-danger m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-x-lg"></i></button>
-                </td>
-                <td class="status">${status}</td>
-            `;
-                                                            table.appendChild(row);
+                                                            const row = `
+                    <tr ${((status === 'New' || status === 'Reapply') && business.IsRead == 0) ? 'class="highlight-new"' : ''}>
+                        <td>${business['Date Registered']}</td>
+                        <td>${business['BusinessType']}</td>
+                        <td>${business['BusinessName']}</td>
+                        <td>
+                            <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-application-id="${business.ApplicationID}" data-business='${JSON.stringify(business)}'>
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-success m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-check-lg"></i></button>
+                            <button class="btn btn-danger m-1" data-application-id="${business['ApplicationID']}"><i class="bi bi-x-lg"></i></button>
+                        </td>
+                        <td class="status">${status}</td>
+                    </tr>
+                `;
+                                                            table.row.add($(row));
                                                         });
 
+                                                        table.draw();
                                                         attachEventListeners();
                                                     }
 
-                                                    function setupPagination(pageCount, paginationId, pageFunction) {
-                                                        const pagination = document.getElementById(paginationId);
-                                                        pagination.innerHTML = '';
-
-                                                        for (let i = 1; i <= pageCount; i++) {
-                                                            const pageItem = document.createElement('li');
-                                                            pageItem.classList.add('page-item');
-                                                            if (i === currentPage) {
-                                                                pageItem.classList.add('active');
-                                                            }
-                                                            pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                                                            pageItem.addEventListener('click', function(e) {
-                                                                e.preventDefault();
-                                                                currentPage = i;
-                                                                pageFunction(currentPage);
-                                                                setupPagination(pageCount, paginationId, pageFunction);
-                                                            });
-                                                            pagination.appendChild(pageItem);
-                                                        }
-                                                    }
-
                                                     function attachEventListeners() {
-                                                        document.getElementById('pendingBusinessesTable').addEventListener('click', function(event) {
-                                                            const button = event.target.closest('button');
-                                                            if (!button) return;
-
-                                                            applicationId = button.getAttribute('data-application-id');
-                                                            if (button.classList.contains('btn-success')) {
+                                                        $('#pendingBusinessesTable').on('click', 'button', function(event) {
+                                                            const button = $(this);
+                                                            applicationId = button.data('application-id');
+                                                            if (button.hasClass('btn-success')) {
                                                                 actionType = 'approve';
                                                                 confirmationMessagePending.innerText = 'Are you sure you want to approve this business?';
                                                                 rejectReasonsDiv.style.display = 'none';
                                                                 confirmButtonPending.disabled = false;
                                                                 confirmationModalPending.show();
-                                                            } else if (button.classList.contains('btn-danger')) {
+                                                            } else if (button.hasClass('btn-danger')) {
                                                                 actionType = 'reject';
                                                                 confirmationMessagePending.innerText = 'Are you sure you want to reject this business?';
                                                                 rejectReasonsDiv.style.display = 'block';
                                                                 confirmButtonPending.disabled = true;
                                                                 confirmationModalPending.show();
-                                                            } else if (button.classList.contains('view-details')) {
+                                                            } else if (button.hasClass('view-details')) {
                                                                 $.ajax({
                                                                     url: '../../backends/admin/update_read_status.php',
                                                                     method: 'POST',
@@ -398,7 +370,7 @@ $totalInActive = getTotalInactive($pdo);
                                                                     },
                                                                     success: function(response) {
                                                                         if (response.success) {
-                                                                            button.closest('tr').querySelector('.status').textContent = 'Read';
+                                                                            button.closest('tr').find('.status').text('Read');
                                                                         } else {
                                                                             console.error('Failed to update read status:', response.message);
                                                                         }
@@ -410,30 +382,20 @@ $totalInActive = getTotalInactive($pdo);
                                                             }
                                                         });
 
-                                                        document.querySelectorAll('#rejectReasons input[type="checkbox"]').forEach(checkbox => {
-                                                            checkbox.addEventListener('change', function() {
-                                                                if (checkbox.id === 'checkbox4') {
-                                                                    document.getElementById('otherReasonDiv').style.display = checkbox.checked ? 'block' : 'none';
-                                                                }
-                                                                updateConfirmButtonState();
-                                                            });
+                                                        $('#rejectReasons input[type="checkbox"]').on('change', function() {
+                                                            if (this.id === 'checkbox4') {
+                                                                $('#otherReasonDiv').toggle(this.checked);
+                                                            }
+                                                            updateConfirmButtonState();
                                                         });
                                                     }
 
                                                     function updateConfirmButtonState() {
-                                                        const checkboxes = document.querySelectorAll('#rejectReasons input[type="checkbox"]');
-                                                        const anyChecked = Array.from(checkboxes).some(checkbox => checkbox.checked);
+                                                        const anyChecked = $('#rejectReasons input[type="checkbox"]').is(':checked');
                                                         confirmButtonPending.disabled = !anyChecked;
                                                     }
 
-                                                    const pendingPageCount = Math.ceil(pendingBusinesses.length / rowsPerPage);
-
-                                                    displayPendingBusinesses(currentPage);
-                                                    if (pendingBusinesses.length > rowsPerPage) {
-                                                        setupPagination(pendingPageCount, 'pagination-pending', displayPendingBusinesses);
-                                                    } else {
-                                                        document.getElementById('pagination-pending').style.display = 'none';
-                                                    }
+                                                    displayPendingBusinesses(); // Display all businesses on page load
 
                                                     const confirmationModalPending = new bootstrap.Modal(document.getElementById('confirmationModalPending'));
                                                     const confirmButtonPending = document.getElementById('confirmButtonPending');
@@ -442,18 +404,15 @@ $totalInActive = getTotalInactive($pdo);
 
                                                     confirmButtonPending.addEventListener('click', function() {
                                                         if (actionType === 'approve' || actionType === 'reject') {
-                                                            const checkboxes = document.querySelectorAll('#rejectReasons input[type="checkbox"]');
                                                             const rejectReasons = [];
-                                                            checkboxes.forEach(checkbox => {
-                                                                if (checkbox.checked) {
-                                                                    if (checkbox.id === 'checkbox4') {
-                                                                        const otherReasonText = document.getElementById('otherReasonText').value;
-                                                                        if (otherReasonText) {
-                                                                            rejectReasons.push(otherReasonText);
-                                                                        }
-                                                                    } else {
-                                                                        rejectReasons.push(checkbox.nextElementSibling.textContent);
+                                                            $('#rejectReasons input[type="checkbox"]:checked').each(function() {
+                                                                if (this.id === 'checkbox4') {
+                                                                    const otherReasonText = $('#otherReasonText').val();
+                                                                    if (otherReasonText) {
+                                                                        rejectReasons.push(otherReasonText);
                                                                     }
+                                                                } else {
+                                                                    rejectReasons.push($(this).next('label').text());
                                                                 }
                                                             });
 
@@ -486,14 +445,12 @@ $totalInActive = getTotalInactive($pdo);
                                                         }
                                                     });
 
-                                                    document.getElementById('confirmationModalPending').addEventListener('hidden.bs.modal', function() {
-                                                        const backdrops = document.querySelectorAll('.modal-backdrop');
-                                                        backdrops.forEach(backdrop => {
-                                                            backdrop.parentNode.removeChild(backdrop);
-                                                        });
+                                                    $('#confirmationModalPending').on('hidden.bs.modal', function() {
+                                                        $('.modal-backdrop').remove();
                                                     });
                                                 });
                                             </script>
+
 
 
 
@@ -501,7 +458,7 @@ $totalInActive = getTotalInactive($pdo);
 
                                         <!-- Accepted business -->
                                         <div class="tab-pane fade show active" id="pills-accepted" role="tabpanel" aria-labelledby="pills-accepted-tab" tabindex="0">
-                                            <table class="table table-striped">
+                                            <table id="acceptedBusinessesTable" class="table table-striped">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Date Registered</th>
@@ -511,16 +468,9 @@ $totalInActive = getTotalInactive($pdo);
                                                         <th scope="col">Actions</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="acceptedBusinessesTable">
+                                                <tbody>
                                                 </tbody>
                                             </table>
-                                            <!-- Pagination controls -->
-                                            <?php if (count($approvedBusinesses) > 10): ?>
-                                                <nav>
-                                                    <ul class="pagination justify-content-center" id="pagination-accepted">
-                                                    </ul>
-                                                </nav>
-                                            <?php endif; ?>
                                         </div>
 
                                         <!-- Confirmation Modal for Status Toggle -->
@@ -568,69 +518,49 @@ $totalInActive = getTotalInactive($pdo);
                                                 let actionType = '';
                                                 let businessId = '';
                                                 let status = '';
-                                                const rowsPerPage = 10;
-                                                let currentPage = 1;
 
                                                 const approvedBusinesses = <?php echo json_encode($approvedBusinesses); ?>;
 
-                                                function displayApprovedBusinesses(page) {
-                                                    const table = document.getElementById('acceptedBusinessesTable');
-                                                    table.innerHTML = '';
+                                                function displayApprovedBusinesses() {
+                                                    const table = $('#acceptedBusinessesTable').DataTable({
+                                                        columnDefs: [{
+                                                                orderable: false,
+                                                                targets: [3, 4]
+                                                            } // Disable sorting on the "Status" and "Actions" columns
+                                                        ]
+                                                    });
+                                                    table.clear(); // Clear the table
 
-                                                    const start = (page - 1) * rowsPerPage;
-                                                    const end = start + rowsPerPage;
-                                                    const paginatedBusinesses = approvedBusinesses.slice(start, end);
-
-                                                    paginatedBusinesses.forEach(business => {
-                                                        const row = document.createElement('tr');
-                                                        row.innerHTML = `
-                <td>${business['Date Registered']}</td>
-                <td>${business['BusinessType']}</td>
-                <td>${business['BusinessName']}</td>
-                <td>
-                    <label class="switch">
-                        <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
-                        <div class="switch-button">
-                            <span class="switch-button-left">Inactive</span>
-                            <span class="switch-button-right">Active</span>
-                        </div>
-                    </label>
-                </td>
-                <td>
-                    <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
-                        <i class="bi bi-x-lg"></i>
-                    </button>
-                </td>
-            `;
-                                                        table.appendChild(row);
+                                                    approvedBusinesses.forEach(business => {
+                                                        const row = `
+                    <tr>
+                        <td>${business['Date Registered']}</td>
+                        <td>${business['BusinessType']}</td>
+                        <td>${business['BusinessName']}</td>
+                        <td>
+                            <label class="switch">
+                                <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
+                                <div class="switch-button">
+                                    <span class="switch-button-left">Inactive</span>
+                                    <span class="switch-button-right">Active</span>
+                                </div>
+                            </label>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                                                        table.row.add($(row));
                                                     });
 
-                                                    // Reattach event listeners for the new elements
+                                                    table.draw();
                                                     attachEventListeners();
-                                                }
-
-                                                function setupPagination(pageCount, paginationId, pageFunction) {
-                                                    const pagination = document.getElementById(paginationId);
-                                                    pagination.innerHTML = '';
-
-                                                    for (let i = 1; i <= pageCount; i++) {
-                                                        const pageItem = document.createElement('li');
-                                                        pageItem.classList.add('page-item');
-                                                        if (i === currentPage) {
-                                                            pageItem.classList.add('active');
-                                                        }
-                                                        pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                                                        pageItem.addEventListener('click', function(e) {
-                                                            e.preventDefault();
-                                                            currentPage = i;
-                                                            pageFunction(currentPage);
-                                                            setupPagination(pageCount, paginationId, pageFunction);
-                                                        });
-                                                        pagination.appendChild(pageItem);
-                                                    }
                                                 }
 
                                                 function attachEventListeners() {
@@ -666,14 +596,7 @@ $totalInActive = getTotalInactive($pdo);
                                                     });
                                                 }
 
-                                                const approvedPageCount = Math.ceil(approvedBusinesses.length / rowsPerPage);
-
-                                                displayApprovedBusinesses(currentPage);
-                                                if (approvedBusinesses.length > rowsPerPage) {
-                                                    setupPagination(approvedPageCount, 'pagination-accepted', displayApprovedBusinesses);
-                                                } else {
-                                                    document.getElementById('pagination-accepted').style.display = 'none';
-                                                }
+                                                displayApprovedBusinesses(); // Display all businesses on page load
 
                                                 const confirmationModalAccepted = new bootstrap.Modal(document.getElementById('confirmationModalAccepted'));
                                                 const confirmButtonAccepted = document.getElementById('confirmButtonAccepted');
@@ -753,10 +676,9 @@ $totalInActive = getTotalInactive($pdo);
                                             });
                                         </script>
 
-
                                         <!-- REJECTED BUSINESS -->
                                         <div class="tab-pane fade" id="pills-rejected" role="tabpanel" aria-labelledby="pills-rejected-tab" tabindex="0">
-                                            <table class="table table-striped">
+                                            <table id="rejectedBusinessesTable" class="table table-striped">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Date Registered</th>
@@ -765,78 +687,45 @@ $totalInActive = getTotalInactive($pdo);
                                                         <th scope="col">Actions</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="rejectedBusinessesTable">
+                                                <tbody>
                                                 </tbody>
                                             </table>
-                                            <!-- Pagination controls -->
-                                            <?php if (count($rejectedBusinesses) > 10): ?>
-                                                <nav>
-                                                    <ul class="pagination justify-content-center" id="pagination-rejected">
-                                                    </ul>
-                                                </nav>
-                                            <?php endif; ?>
                                         </div>
 
                                         <script>
                                             document.addEventListener('DOMContentLoaded', function() {
-                                                const rowsPerPage = 10;
-                                                let currentPage = 1;
-
                                                 const rejectedBusinesses = <?php echo json_encode($rejectedBusinesses); ?>;
 
-                                                function displayRejectedBusinesses(page) {
-                                                    const table = document.getElementById('rejectedBusinessesTable');
-                                                    table.innerHTML = '';
-
-                                                    const start = (page - 1) * rowsPerPage;
-                                                    const end = start + rowsPerPage;
-                                                    const paginatedBusinesses = rejectedBusinesses.slice(start, end);
-
-                                                    paginatedBusinesses.forEach(business => {
-                                                        const row = document.createElement('tr');
-                                                        row.innerHTML = `
-                <td>${business['Date Registered']}</td>
-                <td>${business['BusinessType']}</td>
-                <td>${business['BusinessName']}</td>
-                <td>
-                    <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                        <i class="bi bi-eye"></i>
-                    </button>
-                </td>
-            `;
-                                                        table.appendChild(row);
+                                                function displayRejectedBusinesses() {
+                                                    const table = $('#rejectedBusinessesTable').DataTable({
+                                                        columnDefs: [{
+                                                                orderable: false,
+                                                                targets: 3
+                                                            } // Disable sorting on the "Actions" column
+                                                        ]
                                                     });
+                                                    table.clear(); // Clear the table
+
+                                                    rejectedBusinesses.forEach(business => {
+                                                        const row = `
+                    <tr>
+                        <td>${business['Date Registered']}</td>
+                        <td>${business['BusinessType']}</td>
+                        <td>${business['BusinessName']}</td>
+                        <td>
+                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                                <i class="bi bi-eye"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                                                        table.row.add($(row));
+                                                    });
+
+                                                    table.draw();
                                                 }
 
-                                                function setupPagination(pageCount, paginationId, pageFunction) {
-                                                    const pagination = document.getElementById(paginationId);
-                                                    pagination.innerHTML = '';
-
-                                                    for (let i = 1; i <= pageCount; i++) {
-                                                        const pageItem = document.createElement('li');
-                                                        pageItem.classList.add('page-item');
-                                                        if (i === currentPage) {
-                                                            pageItem.classList.add('active');
-                                                        }
-                                                        pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                                                        pageItem.addEventListener('click', function(e) {
-                                                            e.preventDefault();
-                                                            currentPage = i;
-                                                            pageFunction(currentPage);
-                                                            setupPagination(pageCount, paginationId, pageFunction);
-                                                        });
-                                                        pagination.appendChild(pageItem);
-                                                    }
-                                                }
-
-                                                const rejectedPageCount = Math.ceil(rejectedBusinesses.length / rowsPerPage);
-
-                                                displayRejectedBusinesses(currentPage);
-                                                if (rejectedBusinesses.length > rowsPerPage) {
-                                                    setupPagination(rejectedPageCount, 'pagination-rejected', displayRejectedBusinesses);
-                                                } else {
-                                                    document.getElementById('pagination-rejected').style.display = 'none';
-                                                }
+                                                displayRejectedBusinesses(); // Display all businesses on page load
                                             });
                                         </script>
 
@@ -883,7 +772,7 @@ $totalInActive = getTotalInactive($pdo);
 
                                         <!-- archived business -->
                                         <div class="tab-pane fade" id="pills-archived" role="tabpanel" aria-labelledby="pills-archived-tab" tabindex="0">
-                                            <table class="table table-striped">
+                                            <table id="archivedBusinessesTable" class="table table-striped">
                                                 <thead>
                                                     <tr>
                                                         <th scope="col">Date Registered</th>
@@ -892,72 +781,46 @@ $totalInActive = getTotalInactive($pdo);
                                                         <th scope="col">Actions</th>
                                                     </tr>
                                                 </thead>
-                                                <tbody id="archivedBusinessesTable">
+                                                <tbody>
                                                 </tbody>
                                             </table>
-                                            <!-- Pagination controls -->
-                                            <?php if (count($archivedBusinesses) > 10): ?>
-                                                <nav>
-                                                    <ul class="pagination justify-content-center" id="pagination-archived">
-                                                    </ul>
-                                                </nav>
-                                            <?php endif; ?>
+
+
                                         </div>
 
                                         <script>
                                             document.addEventListener('DOMContentLoaded', function() {
-                                                const rowsPerPage = 10;
-                                                let currentPage = 1;
-
                                                 const archivedBusinesses = <?php echo json_encode($archivedBusinesses); ?>;
 
-                                                function displayArchivedBusinesses(page) {
-                                                    const table = document.getElementById('archivedBusinessesTable');
-                                                    table.innerHTML = '';
+                                                function displayArchivedBusinesses() {
+                                                    const table = $('#archivedBusinessesTable').DataTable({
+                                                        columnDefs: [{
+                                                                orderable: false,
+                                                                targets: 3
+                                                            } // Disable sorting on the "Actions" column
+                                                        ]
+                                                    });
+                                                    table.clear(); // Clear the table
 
-                                                    const start = (page - 1) * rowsPerPage;
-                                                    const end = start + rowsPerPage;
-                                                    const paginatedBusinesses = archivedBusinesses.slice(start, end);
-
-                                                    paginatedBusinesses.forEach(business => {
-                                                        const row = document.createElement('tr');
-                                                        row.innerHTML = `
-                <td>${business['Date Registered']}</td>
-                <td>${business['BusinessType']}</td>
-                <td>${business['BusinessName']}</td>
-                <td>
-                    <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                        <i class="bi bi-eye"></i>
-                    </button>
-                    <button class="btn btn-success m-1" data-business-id="${business['AccountID']}"><i class="bi bi-arrow-clockwise"></i></button>
-                </td>
-            `;
-                                                        table.appendChild(row);
+                                                    archivedBusinesses.forEach(business => {
+                                                        const row = `
+                    <tr>
+                        <td>${business['Date Registered']}</td>
+                        <td>${business['BusinessType']}</td>
+                        <td>${business['BusinessName']}</td>
+                        <td>
+                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-success m-1" data-business-id="${business['AccountID']}"><i class="bi bi-arrow-clockwise"></i></button>
+                        </td>
+                    </tr>
+                `;
+                                                        table.row.add($(row));
                                                     });
 
-                                                    // Reattach event listeners for the new elements
+                                                    table.draw();
                                                     attachEventListeners();
-                                                }
-
-                                                function setupPagination(pageCount, paginationId, pageFunction) {
-                                                    const pagination = document.getElementById(paginationId);
-                                                    pagination.innerHTML = '';
-
-                                                    for (let i = 1; i <= pageCount; i++) {
-                                                        const pageItem = document.createElement('li');
-                                                        pageItem.classList.add('page-item');
-                                                        if (i === currentPage) {
-                                                            pageItem.classList.add('active');
-                                                        }
-                                                        pageItem.innerHTML = `<a class="page-link" href="#">${i}</a>`;
-                                                        pageItem.addEventListener('click', function(e) {
-                                                            e.preventDefault();
-                                                            currentPage = i;
-                                                            pageFunction(currentPage);
-                                                            setupPagination(pageCount, paginationId, pageFunction);
-                                                        });
-                                                        pagination.appendChild(pageItem);
-                                                    }
                                                 }
 
                                                 function attachEventListeners() {
@@ -970,14 +833,7 @@ $totalInActive = getTotalInactive($pdo);
                                                     });
                                                 }
 
-                                                const archivedPageCount = Math.ceil(archivedBusinesses.length / rowsPerPage);
-
-                                                displayArchivedBusinesses(currentPage);
-                                                if (archivedBusinesses.length > rowsPerPage) {
-                                                    setupPagination(archivedPageCount, 'pagination-archived', displayArchivedBusinesses);
-                                                } else {
-                                                    document.getElementById('pagination-archived').style.display = 'none';
-                                                }
+                                                displayArchivedBusinesses(); // Display all businesses on page load
 
                                                 const returnModal = new bootstrap.Modal(document.getElementById('returnConfirmationModal'));
                                                 const confirmReturnBtn = document.getElementById('confirmReturnBtn');
@@ -1017,14 +873,9 @@ $totalInActive = getTotalInactive($pdo);
                                                 });
                                             });
                                         </script>
-
                                     </div>
                                 </div>
                             </div>
-
-
-
-
                         </div>
                     </div>
                 </div> <!-- Close .card -->
@@ -1137,13 +988,6 @@ $totalInActive = getTotalInactive($pdo);
             });
         });
     </script>
-
-
-
-
-
-
-
     <a href="#" class="theme-toggle">
         <i class="fa-regular fa-sun"></i>
         <i class="fa-regular fa-moon"></i>
