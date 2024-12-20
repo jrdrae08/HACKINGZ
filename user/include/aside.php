@@ -8,12 +8,12 @@
       <li class="sidebar-header">
         Tourist Elements
       </li>
-      <!-- <li class="sidebar-item">
-                <a href="../user/profile.php" class="sidebar-link">
+      <li class="sidebar-item">
+                <a href="../user/profile.php<?php echo isset($_SESSION['user_id']) ? '?userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="sidebar-link">
                 <i class="bi bi-person-square pe-2"></i>
                     Profile
                 </a>
-            </li> -->
+            </li>
       <li class="sidebar-item">
         <a href="../user/view-my-reservation.php" class="sidebar-link">
           <i class="bi bi-bookmarks-fill pe-2"></i>
