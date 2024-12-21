@@ -81,7 +81,7 @@ $totalInActive = getTotalInactive($pdo);
             <!-- navbar -->
             <?php include '../admin/includes/navbar.php'; ?>
 
-            <main class="content px-3 py-2">
+            <main class="content py-2">
                 <div class="container-fluid">
                     <div class="mb-3">
                         <h4>Manage Business Registrations</h4>
@@ -223,16 +223,16 @@ $totalInActive = getTotalInactive($pdo);
                                         <div class="col-lg-12 col-sm-12 my-3 d-flex justify-content-center align-items-start">
                                             <ul class="nav nav-pills" id="pills-tab" role="tablist">
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills me-2 shadow" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">PENDING</button>
+                                                    <button class="nav-link pills my-1 me-2 shadow" id="pills-pending-tab" data-bs-toggle="pill" data-bs-target="#pills-pending" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">PENDING</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills me-2 shadow active" id="pills-accepted-tab" data-bs-toggle="pill" data-bs-target="#pills-accepted" type="button" role="tab" aria-controls="pills-home" aria-selected="true">ACCEPTED</button>
+                                                    <button class="nav-link pills my-1 me-2 shadow active" id="pills-accepted-tab" data-bs-toggle="pill" data-bs-target="#pills-accepted" type="button" role="tab" aria-controls="pills-home" aria-selected="true">ACCEPTED</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills me-2 shadow" id="pills-rejected-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">REJECTED</button>
+                                                    <button class="nav-link pills my-1 me-2 shadow" id="pills-rejected-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">REJECTED</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills shadow" id="pills-archived-tab" data-bs-toggle="pill" data-bs-target="#pills-archived" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ARCHIVED</button>
+                                                    <button class="nav-link pills my-1 shadow" id="pills-archived-tab" data-bs-toggle="pill" data-bs-target="#pills-archived" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ARCHIVED</button>
                                                 </li>
                                             </ul>
                                         </div>
@@ -243,18 +243,20 @@ $totalInActive = getTotalInactive($pdo);
                                     <!-- pending business -->
                                     <div class="tab-content" id="pills-tabContent">
                                         <div class="tab-pane fade " id="pills-pending" role="tabpanel" aria-labelledby="pills-pending-tab" tabindex="0">
-                                            <table id="pendingBusinessesTable" class="table">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Date Registered</th>
-                                                        <th scope="col">Type of Business</th>
-                                                        <th scope="col">Business Name</th>
-                                                        <th scope="col">Actions</th>
-                                                        <th scope="col">Remarks</th>
-                                                    </tr>
-                                                </thead>
+                                            <div class="table-responsive">
+                                                <table id="pendingBusinessesTable" class="table">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Date Registered</th>
+                                                            <th scope="col">Type of Business</th>
+                                                            <th scope="col">Business Name</th>
+                                                            <th scope="col">Actions</th>
+                                                            <th scope="col">Remarks</th>
+                                                        </tr>
+                                                    </thead>
 
-                                            </table>
+                                                </table>
+                                            </div>
 
                                             <!-- Confirmation Modal for Pending -->
                                             <div class="modal fade" id="confirmationModalPending" tabindex="-1" aria-labelledby="confirmationModalLabelPending" aria-hidden="true">
@@ -458,20 +460,231 @@ $totalInActive = getTotalInactive($pdo);
 
                                         <!-- Accepted business -->
                                         <div class="tab-pane fade show active" id="pills-accepted" role="tabpanel" aria-labelledby="pills-accepted-tab" tabindex="0">
-                                            <table id="acceptedBusinessesTable" class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Date Registered</th>
-                                                        <th scope="col">Type of Business</th>
-                                                        <th scope="col">Business Name</th>
-                                                        <th scope="col">Status</th>
-                                                        <th scope="col">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table id="acceptedBusinessesTable" class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Date Registered</th>
+                                                            <th scope="col">Type of Business</th>
+                                                            <th scope="col">Business Name</th>
+                                                            <th scope="col">Status</th>
+                                                            <th scope="col">Actions</th>
+                                                            <th scope="col">Business Permit Remark</th>
+
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
+
+                                        <!--    ==============================================================================
+                                        Start
+                                        ==============================================================================-->
+
+                                        <!--Expiration Business Permit Modal -->
+                                        <div class="modal fade" id="ResubmitModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ResubmitModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="ResubmitModalLabel">Business Permit Re-upload</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row d-flex justify-content-around">
+                                                            <p>Re-upload Date: January 12, 2025</p>
+                                                            <!-- New Business Permit -->
+                                                            <div class="col-lg-5 col-12 bg-success-subtle rounded">
+                                                                <div class="row">
+                                                                    <h3 class="fw-bold text-success text-center py-2">New Business Permit</h3>
+
+                                                                    <div class="col-12 mb-3">
+                                                                        <h5>New Business Permit Uploaded</h5>
+                                                                        <img src="../img/businessowner-img/majayjay falls.JPG" class="img-fluid" alt="">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label for="exampleFormControlInput1" class="form-label"> New Business Permit Expiration Date</label>
+                                                                        <input type="date" class="form-control shadow" id="exampleFormControlInput1" placeholder="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Old Business Permit -->
+                                                            <div class="col-lg-5 col-12 bg-danger-subtle rounded">
+                                                                <div class="row">
+                                                                    <h3 class="fw-bold text-danger text-center py-2">Old Business Permit</h3>
+                                                                    <div class="col-12 mb-3">
+                                                                        <h5>Old Business Permit Uploaded</h5>
+                                                                        <img src="../img/businessowner-img/dalitiwan resort.jpg" class="img-fluid" alt="">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label for="exampleFormControlInput1" class="form-label"> Old Business Permit Expiration Date</label>
+                                                                        <input type="date" class="form-control shadow" id="exampleFormControlInput1" placeholder="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#RejectPermitModal" data-business='RejectPermitModal'>Reject</button>
+                                                        <button type="button" class="btn btn-success">Accept</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal for Business Permit Re-upload pag nireject -->
+                                        <div class="modal fade" id="RejectPermitModal" tabindex="-1" aria-labelledby="RejectPermitModal" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="RejectPermitModal">Confirm your Rejection</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p id=" ">Please check the reason why you want to reject this.</p>
+
+                                                        <div id="rejectReuploadReasons">
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox1" name="checkbox1">
+                                                                <label for="checkbox1">Business Permit is Expired</label>
+                                                            </div>
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox2" name="checkbox2">
+                                                                <label for="checkbox2">Your Image is Not clear</label>
+                                                            </div>
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox3" name="checkbox3">
+                                                                <label for="checkbox3">Not a legit business</label>
+                                                            </div>
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox4.1" name="checkbox4.1">
+                                                                <label for="checkbox4.1">Others</label>
+                                                            </div>
+                                                            <div id="otherReasonReject">
+                                                                <textarea id="otherReasonText" placeholder="Please specify the reason" style="width: 100%; height: 100px;"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <p class="text-secondary mb-0 pb-0" style="font-size:12px;"> <span class="fw-bold">Note:</span> Email will be sent to the business owner once you reject this. They can still reupload correct business permit.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-danger" id="confirmButtonAccepted">Confirm Rejection</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <script>
+                                            function attachEventListeners() {
+                                                $('#pendingBusinessesTable').on('click', 'button', function(event) {
+                                                    const button = $(this);
+                                                    applicationId = button.data('application-id');
+                                                    if (button.hasClass('btn-success')) {
+                                                        actionType = 'approve';
+                                                        confirmationMessagePending.innerText = 'Are you sure you want to approve this business?';
+                                                        otherReasonReject.style.display = 'none';
+                                                        confirmButtonPending.disabled = false;
+                                                        confirmationModalPending.show();
+                                                    } else if (button.hasClass('btn-danger')) {
+                                                        actionType = 'reject';
+                                                        confirmationMessagePending.innerText = 'Are you sure you want to reject this business?';
+                                                        otherReasonReject.style.display = 'block';
+                                                        confirmButtonPending.disabled = true;
+                                                        confirmationModalPending.show();
+                                                    } else if (button.hasClass('view-details')) {
+                                                        $.ajax({
+                                                            url: '../../backends/admin/update_read_status.php',
+                                                            method: 'POST',
+                                                            data: {
+                                                                applicationID: applicationId
+                                                            },
+                                                            success: function(response) {
+                                                                if (response.success) {
+                                                                    button.closest('tr').find('.status').text('Read');
+                                                                } else {
+                                                                    console.error('Failed to update read status:', response.message);
+                                                                }
+                                                            },
+                                                            error: function(error) {
+                                                                console.error('Error updating read status:', error);
+                                                            }
+                                                        });
+                                                    }
+                                                });
+
+                                                $('#rejectReuploadReasons input[type="checkbox"]').on('change', function() {
+                                                    if (this.id === 'checkbox4.1') {
+                                                        $('#otherReasonReject').toggle(this.checked);
+                                                    }
+                                                    updateConfirmButtonState();
+                                                });
+                                            }
+
+                                            function updateConfirmButtonState() {
+                                                const anyChecked = $('#rejectReuploadReasons input[type="checkbox"]').is(':checked');
+                                                confirmButtonPending.disabled = !anyChecked;
+                                            }
+
+                                            displayPendingBusinesses(); // Display all businesses on page load
+
+                                            const confirmationModalPending = new bootstrap.Modal(document.getElementById('confirmationModalPending'));
+                                            const confirmButtonPending = document.getElementById('confirmButtonPending');
+                                            const confirmationMessagePending = document.getElementById('confirmationMessagePending');
+                                            const otherReasonReject = document.getElementById('rejectReuploadReasons');
+
+                                            confirmButtonPending.addEventListener('click', function() {
+                                                if (actionType === 'approve' || actionType === 'reject') {
+                                                    const rejectReuploadReasons = [];
+                                                    $('#rejectReuploadReasons input[type="checkbox"]:checked').each(function() {
+                                                        if (this.id === 'checkbox4.1') {
+                                                            const otherReasonText = $('#otherReasonText').val();
+                                                            if (otherReasonText) {
+                                                                rejectReuploadReasons.push(otherReasonText);
+                                                            }
+                                                        } else {
+                                                            rejectReuploadReasons.push($(this).next('label').text());
+                                                        }
+                                                    });
+
+                                                    fetch('../backends/admin/update_status.php', {
+                                                            method: 'POST',
+                                                            headers: {
+                                                                'Content-Type': 'application/json'
+                                                            },
+                                                            body: JSON.stringify({
+                                                                ApplicationID: applicationId,
+                                                                Status: actionType === 'approve' ? 'Approved' : 'Rejected',
+                                                                IsReject: actionType === 'reject' ? 1 : 0,
+                                                                RejectReuploadReasons: rejectReuploadReasons
+                                                            })
+                                                        })
+                                                        .then(response => response.json())
+                                                        .then(data => {
+                                                            if (data.success) {
+                                                                alert(`Status updated to ${actionType === 'approve' ? 'Approved' : 'Rejected'} successfully!`);
+                                                                location.reload();
+                                                            } else {
+                                                                alert('Failed to update status: ' + (data.error || 'Unknown error.'));
+                                                            }
+                                                            confirmationModalPending.hide();
+                                                        })
+                                                        .catch(error => {
+                                                            console.error('Error:', error);
+                                                            confirmationModalPending.hide();
+                                                        });
+                                                }
+                                            });
+                                        </script>
+
+                                        <!-- ==============================================================================
+                                        END
+                                        ============================================================================== -->
+
+
+
 
                                         <!-- Confirmation Modal for Status Toggle -->
                                         <div class="modal fade" id="confirmationModalAccepted" tabindex="-1" aria-labelledby="confirmationModalLabelAccepted" aria-hidden="true">
@@ -533,29 +746,32 @@ $totalInActive = getTotalInactive($pdo);
 
                                                     approvedBusinesses.forEach(business => {
                                                         const row = `
-                    <tr>
-                        <td>${business['Date Registered']}</td>
-                        <td>${business['BusinessType']}</td>
-                        <td>${business['BusinessName']}</td>
-                        <td>
-                            <label class="switch">
-                                <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
-                                <div class="switch-button">
-                                    <span class="switch-button-left">Inactive</span>
-                                    <span class="switch-button-right">Active</span>
-                                </div>
-                            </label>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${business['Date Registered']}</td>
+                    <td>${business['BusinessType']}</td>
+                    <td>${business['BusinessName']}</td>
+                    <td>
+                        <label class="switch">
+                            <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
+                            <div class="switch-button">
+                                <span class="switch-button-left">Inactive</span>
+                                <span class="switch-button-right">Active</span>
+                            </div>
+                        </label>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </td>
+                    <td>
+                        ${business['ReminderSent'] == 1 ? 'Expire Soon <button class="btn btn-warning m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-business="ResubmitModal">Check</button>' : ''}
+                    </td>
+                </tr>
+            `;
                                                         table.row.add($(row));
                                                     });
 
@@ -678,18 +894,20 @@ $totalInActive = getTotalInactive($pdo);
 
                                         <!-- REJECTED BUSINESS -->
                                         <div class="tab-pane fade" id="pills-rejected" role="tabpanel" aria-labelledby="pills-rejected-tab" tabindex="0">
-                                            <table id="rejectedBusinessesTable" class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Date Registered</th>
-                                                        <th scope="col">Type of Business</th>
-                                                        <th scope="col">Business Name</th>
-                                                        <th scope="col">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
+                                            <div class="table-responsive">
+                                                <table id="rejectedBusinessesTable" class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Date Registered</th>
+                                                            <th scope="col">Type of Business</th>
+                                                            <th scope="col">Business Name</th>
+                                                            <th scope="col">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
 
                                         <script>
@@ -772,20 +990,20 @@ $totalInActive = getTotalInactive($pdo);
 
                                         <!-- archived business -->
                                         <div class="tab-pane fade" id="pills-archived" role="tabpanel" aria-labelledby="pills-archived-tab" tabindex="0">
-                                            <table id="archivedBusinessesTable" class="table table-striped">
-                                                <thead>
-                                                    <tr>
-                                                        <th scope="col">Date Registered</th>
-                                                        <th scope="col">Type of Business</th>
-                                                        <th scope="col">Business Name</th>
-                                                        <th scope="col">Actions</th>
-                                                    </tr>
-                                                </thead>
-                                                <tbody>
-                                                </tbody>
-                                            </table>
-
-
+                                            <div class="table-responsive">
+                                                <table id="archivedBusinessesTable" class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Date Registered</th>
+                                                            <th scope="col">Type of Business</th>
+                                                            <th scope="col">Business Name</th>
+                                                            <th scope="col">Actions</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
 
                                         <script>
@@ -998,19 +1216,5 @@ $totalInActive = getTotalInactive($pdo);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/admin.js"></script>
 </body>
-
-<script>
-    document.addEventListener('DOMContentLoaded', () => {
-        const button = document.getElementById('viewPdfBtn');
-
-        button.addEventListener('click', () => {
-            // Replace 'path/to/your.pdf' with the actual path to your PDF file
-            const pdfPath = 'path/to/your.pdf';
-
-            // Open the PDF file in a new tab
-            window.open(pdfPath, '_blank');
-        });
-    });
-</script>
 
 </html>
