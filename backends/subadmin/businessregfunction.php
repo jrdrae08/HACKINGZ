@@ -42,16 +42,23 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 
   // Validate expiration date
+  date_default_timezone_set('Asia/Hong_Kong'); // Set the timezone to Asia/Hong_Kong
   $currentDate = new DateTime();
   $expirationDate = DateTime::createFromFormat('Y-m-d', $pexpidate);
+
   if ($expirationDate < $currentDate) {
     array_push($errors, "Business Permit Expiration Date cannot be in the past.");
   }
 
+  // Validate that the month is December and the day is 31
+  if ($expirationDate->format('m') != '12' || $expirationDate->format('d') != '31') {
+    array_push($errors, "Business Permit Expiration Date must be December 31.");
+  }
   // Check if permit is uploaded
   if ($permit['error'] == 0) {
     $target_dir = "../../businessowner/uploadsapp/";
-    $image_name = uniqid() . '-' . basename($permit["name"]); // Create a unique name for the file
+    date_default_timezone_set('Asia/Hong_Kong'); // Set the timezone to Asia/Hong_Kong
+    $image_name = date('Ymd') . '_' . uniqid() . '_' . $lname . '_' . $fname; // Create a unique name for the file with date, last name, and first name
     $target_file = $target_dir . $image_name;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
