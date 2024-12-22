@@ -1,3 +1,21 @@
+<?php
+require '../includes/db.php';
+include "../backends/admin/fetch_business_types.php";
+session_start();
+
+$applicationID = $_GET['application_id'] ?? null;
+
+if ($applicationID) {
+  $stmt = $pdo->prepare("SELECT * FROM businessapplicationform WHERE ApplicationID = ?");
+  $stmt->execute([$applicationID]);
+  $application = $stmt->fetch(PDO::FETCH_ASSOC);
+
+  $stmt = $pdo->prepare("SELECT bi.*, bt.TypeName AS BusinessType FROM businessinformationform bi JOIN businesstype bt ON bi.BusinessTypeID = bt.BusinessTypeID WHERE bi.ApplicationID = :applicationID");
+  $stmt->bindParam(':applicationID', $applicationID, PDO::PARAM_INT);
+  $stmt->execute();
+  $businessInfo = $stmt->fetch(PDO::FETCH_ASSOC);
+}
+?>
 <!DOCTYPE html>
 <html lang="en">
 
@@ -66,22 +84,18 @@
 
 <body>
   <main>
-    <form id="updateForm" method="POST" enctype="multipart/form-data">
+    <form id="renewPermit" method="POST" enctype="multipart/form-data">
       <div class="row d-flex justify-content-center">
         <div class=" col-lg-4 col-md-8 col-sm-11">
           <div class="container">
             <div class="card shadow" style="margin-top:70px;">
               <div class="card-body">
-                <div class="d-flex justify-content-end my-2">
-                </div>
-
                 <div class="text-center">
                   <img src="../img/general-img/majayjay-logo.webp" alt="" height="50" width="50">
                   <h4 class="text-center">Business Registration Renewal</h4>
                 </div>
 
                 <!-- Notification Message -->
-                <?php session_start(); ?>
                 <?php if (isset($_SESSION['message'])) : ?>
                   <div class="alert alert-<?php echo htmlspecialchars($_SESSION['type']); ?> alert-dismissible fade show" role="alert">
                     <?php echo htmlspecialchars($_SESSION['message']); ?>
@@ -108,35 +122,35 @@
 
                     <div class="col-lg-6">
                       <div class="form-floating my-2">
-                        <input type="text" class="form-control shadow" name="fname" id="fname" placeholder="" autocomplete="off" required>
+                        <input type="text" class="form-control shadow" name="fname" id="fname" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($application['RegistrantFirstName'] ?? ''); ?>" required disabled>
                         <label>First Name</label>
                       </div>
                     </div>
 
                     <div class="col-lg-6">
                       <div class="form-floating my-2">
-                        <input type="text" class="form-control shadow" name="lname" id="lname" placeholder="" autocomplete="off" required>
+                        <input type="text" class="form-control shadow" name="lname" id="lname" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($application['RegistrantLastName'] ?? ''); ?>" required disabled>
                         <label>Last Name</label>
                       </div>
                     </div>
 
                     <div class="col-lg-12">
                       <div class="form-floating my-2">
-                        <input type="text" class="form-control shadow" name="mname" id="mname" placeholder="" autocomplete="off">
+                        <input type="text" class="form-control shadow" name="mname" id="mname" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($application['RegistrantMiddleName'] ?? ''); ?>" disabled>
                         <label>Middle Name (Optional)</label>
                       </div>
                     </div>
 
                     <div class="col-lg-12">
                       <div class="form-floating my-2">
-                        <input type="text" class="form-control shadow" name="contact" id="contactNumber" placeholder="" autocomplete="off" required>
+                        <input type="text" class="form-control shadow" name="contact" id="contactNumber" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($application['ContactNumber'] ?? ''); ?>" required disabled>
                         <label>Contact Number</label>
                       </div>
                     </div>
 
                     <div class="col-lg-12">
                       <div class="form-floating mt-2">
-                        <input type="email" class="form-control shadow" name="email" id="email" placeholder="" autocomplete="off" required>
+                        <input type="email" class="form-control shadow" name="email" id="email" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($application['Email'] ?? ''); ?>" required disabled>
                         <label>Email Address</label>
                       </div>
                     </div>
@@ -172,21 +186,21 @@
                         <h5 class="text-center">Step 2: Business Information</h5>
                         <div class="col-lg-12">
                           <div class="form-floating my-3">
-                            <input type="text" class="form-control shadow" id="btype" name="btype" readonly>
+                            <input type="text" class="form-control shadow" id="btype" name="btype" value="<?php echo htmlspecialchars($businessInfo['BusinessType'] ?? ''); ?>" readonly disabled>
                             <label for="btype">Type of business</label>
                           </div>
                         </div>
 
                         <div class="col-lg-12">
                           <div class="form-floating my-3">
-                            <input type="text" class="form-control shadow" name="bname" id="bname" placeholder="" autocomplete="off" required>
+                            <input type="text" class="form-control shadow" name="bname" id="bname" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($businessInfo['BusinessName'] ?? ''); ?>" required disabled>
                             <label>Business Name</label>
                           </div>
                         </div>
 
                         <div class="col-lg-12">
                           <div class="form-floating mt-3">
-                            <input type="text" class="form-control shadow" name="badd" id="badd" placeholder="" autocomplete="off" required>
+                            <input type="text" class="form-control shadow" name="badd" id="badd" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($businessInfo['BusinessAddress'] ?? ''); ?>" required disabled>
                             <label>Business Address</label>
                             <p class="note-text text-secondary m-0">(Ex. Street, Baranggay, Municipality/City, Province)</p>
                           </div>
@@ -194,21 +208,21 @@
 
                         <div class="col-lg-12">
                           <div class="form-floating my-3">
-                            <input type="email" class="form-control shadow" name="bemail" id="bemail" placeholder="" autocomplete="off">
+                            <input type="email" class="form-control shadow" name="bemail" id="bemail" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($businessInfo['BusinessEmail'] ?? ''); ?>" disabled>
                             <label>Business Email Address(Optional)</label>
                           </div>
                         </div>
 
                         <div class="col-lg-12">
                           <div class="form-floating my-3">
-                            <input type="text" class="form-control shadow" id="bc" placeholder="" autocomplete="off">
+                            <input type="text" class="form-control shadow" id="bc" placeholder="" autocomplete="off" value="<?php echo htmlspecialchars($businessInfo['BusinessContactNumber'] ?? ''); ?>" disabled>
                             <label>Business Contact Number</label>
                           </div>
                         </div>
 
                         <div class="col-lg-12 mb-3">
                           <div class="form-floating my-2">
-                            <textarea class="form-control shadow" name="bdesc" placeholder="Leave a comment here" id="floatingTextarea" style="height: 100px" required></textarea>
+                            <textarea class="form-control shadow" name="bdesc" placeholder="Leave a comment here" id="floatingTextarea" style="height: 100px" required disabled><?php echo htmlspecialchars($businessInfo['BusinessDescription'] ?? ''); ?></textarea>
                             <label for="floatingTextarea">Business Descriptions</label>
                             <p class="note-text text-secondary m-0">(Maximum of 50 words)</p>
                           </div>
@@ -265,31 +279,6 @@
         });
         progressBar.style.width = ((section - 1) / (steps.length - 1)) * 100 + '%';
       }
-      document.addEventListener('DOMContentLoaded', validateFields);
-    </script>
-
-    <script>
-      document.addEventListener('DOMContentLoaded', () => {
-        const formData = JSON.parse(sessionStorage.getItem('formData'));
-        if (formData) {
-          document.getElementById('fname').value = formData.RegistrantFirstName;
-          document.getElementById('lname').value = formData.RegistrantLastName;
-          document.getElementById('mname').value = formData.RegistrantMiddleName;
-          document.getElementById('contactNumber').value = formData.ContactNumber;
-          document.getElementById('email').value = formData.Email;
-          document.getElementById('btype').value = formData.BusinessType;
-          document.getElementById('bname').value = formData.BusinessName;
-          document.getElementById('badd').value = formData.BusinessAddress;
-          document.getElementById('bemail').value = formData.BusinessEmail;
-          document.getElementById('bc').value = formData.BusinessContactNumber;
-          document.getElementById('floatingTextarea').value = formData.BusinessDescription;
-          // Disable all fields except business permit image and expiration date
-          const fieldsToDisable = ['fname', 'lname', 'mname', 'contactNumber', 'email', 'btype', 'bname', 'badd', 'bemail', 'bc', 'floatingTextarea'];
-          fieldsToDisable.forEach(fieldId => {
-            document.getElementById(fieldId).disabled = true;
-          });
-        }
-      });
     </script>
   </main>
 </body>

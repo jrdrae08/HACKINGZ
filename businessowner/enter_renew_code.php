@@ -8,7 +8,7 @@ session_start();
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Business Renewal</title>
+  <title>Business Registration</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-QWTKZyjpPEjISv5WaRU9OFeRpok6YctnYmDr5pNlyT2bRjXh0JMhjY6hW+ALEwIH" crossorigin="anonymous">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
@@ -17,6 +17,66 @@ session_start();
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/notyf/notyf.min.css">
   <script src="https://cdn.jsdelivr.net/npm/notyf/notyf.min.js"></script>
   <link rel="stylesheet" href="../css/registration.css">
+
+  <style>
+    .progress-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 1rem;
+    }
+
+    .progress-step {
+      width: 20px;
+      height: 20px;
+      background-color: #d3d3d3;
+      border-radius: 50%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      font-size: 12px;
+      color: #fff;
+    }
+
+    .progress-step-active {
+      background-color: #28a745;
+    }
+
+    .progress {
+      width: 100%;
+      height: 5px;
+      background-color: #d3d3d3;
+      position: relative;
+    }
+
+    .progress-bar {
+      height: 5px;
+      background-color: #28a745;
+      width: 0;
+      transition: width 0.3s;
+    }
+
+    .btn[disabled] {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .note-text {
+      font-size: 12px;
+      font-weight: bold;
+    }
+
+    /* this is the css for the button */
+    .btn[disabled] {
+      pointer-events: none;
+      opacity: 0.6;
+    }
+
+    .note-text {
+      font-size: 12px;
+      font-weight: bold;
+    }
+  </style>
 </head>
 
 <body>
@@ -34,11 +94,11 @@ session_start();
               <form id="permitForm" method="POST" action="../../backends/subadmin/renewal_function.php">
                 <div class="text-center mb-3">
                   <img src="../img/general-img/majayjay-logo.webp" alt="" height="50" width="50">
-                  <h4 class="text-center">Business Renewal</h4>
+                  <h4 class="text-center">Business Registration</h4>
                 </div>
 
                 <div class="d-flex justify-content-center">
-                  <p class="fw-bold text-secondary  mx-5">Please enter your reference number to renew your business permit.</p>
+                  <p class="fw-bold text-secondary  mx-5">Please enter your reference number if you already registered but got rejected due to some reasons.</p>
                 </div>
 
                 <div class="row mx-4 d-flex justify-content-center align-items-center mb-3">
@@ -61,7 +121,6 @@ session_start();
     </div>
     </div>
   </main>
-  
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const notyf = new Notyf({
@@ -86,16 +145,6 @@ session_start();
 
         if (result.status === 'success') {
           notyf.success(result.message);
-
-          // Store the fetched data and applicationID in session storage
-          sessionStorage.setItem('formData', JSON.stringify(result.data));
-          sessionStorage.setItem('applicationID', result.applicationID);
-          sessionStorage.setItem('refNum', formData.get('refNum'));
-
-          // Log the applicationID to the console for verification
-          console.log('Stored ApplicationID:', result.applicationID);
-          console.log('Stored RefNum:', formData.get('refNum'));
-
           setTimeout(() => {
             window.location.href = result.redirect;
           }, 3000); // Adjust the delay as needed
@@ -105,6 +154,7 @@ session_start();
       });
     });
   </script>
+
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
   <script src="../js/businessowner.js"></script>

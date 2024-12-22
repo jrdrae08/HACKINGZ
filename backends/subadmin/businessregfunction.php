@@ -58,7 +58,7 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if ($permit['error'] == 0) {
     $target_dir = "../../businessowner/uploadsapp/";
     date_default_timezone_set('Asia/Hong_Kong'); // Set the timezone to Asia/Hong_Kong
-    $image_name = date('Ymd') . '_' . uniqid() . '_' . $lname . '_' . $fname; // Create a unique name for the file with date, last name, and first name
+    $image_name = uniqid() . '-' . date('Ymd') . '-' . basename($permit["name"]); // Create a unique name for the file with date
     $target_file = $target_dir . $image_name;
     $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
 
