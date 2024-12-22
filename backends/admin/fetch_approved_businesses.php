@@ -9,7 +9,7 @@ function getApprovedBusinesses($pdo)
                 i.BusinessEmail AS BusinessEmail, i.BusinessContactNumber AS BusinessContactNumber,
                 b.RegistrantFirstName, b.RegistrantMiddleName, b.RegistrantLastName, 
                 b.ContactNumber AS RegistrantContact, b.Email AS RegistrantEmail, 
-                b.BusinessPermitImage, b.PermitExpDate, b.ReminderSent,
+                b.BusinessPermitImage, b.PermitExpDate, b.ReminderSent, b.reuploadDate,
                 a.AccountID, a.BusinessStatus
             FROM businessapplicationform b
             JOIN businessinformationform i ON b.ApplicationID = i.ApplicationID

@@ -737,41 +737,40 @@ $totalInActive = getTotalInactive($pdo);
                                                 function displayApprovedBusinesses() {
                                                     const table = $('#acceptedBusinessesTable').DataTable({
                                                         columnDefs: [{
-                                                                orderable: false,
-                                                                targets: [3, 4]
-                                                            } // Disable sorting on the "Status" and "Actions" columns
-                                                        ]
+                                                            orderable: false,
+                                                            targets: [3, 4]
+                                                        }] // Disable sorting on the "Status" and "Actions" columns
                                                     });
                                                     table.clear(); // Clear the table
 
                                                     approvedBusinesses.forEach(business => {
                                                         const row = `
-                <tr>
-                    <td>${business['Date Registered']}</td>
-                    <td>${business['BusinessType']}</td>
-                    <td>${business['BusinessName']}</td>
-                    <td>
-                        <label class="switch">
-                            <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
-                            <div class="switch-button">
-                                <span class="switch-button-left">Inactive</span>
-                                <span class="switch-button-right">Active</span>
-                            </div>
-                        </label>
-                    </td>
-                    <td>
-                        <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                            <i class="bi bi-eye"></i>
-                        </button>
-                        <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
-                            <i class="bi bi-x-lg"></i>
-                        </button>
-                    </td>
-                    <td>
-                        ${business['ReminderSent'] == 1 ? 'Expire Soon <button class="btn btn-warning m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-business="ResubmitModal">Check</button>' : ''}
-                    </td>
-                </tr>
-            `;
+          <tr>
+            <td>${business['Date Registered']}</td>
+            <td>${business['BusinessType']}</td>
+            <td>${business['BusinessName']}</td>
+            <td>
+              <label class="switch">
+                <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
+                <div class="switch-button">
+                  <span class="switch-button-left">Inactive</span>
+                  <span class="switch-button-right">Active</span>
+                </div>
+              </label>
+            </td>
+            <td>
+              <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                <i class="bi bi-eye"></i>
+              </button>
+              <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
+                <i class="bi bi-x-lg"></i>
+              </button>
+            </td>
+            <td>
+              ${business['ReminderSent'] == 1 ? (business['reuploadDate'] ? 'Expire Soon <button class="btn btn-warning m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-business="ResubmitModal">Check</button>' : 'Expire Soon') : ''}
+            </td>
+          </tr>
+        `;
                                                         table.row.add($(row));
                                                     });
 
@@ -891,7 +890,6 @@ $totalInActive = getTotalInactive($pdo);
                                                 });
                                             });
                                         </script>
-
                                         <!-- REJECTED BUSINESS -->
                                         <div class="tab-pane fade" id="pills-rejected" role="tabpanel" aria-labelledby="pills-rejected-tab" tabindex="0">
                                             <div class="table-responsive">
