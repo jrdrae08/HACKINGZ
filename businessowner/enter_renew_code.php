@@ -128,7 +128,17 @@ session_start();
         position: {
           x: 'right',
           y: 'top'
-        }
+        },
+        types: [{
+          type: 'warning',
+          background: '#ffc107',
+          className: 'notyf__toast--warning',
+          icon: {
+            className: 'fas fa-exclamation-triangle',
+            tagName: 'i',
+            text: ''
+          }
+        }]
       });
 
       const form = document.getElementById('permitForm');
@@ -148,12 +158,22 @@ session_start();
           setTimeout(() => {
             window.location.href = result.redirect;
           }, 3000); // Adjust the delay as needed
+        } else if (result.status === 'warning') {
+          notyf.open({
+            type: 'warning',
+            message: result.message
+          });
         } else {
           notyf.error(result.message);
         }
       });
     });
   </script>
+  <style>
+    .notyf__toast--warning {
+      color: black;
+    }
+  </style>
 
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>

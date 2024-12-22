@@ -84,7 +84,8 @@ if ($applicationID) {
 
 <body>
   <main>
-    <form id="renewPermit" method="POST" enctype="multipart/form-data">
+    <form id="renewPermit" method="POST" action="../../backends/subadmin/update_permit.php" enctype="multipart/form-data">
+      <input type="hidden" name="application_id" value="<?php echo htmlspecialchars($applicationID); ?>">
       <div class="row d-flex justify-content-center">
         <div class=" col-lg-4 col-md-8 col-sm-11">
           <div class="container">
@@ -234,7 +235,7 @@ if ($applicationID) {
                           </div>
 
                           <div class="d-grid col-6 mx-auto">
-                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmUpdateModal">UPDATE</button>
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#confirmRenewModal">UPDATE</button>
                           </div>
                         </div>
                       </div>
@@ -247,6 +248,24 @@ if ($applicationID) {
           </div>
         </div>
     </form>
+    <!-- Confirmation Modal -->
+    <div class="modal fade" id="confirmRenewModal" tabindex="-1" aria-labelledby="confirmRenewModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="confirmRenewModalLabel">Confirm Update</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Are you sure you want to update the Business Permit Image and Expiration Date?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            <button type="button" class="btn btn-success" onclick="document.getElementById('renewPermit').submit();">Confirm</button>
+          </div>
+        </div>
+      </div>
+    </div>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
     <script src="../js/businessowner.js"></script>
 

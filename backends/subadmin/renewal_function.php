@@ -19,7 +19,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $result = $stmt->fetch(PDO::FETCH_ASSOC);
 
   if ($result) {
-    if ($result['ReminderSent'] == 1) {
+    if ($result['reuploadDate']) {
+      respond('warning', 'You already submitted your new business permit. Please wait for the approval of the admin. Thank you.');
+    } elseif ($result['ReminderSent'] == 1) {
       $applicationID = $result['ApplicationID'];
       respond('success', 'Record has been found. Please wait...', '../../businessowner/business_renew.php?application_id=' . $applicationID);
     } else {
