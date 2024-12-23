@@ -1041,6 +1041,10 @@ $totalInActive = getTotalInactive($pdo);
                                                                 tbody.append(row);
                                                             });
 
+                                                            if ($.fn.DataTable.isDataTable('#expiredBusinessesTable')) {
+                                                                $('#expiredBusinessesTable').DataTable().destroy();
+                                                            }
+
                                                             $('#expiredBusinessesTable').DataTable({
                                                                 columnDefs: [{
                                                                         orderable: false,
@@ -1089,9 +1093,33 @@ $totalInActive = getTotalInactive($pdo);
                                                             $('#oldPermitExpDate').val(formattedPermitExpDate);
                                                             $('#newBusinessPermitImage').attr('src', '../../businessowner/uploadsapp/newPermit/' + data.newPermitImage);
                                                             $('#newPermitExpDate').val(formattedNewPermitExpDate);
+
+                                                            // Add application ID to the Accept button
+                                                            $('#acceptButton').data('application-id', applicationId);
                                                         },
                                                         error: function() {
                                                             alert('Failed to fetch business details.');
+                                                        }
+                                                    });
+                                                });
+
+                                                // Handle Accept button click
+                                                $('#acceptButton').on('click', function() {
+                                                    var applicationId = $(this).data('application-id');
+
+                                                    $.ajax({
+                                                        url: '../../backends/admin/update_permit_status.php',
+                                                        method: 'POST',
+                                                        data: {
+                                                            applicationId: applicationId
+                                                        },
+                                                        success: function(response) {
+                                                            alert('Business permit status updated successfully.');
+                                                            $('#ResubmitModal').modal('hide');
+                                                            fetchExpiredBusinesses(); // Refresh the table
+                                                        },
+                                                        error: function() {
+                                                            alert('Failed to update business permit status.');
                                                         }
                                                     });
                                                 });
@@ -1144,7 +1172,7 @@ $totalInActive = getTotalInactive($pdo);
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#RejectPermitModal" data-business='RejectPermitModal'>Reject</button>
-                                                        <button type="button" class="btn btn-success">Accept</button>
+                                                        <button type="button" class="btn btn-success" id="acceptButton">Accept</button>
                                                     </div>
                                                 </div>
                                             </div>
