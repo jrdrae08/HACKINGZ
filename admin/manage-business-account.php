@@ -1103,8 +1103,15 @@ $totalInActive = getTotalInactive($pdo);
                                                     });
                                                 });
 
-                                                // Handle Accept button click
+                                                // Show confirmation modal on Accept button click
                                                 $('#acceptButton').on('click', function() {
+                                                    var applicationId = $(this).data('application-id');
+                                                    $('#confirmRenewalApproveButton').data('application-id', applicationId);
+                                                    $('#RenewalApproveModal').modal('show');
+                                                });
+
+                                                // Handle Confirm button click in the confirmation modal
+                                                $('#confirmRenewalApproveButton').on('click', function() {
                                                     var applicationId = $(this).data('application-id');
 
                                                     $.ajax({
@@ -1115,6 +1122,7 @@ $totalInActive = getTotalInactive($pdo);
                                                         },
                                                         success: function(response) {
                                                             alert('Business permit status updated successfully.');
+                                                            $('#RenewalApproveModal').modal('hide');
                                                             $('#ResubmitModal').modal('hide');
                                                             fetchExpiredBusinesses(); // Refresh the table
                                                         },
@@ -1173,6 +1181,25 @@ $totalInActive = getTotalInactive($pdo);
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#RejectPermitModal" data-business='RejectPermitModal'>Reject</button>
                                                         <button type="button" class="btn btn-success" id="acceptButton">Accept</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Confirmation Modal -->
+                                        <div class="modal fade" id="RenewalApproveModal" tabindex="-1" aria-labelledby="RenewalApproveModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="RenewalApproveModalLabel">Confirm Accept</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to accept this business permit?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-success" id="confirmRenewalApproveButton">Confirm</button>
                                                     </div>
                                                 </div>
                                             </div>
