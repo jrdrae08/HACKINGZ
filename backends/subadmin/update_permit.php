@@ -4,7 +4,7 @@ session_start();
 // Get the application ID from the URL or POST data
 if (isset($_GET['application_id'])) {
   $applicationID = filter_input(INPUT_GET, 'application_id', FILTER_SANITIZE_NUMBER_INT);
-} 
+}
 // Include the database connection file
 include '../../includes/db.php';
 
@@ -28,6 +28,18 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   // Validate that the month is December and the day is 31
   if ($expirationDate->format('m') != '12' || $expirationDate->format('d') != '31') {
     array_push($errors, "Business Permit Expiration Date must be December 31.");
+  }
+
+  // Fetch the existing PermitExpDate from the database
+  $stmt = $pdo->prepare("SELECT PermitExpDate FROM businessapplicationform WHERE ApplicationID = ?");
+  $stmt->execute([$applicationID]);
+  $existingPermitExpDate = $stmt->fetchColumn();
+
+  if ($existingPermitExpDate) {
+    $existingPermitExpDate = new DateTime($existingPermitExpDate);
+    if ($expirationDate->format('Y') <= $existingPermitExpDate->format('Y')) {
+      array_push($errors, "New Business Permit Expiration Date must be in a future year relative to the existing Permit Expiration Date.");
+    }
   }
 
   // Check if permit is uploaded

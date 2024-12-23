@@ -278,6 +278,24 @@ html[data-bs-theme="light"] .theme-toggle .fa-sun {
     /* Outline danger color */
 }
 
+.nav-link#pills-expired-tab.active {
+    background-color: #0d6efd;
+    /* Danger color */
+    border-color: #0d6efd;
+    /* Danger color */
+    font-size: 1.10rem;
+    /* Increase font size */
+    padding: 0.50rem .75rem;
+    /* Increase padding */
+}
+
+.nav-link#pills-expired-tab:not(.active) {
+    color: var(--bs-light);
+    /* Outline danger color */
+    background: var(--bs-secondary);
+    /* Outline danger color */
+}
+
 /* toggle switch button  */
 :root {
     --highlight: #FF7F7F;

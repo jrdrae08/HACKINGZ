@@ -16,11 +16,13 @@ include "../backends/admin/fetch_total_accepted.php";
 include "../backends/admin/fetch_total_archived.php";
 include "../backends/admin/fetch_active_account.php";
 include "../backends/admin/fetch_inactive_account.php";
+include "../backends/admin/fetch_expired_businesses.php";
 
 $pendingBusinesses = getPendingBusinesses($pdo);
 $approvedBusinesses = getApprovedBusinesses($pdo);
 $rejectedBusinesses = getRejectedBusinesses($pdo);
 $archivedBusinesses = getArchivedBusinesses($pdo);
+$expiredBusinesses = getExpiredBusinesses($pdo);
 $totalAccepted = getTotalAccepted($pdo);
 $totalArchived = getTotalArchived($pdo);
 $totalActive = getTotalActive($pdo);
@@ -232,7 +234,10 @@ $totalInActive = getTotalInactive($pdo);
                                                     <button class="nav-link pills my-1 me-2 shadow" id="pills-rejected-tab" data-bs-toggle="pill" data-bs-target="#pills-rejected" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">REJECTED</button>
                                                 </li>
                                                 <li class="nav-item" role="presentation">
-                                                    <button class="nav-link pills my-1 shadow" id="pills-archived-tab" data-bs-toggle="pill" data-bs-target="#pills-archived" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ARCHIVED</button>
+                                                    <button class="nav-link pills my-1 me-2 shadow" id="pills-archived-tab" data-bs-toggle="pill" data-bs-target="#pills-archived" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">ARCHIVED</button>
+                                                </li>
+                                                <li class="nav-item" role="presentation">
+                                                    <button class="nav-link pills my-1 shadow" id="pills-expired-tab" data-bs-toggle="pill" data-bs-target="#pills-expired" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">BUSINESS PERMIT</button>
                                                 </li>
                                             </ul>
                                         </div>
@@ -469,111 +474,12 @@ $totalInActive = getTotalInactive($pdo);
                                                             <th scope="col">Business Name</th>
                                                             <th scope="col">Status</th>
                                                             <th scope="col">Actions</th>
-                                                            <th scope="col">Business Permit Remark</th>
 
                                                         </tr>
                                                     </thead>
                                                     <tbody>
                                                     </tbody>
                                                 </table>
-                                            </div>
-                                        </div>
-
-                                        <!--    ==============================================================================
-                                        Start
-                                        ==============================================================================-->
-
-                                        <!--Expiration Business Permit Modal -->
-                                        <div class="modal fade" id="ResubmitModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ResubmitModalLabel" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered modal-xl">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h1 class="modal-title fs-5" id="ResubmitModalLabel">Business Permit Re-upload</h1>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <div class="row d-flex justify-content-around">
-                                                            <p>Re-upload Date: January 12, 2025</p>
-                                                            <!-- New Business Permit -->
-                                                            <div class="col-lg-5 col-12 bg-success-subtle rounded">
-                                                                <div class="row">
-                                                                    <h3 class="fw-bold text-success text-center py-2">New Business Permit</h3>
-
-                                                                    <div class="col-12 mb-3">
-                                                                        <h5>New Business Permit Uploaded</h5>
-                                                                        <img src="../img/businessowner-img/majayjay falls.JPG" class="img-fluid" alt="">
-                                                                    </div>
-                                                                    <div class="col-12 mb-3">
-                                                                        <label for="exampleFormControlInput1" class="form-label"> New Business Permit Expiration Date</label>
-                                                                        <input type="date" class="form-control shadow" id="exampleFormControlInput1" placeholder="">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                            <!-- Old Business Permit -->
-                                                            <div class="col-lg-5 col-12 bg-danger-subtle rounded">
-                                                                <div class="row">
-                                                                    <h3 class="fw-bold text-danger text-center py-2">Old Business Permit</h3>
-                                                                    <div class="col-12 mb-3">
-                                                                        <h5>Old Business Permit Uploaded</h5>
-                                                                        <img src="../img/businessowner-img/dalitiwan resort.jpg" class="img-fluid" alt="">
-                                                                    </div>
-                                                                    <div class="col-12 mb-3">
-                                                                        <label for="exampleFormControlInput1" class="form-label"> Old Business Permit Expiration Date</label>
-                                                                        <input type="date" class="form-control shadow" id="exampleFormControlInput1" placeholder="">
-                                                                    </div>
-                                                                </div>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#RejectPermitModal" data-business='RejectPermitModal'>Reject</button>
-                                                        <button type="button" class="btn btn-success">Accept</button>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <!-- Modal for Business Permit Re-upload pag nireject -->
-                                        <div class="modal fade" id="RejectPermitModal" tabindex="-1" aria-labelledby="RejectPermitModal" aria-hidden="true">
-                                            <div class="modal-dialog modal-dialog-centered">
-                                                <div class="modal-content">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title" id="RejectPermitModal">Confirm your Rejection</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body">
-                                                        <p id=" ">Please check the reason why you want to reject this.</p>
-
-                                                        <div id="rejectReuploadReasons">
-                                                            <div>
-                                                                <input type="checkbox" id="checkbox1" name="checkbox1">
-                                                                <label for="checkbox1">Business Permit is Expired</label>
-                                                            </div>
-                                                            <div>
-                                                                <input type="checkbox" id="checkbox2" name="checkbox2">
-                                                                <label for="checkbox2">Your Image is Not clear</label>
-                                                            </div>
-                                                            <div>
-                                                                <input type="checkbox" id="checkbox3" name="checkbox3">
-                                                                <label for="checkbox3">Not a legit business</label>
-                                                            </div>
-                                                            <div>
-                                                                <input type="checkbox" id="checkbox4.1" name="checkbox4.1">
-                                                                <label for="checkbox4.1">Others</label>
-                                                            </div>
-                                                            <div id="otherReasonReject">
-                                                                <textarea id="otherReasonText" placeholder="Please specify the reason" style="width: 100%; height: 100px;"></textarea>
-                                                            </div>
-                                                        </div>
-                                                        <p class="text-secondary mb-0 pb-0" style="font-size:12px;"> <span class="fw-bold">Note:</span> Email will be sent to the business owner once you reject this. They can still reupload correct business permit.</p>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-danger" id="confirmButtonAccepted">Confirm Rejection</button>
-                                                    </div>
-                                                </div>
                                             </div>
                                         </div>
 
@@ -679,13 +585,6 @@ $totalInActive = getTotalInactive($pdo);
                                             });
                                         </script>
 
-                                        <!-- ==============================================================================
-                                        END
-                                        ============================================================================== -->
-
-
-
-
                                         <!-- Confirmation Modal for Status Toggle -->
                                         <div class="modal fade" id="confirmationModalAccepted" tabindex="-1" aria-labelledby="confirmationModalLabelAccepted" aria-hidden="true">
                                             <div class="modal-dialog modal-dialog-centered">
@@ -737,40 +636,38 @@ $totalInActive = getTotalInactive($pdo);
                                                 function displayApprovedBusinesses() {
                                                     const table = $('#acceptedBusinessesTable').DataTable({
                                                         columnDefs: [{
-                                                            orderable: false,
-                                                            targets: [3, 4]
-                                                        }] // Disable sorting on the "Status" and "Actions" columns
+                                                                orderable: false,
+                                                                targets: [3, 4]
+                                                            } // Disable sorting on the "Status" and "Actions" columns
+                                                        ]
                                                     });
                                                     table.clear(); // Clear the table
 
                                                     approvedBusinesses.forEach(business => {
                                                         const row = `
-          <tr>
-            <td>${business['Date Registered']}</td>
-            <td>${business['BusinessType']}</td>
-            <td>${business['BusinessName']}</td>
-            <td>
-              <label class="switch">
-                <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
-                <div class="switch-button">
-                  <span class="switch-button-left">Inactive</span>
-                  <span class="switch-button-right">Active</span>
-                </div>
-              </label>
-            </td>
-            <td>
-              <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                <i class="bi bi-eye"></i>
-              </button>
-              <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
-                <i class="bi bi-x-lg"></i>
-              </button>
-            </td>
-            <td>
-              ${business['ReminderSent'] == 1 ? (business['reuploadDate'] ? 'Expire Soon <button class="btn btn-warning m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-business="ResubmitModal">Check</button>' : 'Expire Soon') : ''}
-            </td>
-          </tr>
-        `;
+                    <tr>
+                        <td>${business['Date Registered']}</td>
+                        <td>${business['BusinessType']}</td>
+                        <td>${business['BusinessName']}</td>
+                        <td>
+                            <label class="switch">
+                                <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
+                                <div class="switch-button">
+                                    <span class="switch-button-left">Inactive</span>
+                                    <span class="switch-button-right">Active</span>
+                                </div>
+                            </label>
+                        </td>
+                        <td>
+                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                                <i class="bi bi-eye"></i>
+                            </button>
+                            <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
                                                         table.row.add($(row));
                                                     });
 
@@ -890,6 +787,7 @@ $totalInActive = getTotalInactive($pdo);
                                                 });
                                             });
                                         </script>
+
                                         <!-- REJECTED BUSINESS -->
                                         <div class="tab-pane fade" id="pills-rejected" role="tabpanel" aria-labelledby="pills-rejected-tab" tabindex="0">
                                             <div class="table-responsive">
@@ -1089,6 +987,191 @@ $totalInActive = getTotalInactive($pdo);
                                                 });
                                             });
                                         </script>
+
+
+                                        <!-- Expired Business Permit -->
+                                        <div class="tab-pane fade show" id="pills-expired" role="tabpanel" aria-labelledby="pills-expired-tab" tabindex="0">
+                                            <div class="table-responsive">
+                                                <table id="expiredBusinessesTable" class="table table-striped">
+                                                    <thead>
+                                                        <tr>
+                                                            <th scope="col">Date Registered</th>
+                                                            <th scope="col">Type of Business</th>
+                                                            <th scope="col">Business Name</th>
+                                                            <th scope="col">Actions</th>
+                                                            <th scope="col">Business Permit Remark</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <?php foreach ($expiredBusinesses as $business): ?>
+                                                            <tr>
+                                                                <td><?php echo htmlspecialchars($business['Date Registered']); ?></td>
+                                                                <td><?php echo htmlspecialchars($business['BusinessType']); ?></td>
+                                                                <td><?php echo htmlspecialchars($business['BusinessName']); ?></td>
+                                                                <td>
+                                                                    <?php if ($business['reuploadDate']): ?>
+                                                                        <button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-application-id="<?php echo $business['ApplicationID']; ?>">Check Update</button>
+                                                                    <?php endif; ?>
+                                                                </td>
+                                                                <td>
+                                                                    <?php if ($business['PermitExpDate'] < date('Y-m-d')): ?>
+                                                                        <span class="text-danger fw-bold">Expired Permit</span>
+                                                                    <?php elseif ($business['reuploadDate']): ?>
+                                                                        <span class="text-success fw-bold">Uploaded New</span>
+                                                                    <?php else: ?>
+                                                                        <span class="text-warning fw-bold">Expired Soon</span>
+                                                                    <?php endif; ?>
+                                                                </td>
+                                                            </tr>
+                                                        <?php endforeach; ?>
+                                                    </tbody>
+                                                </table>
+                                            </div>
+                                        </div>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#expiredBusinessesTable').DataTable({
+                                                    columnDefs: [{
+                                                            orderable: false,
+                                                            targets: 3
+                                                        }, // Disable sorting for the "Actions" column
+                                                        {
+                                                            searchable: false,
+                                                            targets: 3
+                                                        } // Disable searching for the "Actions" column
+                                                    ]
+                                                });
+
+                                                $('#ResubmitModal').on('show.bs.modal', function(event) {
+                                                    var button = $(event.relatedTarget);
+                                                    var applicationId = button.data('application-id');
+
+                                                    $.ajax({
+                                                        url: '../../backends/admin/fetch_expired_businesses.php',
+                                                        method: 'POST',
+                                                        data: {
+                                                            applicationId: applicationId
+                                                        },
+                                                        success: function(response) {
+                                                            var data = JSON.parse(response);
+                                                            var reuploadDate = new Date(data.reuploadDate);
+                                                            var formattedDate = reuploadDate.toLocaleDateString('default', {
+                                                                year: 'numeric',
+                                                                month: 'long',
+                                                                day: 'numeric'
+                                                            });
+                                                            var permitExpDate = new Date(data.PermitExpDate);
+                                                            var formattedPermitExpDate = permitExpDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+                                                            var newPermitExpDate = new Date(data.newPermitDate);
+                                                            var formattedNewPermitExpDate = newPermitExpDate.toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+                                                            $('#reuploadDate').text('Re-upload Date: ' + formattedDate);
+                                                            $('#oldBusinessPermitImage').attr('src', '../../businessowner/uploadsapp/' + data.BusinessPermitImage);
+                                                            $('#oldPermitExpDate').val(formattedPermitExpDate);
+                                                            $('#newBusinessPermitImage').attr('src', '../../businessowner/uploadsapp/newPermit/' + data.newPermitImage);
+                                                            $('#newPermitExpDate').val(formattedNewPermitExpDate);
+                                                        }
+                                                    });
+                                                });
+                                            });
+                                        </script>
+
+                                        <!--Expiration Business Permit Modal -->
+                                        <div class="modal fade" id="ResubmitModal" data-bs-backdrop="static" data-bs-keyboard="false" tabindex="-1" aria-labelledby="ResubmitModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered modal-xl">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h1 class="modal-title fs-5" id="ResubmitModalLabel">Business Permit Re-upload</h1>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row d-flex justify-content-around">
+                                                            <p id="reuploadDate">Re-upload Date: </p>
+                                                            <!-- New Business Permit -->
+                                                            <div class="col-lg-5 col-12 bg-success-subtle rounded mb-2">
+                                                                <div class="row">
+                                                                    <h3 class="fw-bold text-success text-center py-2">New Business Permit</h3>
+
+                                                                    <div class="col-12 mb-3">
+                                                                        <h5>New Business Permit Uploaded</h5>
+                                                                        <img id="newBusinessPermitImage" src="../img/businessowner-img/majayjay falls.JPG" class="img-fluid" alt="">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label for="exampleFormControlInput1" class="form-label"> New Business Permit Expiration Date</label>
+                                                                        <input type="text" class="form-control shadow" id="newPermitExpDate" placeholder="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- Old Business Permit -->
+                                                            <div class="col-lg-5 col-12 bg-secondary-subtle rounded mb-2">
+                                                                <div class="row">
+                                                                    <h3 class="fw-bold text-danger text-center py-2">Old Business Permit</h3>
+                                                                    <div class="col-12 mb-3">
+                                                                        <h5>Old Business Permit Uploaded</h5>
+                                                                        <img id="oldBusinessPermitImage" src="../img/businessowner-img/dalitiwan resort.jpg" class="img-fluid" alt="">
+                                                                    </div>
+                                                                    <div class="col-12 mb-3">
+                                                                        <label for="oldPermitExpDate" class="form-label"> Old Business Permit Expiration Date</label>
+                                                                        <input type="text" class="form-control shadow" id="oldPermitExpDate" placeholder="">
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#RejectPermitModal" data-business='RejectPermitModal'>Reject</button>
+                                                        <button type="button" class="btn btn-success">Accept</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+                                        <!-- Modal for Business Permit Re-upload pag nireject -->
+                                        <div class="modal fade" id="RejectPermitModal" tabindex="-1" aria-labelledby="RejectPermitModal" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="RejectPermitModal">Confirm your Rejection</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <p id=" ">Please check the reason why you want to reject this.</p>
+
+                                                        <div id="rejectReuploadReasons">
+                                                            <!-- style="display: none;"  -->
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox1" name="checkbox1">
+                                                                <label for="checkbox1">Business permit is expired</label>
+                                                            </div>
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox2" name="checkbox2">
+                                                                <label for="checkbox2">Image is not clear</label>
+                                                            </div>
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox3" name="checkbox3">
+                                                                <label for="checkbox3">Not a legit business</label>
+                                                            </div>
+                                                            <div>
+                                                                <input type="checkbox" id="checkbox4.1" name="checkbox4.1">
+                                                                <label for="checkbox4.1">Other reasons</label>
+                                                            </div>
+                                                            <div id="otherReasonReject">
+                                                                <!-- style="display: none;" -->
+                                                                <textarea id="otherReasonText" placeholder="Please specify the reason" style="width: 100%; height: 100px;"></textarea>
+                                                            </div>
+                                                        </div>
+                                                        <p class="text-secondary mb-0 pb-0" style="font-size:12px;"> <span class="fw-bold">Note:</span> Email will be sent to the business owner once you reject this. They can still reupload correct business permit.</p>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-danger" id="confirmButtonAccepted">Confirm Rejection</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
                                     </div>
                                 </div>
                             </div>
@@ -1214,5 +1297,19 @@ $totalInActive = getTotalInactive($pdo);
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/js/bootstrap.bundle.min.js"></script>
     <script src="../js/admin.js"></script>
 </body>
+
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const button = document.getElementById('viewPdfBtn');
+
+        button.addEventListener('click', () => {
+            // Replace 'path/to/your.pdf' with the actual path to your PDF file
+            const pdfPath = 'path/to/your.pdf';
+
+            // Open the PDF file in a new tab
+            window.open(pdfPath, '_blank');
+        });
+    });
+</script>
 
 </html>
