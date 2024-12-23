@@ -1217,7 +1217,6 @@ $totalInActive = getTotalInactive($pdo);
                                                         <p id=" ">Please check the reason why you want to reject this.</p>
 
                                                         <div id="rejectReuploadReasons">
-                                                            <!-- style="display: none;"  -->
                                                             <div>
                                                                 <input type="checkbox" id="checkbox1" name="checkbox1">
                                                                 <label for="checkbox1">Business permit is expired</label>
@@ -1234,8 +1233,7 @@ $totalInActive = getTotalInactive($pdo);
                                                                 <input type="checkbox" id="checkbox4.1" name="checkbox4.1">
                                                                 <label for="checkbox4.1">Other reasons</label>
                                                             </div>
-                                                            <div id="otherReasonReject">
-                                                                <!-- style="display: none;" -->
+                                                            <div id="otherReasonReject" style="display: none;">
                                                                 <textarea id="otherReasonText" placeholder="Please specify the reason" style="width: 100%; height: 100px;"></textarea>
                                                             </div>
                                                         </div>
@@ -1248,6 +1246,17 @@ $totalInActive = getTotalInactive($pdo);
                                                 </div>
                                             </div>
                                         </div>
+                                        <!-- Script to hide and show the other reason text area when the checkbox is checked -->
+                                        <script>
+                                            document.getElementById('checkbox4.1').addEventListener('change', function() {
+                                                var otherReasonReject = document.getElementById('otherReasonReject');
+                                                if (this.checked) {
+                                                    otherReasonReject.style.display = 'block';
+                                                } else {
+                                                    otherReasonReject.style.display = 'none';
+                                                }
+                                            });
+                                        </script>
 
                                     </div>
                                 </div>
