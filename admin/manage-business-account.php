@@ -16,13 +16,11 @@ include "../backends/admin/fetch_total_accepted.php";
 include "../backends/admin/fetch_total_archived.php";
 include "../backends/admin/fetch_active_account.php";
 include "../backends/admin/fetch_inactive_account.php";
-include "../backends/admin/fetch_expired_businesses.php";
 
 $pendingBusinesses = getPendingBusinesses($pdo);
 $approvedBusinesses = getApprovedBusinesses($pdo);
 $rejectedBusinesses = getRejectedBusinesses($pdo);
 $archivedBusinesses = getArchivedBusinesses($pdo);
-$expiredBusinesses = getExpiredBusinesses($pdo);
 $totalAccepted = getTotalAccepted($pdo);
 $totalArchived = getTotalArchived($pdo);
 $totalActive = getTotalActive($pdo);
@@ -1003,44 +1001,65 @@ $totalInActive = getTotalInactive($pdo);
                                                         </tr>
                                                     </thead>
                                                     <tbody>
-                                                        <?php foreach ($expiredBusinesses as $business): ?>
-                                                            <tr>
-                                                                <td><?php echo htmlspecialchars($business['Date Registered']); ?></td>
-                                                                <td><?php echo htmlspecialchars($business['BusinessType']); ?></td>
-                                                                <td><?php echo htmlspecialchars($business['BusinessName']); ?></td>
-                                                                <td>
-                                                                    <?php if ($business['reuploadDate']): ?>
-                                                                        <button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-application-id="<?php echo $business['ApplicationID']; ?>">Check Update</button>
-                                                                    <?php endif; ?>
-                                                                </td>
-                                                                <td>
-                                                                    <?php if ($business['PermitExpDate'] < date('Y-m-d')): ?>
-                                                                        <span class="text-danger fw-bold">Expired Permit</span>
-                                                                    <?php elseif ($business['reuploadDate']): ?>
-                                                                        <span class="text-success fw-bold">Uploaded New</span>
-                                                                    <?php else: ?>
-                                                                        <span class="text-warning fw-bold">Expired Soon</span>
-                                                                    <?php endif; ?>
-                                                                </td>
-                                                            </tr>
-                                                        <?php endforeach; ?>
+                                                        <!-- Data will be populated here by JavaScript -->
                                                     </tbody>
                                                 </table>
                                             </div>
                                         </div>
                                         <script>
                                             $(document).ready(function() {
-                                                $('#expiredBusinessesTable').DataTable({
-                                                    columnDefs: [{
-                                                            orderable: false,
-                                                            targets: 3
-                                                        }, // Disable sorting for the "Actions" column
-                                                        {
-                                                            searchable: false,
-                                                            targets: 3
-                                                        } // Disable searching for the "Actions" column
-                                                    ]
-                                                });
+                                                function fetchExpiredBusinesses() {
+                                                    $.ajax({
+                                                        url: '../../backends/admin/fetch_expired_businesses.php',
+                                                        method: 'GET',
+                                                        dataType: 'json',
+                                                        success: function(response) {
+                                                            var tbody = $('#expiredBusinessesTable tbody');
+                                                            tbody.empty(); // Clear existing rows
+
+                                                            response.forEach(function(business) {
+                                                                var remark = '';
+                                                                if (business.PermitExpDate < new Date().toISOString().split('T')[0]) {
+                                                                    remark = '<span class="text-danger fw-bold">Expired Permit</span>';
+                                                                } else if (business.reuploadDate) {
+                                                                    remark = '<span class="text-success fw-bold">Uploaded New</span>';
+                                                                } else {
+                                                                    remark = '<span class="text-warning fw-bold">Expired Soon</span>';
+                                                                }
+
+                                                                var row = `
+                            <tr>
+                                <td>${business['Date Registered']}</td>
+                                <td>${business['BusinessType']}</td>
+                                <td>${business['BusinessName']}</td>
+                                <td>
+                                    ${business.reuploadDate ? `<button class="btn btn-success m-1" data-bs-toggle="modal" data-bs-target="#ResubmitModal" data-application-id="${business.ApplicationID}">Check Update</button>` : ''}
+                                </td>
+                                <td>${remark}</td>
+                            </tr>
+                        `;
+                                                                tbody.append(row);
+                                                            });
+
+                                                            $('#expiredBusinessesTable').DataTable({
+                                                                columnDefs: [{
+                                                                        orderable: false,
+                                                                        targets: 3
+                                                                    }, // Disable sorting for the "Actions" column
+                                                                    {
+                                                                        searchable: false,
+                                                                        targets: 3
+                                                                    } // Disable searching for the "Actions" column
+                                                                ]
+                                                            });
+                                                        },
+                                                        error: function() {
+                                                            alert('Failed to fetch expired businesses.');
+                                                        }
+                                                    });
+                                                }
+
+                                                fetchExpiredBusinesses(); // Fetch expired businesses on page load
 
                                                 $('#ResubmitModal').on('show.bs.modal', function(event) {
                                                     var button = $(event.relatedTarget);
@@ -1070,6 +1089,9 @@ $totalInActive = getTotalInactive($pdo);
                                                             $('#oldPermitExpDate').val(formattedPermitExpDate);
                                                             $('#newBusinessPermitImage').attr('src', '../../businessowner/uploadsapp/newPermit/' + data.newPermitImage);
                                                             $('#newPermitExpDate').val(formattedNewPermitExpDate);
+                                                        },
+                                                        error: function() {
+                                                            alert('Failed to fetch business details.');
                                                         }
                                                     });
                                                 });

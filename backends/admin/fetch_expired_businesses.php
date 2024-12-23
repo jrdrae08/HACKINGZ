@@ -18,6 +18,11 @@ function getExpiredBusinesses($pdo)
   }
 }
 
+if ($_SERVER['REQUEST_METHOD'] === 'GET') {
+  $expiredBusinesses = getExpiredBusinesses($pdo);
+  echo json_encode($expiredBusinesses);
+}
+
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['applicationId'])) {
   $applicationId = $_POST['applicationId'];
 

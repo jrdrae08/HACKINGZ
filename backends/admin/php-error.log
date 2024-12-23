@@ -8,3 +8,8 @@ Stack trace:
 #0 E:\HACKINGZ\backends\admin\update_status.php(65): PDOStatement->execute()
 #1 {main}
   thrown in E:\HACKINGZ\backends\admin\update_status.php on line 65
+[23-Dec-2024 11:42:54 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry '1k2t7r70@duckmail.club' for key 'Email' in E:\HACKINGZ\backends\admin\update_status.php:65
+Stack trace:
+#0 E:\HACKINGZ\backends\admin\update_status.php(65): PDOStatement->execute()
+#1 {main}
+  thrown in E:\HACKINGZ\backends\admin\update_status.php on line 65
