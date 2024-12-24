@@ -1096,6 +1096,9 @@ $totalInActive = getTotalInactive($pdo);
 
                                                             // Add application ID to the Accept button
                                                             $('#acceptButton').data('application-id', applicationId);
+
+                                                            // Add application ID to the Reject button
+                                                            $('#RenewalRejected').data('application-id', applicationId);
                                                         },
                                                         error: function() {
                                                             alert('Failed to fetch business details.');
@@ -1131,6 +1134,50 @@ $totalInActive = getTotalInactive($pdo);
                                                         }
                                                     });
                                                 });
+
+                                                // Show rejection confirmation modal on Reject button click
+                                                $('#RenewalRejected').on('click', function() {
+                                                    var applicationId = $(this).data('application-id');
+                                                    $('#confirmRenewalRejectButton').data('application-id', applicationId);
+                                                    $('#RenewalRejectModal').modal('show');
+                                                });
+
+                                                // Handle Confirm Rejection button click in the confirmation modal
+                                                $('#confirmRenewalRejectButton').on('click', function() {
+                                                    var applicationId = $(this).data('application-id');
+                                                    console.log('Application ID:', applicationId); // Log the applicationId for debugging
+                                                    var reasons = [];
+                                                    $('#rejectReuploadReasons input[type="checkbox"]:checked').each(function() {
+                                                        reasons.push($(this).next('label').text());
+                                                    });
+                                                    if ($('#checkbox4.1').is(':checked')) {
+                                                        var otherReason = $('#otherReasonText').val();
+                                                        if (otherReason) {
+                                                            reasons.push(otherReason);
+                                                        }
+                                                    }
+
+                                                    $.ajax({
+                                                        url: '../../backends/admin/reject_permit.php',
+                                                        method: 'POST',
+                                                        data: {
+                                                            applicationId: applicationId,
+                                                            reasons: reasons
+                                                        },
+                                                        success: function(response) {
+                                                            console.log(response); // Log the response for debugging
+                                                            alert('Business permit renewal rejected successfully.');
+                                                            $('#RenewalRejectModal').modal('hide');
+                                                            $('#RejectPermitModal').modal('hide');
+                                                            $('#ResubmitModal').modal('hide');
+                                                            fetchExpiredBusinesses(); // Refresh the table
+                                                        },
+                                                        error: function(xhr, status, error) {
+                                                            console.error(xhr.responseText); // Log the error response for debugging
+                                                            alert('Failed to reject business permit renewal.');
+                                                        }
+                                                    });
+                                                });
                                             });
                                         </script>
 
@@ -1156,7 +1203,7 @@ $totalInActive = getTotalInactive($pdo);
                                                                     </div>
                                                                     <div class="col-12 mb-3">
                                                                         <label for="exampleFormControlInput1" class="form-label"> New Business Permit Expiration Date</label>
-                                                                        <input type="text" class="form-control shadow" id="newPermitExpDate" placeholder="">
+                                                                        <input type="text" class="form-control shadow" id="newPermitExpDate" placeholder="" disabled>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1171,7 +1218,7 @@ $totalInActive = getTotalInactive($pdo);
                                                                     </div>
                                                                     <div class="col-12 mb-3">
                                                                         <label for="oldPermitExpDate" class="form-label"> Old Business Permit Expiration Date</label>
-                                                                        <input type="text" class="form-control shadow" id="oldPermitExpDate" placeholder="">
+                                                                        <input type="text" class="form-control shadow" id="oldPermitExpDate" placeholder="" disabled>
                                                                     </div>
                                                                 </div>
                                                             </div>
@@ -1241,7 +1288,25 @@ $totalInActive = getTotalInactive($pdo);
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-danger" id="confirmButtonAccepted">Confirm Rejection</button>
+                                                        <button type="button" class="btn btn-danger" id="RenewalRejected" data-application-id="">Confirm Rejection</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <!-- Rejection Confirmation Modal -->
+                                        <div class="modal fade" id="RenewalRejectModal" tabindex="-1" aria-labelledby="RenewalRejectModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="RenewalRejectModalLabel">Confirm Rejection</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to reject this business permit renewal?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                                        <button type="button" class="btn btn-danger" id="confirmRenewalRejectButton">Confirm</button>
                                                     </div>
                                                 </div>
                                             </div>
