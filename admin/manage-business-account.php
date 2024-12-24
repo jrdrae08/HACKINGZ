@@ -1134,50 +1134,6 @@ $totalInActive = getTotalInactive($pdo);
                                                         }
                                                     });
                                                 });
-
-                                                // Show rejection confirmation modal on Reject button click
-                                                $('#RenewalRejected').on('click', function() {
-                                                    var applicationId = $(this).data('application-id');
-                                                    $('#confirmRenewalRejectButton').data('application-id', applicationId);
-                                                    $('#RenewalRejectModal').modal('show');
-                                                });
-
-                                                // Handle Confirm Rejection button click in the confirmation modal
-                                                $('#confirmRenewalRejectButton').on('click', function() {
-                                                    var applicationId = $(this).data('application-id');
-                                                    console.log('Application ID:', applicationId); // Log the applicationId for debugging
-                                                    var reasons = [];
-                                                    $('#rejectReuploadReasons input[type="checkbox"]:checked').each(function() {
-                                                        reasons.push($(this).next('label').text());
-                                                    });
-                                                    if ($('#checkbox4.1').is(':checked')) {
-                                                        var otherReason = $('#otherReasonText').val();
-                                                        if (otherReason) {
-                                                            reasons.push(otherReason);
-                                                        }
-                                                    }
-
-                                                    $.ajax({
-                                                        url: '../../backends/admin/reject_permit.php',
-                                                        method: 'POST',
-                                                        data: {
-                                                            applicationId: applicationId,
-                                                            reasons: reasons
-                                                        },
-                                                        success: function(response) {
-                                                            console.log(response); // Log the response for debugging
-                                                            alert('Business permit renewal rejected successfully.');
-                                                            $('#RenewalRejectModal').modal('hide');
-                                                            $('#RejectPermitModal').modal('hide');
-                                                            $('#ResubmitModal').modal('hide');
-                                                            fetchExpiredBusinesses(); // Refresh the table
-                                                        },
-                                                        error: function(xhr, status, error) {
-                                                            console.error(xhr.responseText); // Log the error response for debugging
-                                                            alert('Failed to reject business permit renewal.');
-                                                        }
-                                                    });
-                                                });
                                             });
                                         </script>
 
@@ -1320,6 +1276,49 @@ $totalInActive = getTotalInactive($pdo);
                                                 } else {
                                                     otherReasonReject.style.display = 'none';
                                                 }
+                                            });
+                                            // Show rejection confirmation modal on Reject button click
+                                            $('#RenewalRejected').on('click', function() {
+                                                var applicationId = $(this).data('application-id');
+                                                $('#confirmRenewalRejectButton').data('application-id', applicationId);
+                                                $('#RenewalRejectModal').modal('show');
+                                            });
+
+                                            // Handle Confirm Rejection button click in the confirmation modal
+                                            $('#confirmRenewalRejectButton').on('click', function() {
+                                                var applicationId = $(this).data('application-id');
+                                                console.log('Application ID:', applicationId); // Log the applicationId for debugging
+                                                var reasons = [];
+                                                $('#rejectReuploadReasons input[type="checkbox"]:checked').each(function() {
+                                                    reasons.push($(this).next('label').text());
+                                                });
+                                                if ($('#checkbox4.1').is(':checked')) {
+                                                    var otherReason = $('#otherReasonText').val();
+                                                    if (otherReason) {
+                                                        reasons.push(otherReason);
+                                                    }
+                                                }
+
+                                                $.ajax({
+                                                    url: '../../backends/admin/reject_permit.php',
+                                                    method: 'POST',
+                                                    data: {
+                                                        applicationId: applicationId,
+                                                        reasons: reasons
+                                                    },
+                                                    success: function(response) {
+                                                        console.log(response); // Log the response for debugging
+                                                        alert('Business permit renewal rejected successfully.');
+                                                        $('#RenewalRejectModal').modal('hide');
+                                                        $('#RejectPermitModal').modal('hide');
+                                                        $('#ResubmitModal').modal('hide');
+                                                        fetchExpiredBusinesses(); // Refresh the table
+                                                    },
+                                                    error: function(xhr, status, error) {
+                                                        console.error(xhr.responseText); // Log the error response for debugging
+                                                        alert('Failed to reject business permit renewal.');
+                                                    }
+                                                });
                                             });
                                         </script>
 
