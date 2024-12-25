@@ -1232,12 +1232,8 @@ $totalInActive = getTotalInactive($pdo);
                                                                 <input type="checkbox" id="checkbox3" name="checkbox3">
                                                                 <label for="checkbox3">Not a legit business</label>
                                                             </div>
-                                                            <div>
-                                                                <input type="checkbox" id="checkbox4.1" name="checkbox4.1">
-                                                                <label for="checkbox4.1">Other reasons</label>
-                                                            </div>
-                                                            <div id="otherReasonReject" style="display: none;">
-                                                                <textarea id="otherReasonText" placeholder="Please specify the reason" style="width: 100%; height: 100px;"></textarea>
+                                                            <div id="otherReasonReject">
+                                                                <textarea id="otherReasonText" placeholder="Please specify the other reason" style="width: 100%; height: 100px;"></textarea>
                                                             </div>
                                                         </div>
                                                         <p class="text-secondary mb-0 pb-0" style="font-size:12px;"> <span class="fw-bold">Note:</span> Email will be sent to the business owner once you reject this. They can still reupload correct business permit.</p>
@@ -1269,14 +1265,6 @@ $totalInActive = getTotalInactive($pdo);
                                         </div>
                                         <!-- Script to hide and show the other reason text area when the checkbox is checked -->
                                         <script>
-                                            document.getElementById('checkbox4.1').addEventListener('change', function() {
-                                                var otherReasonReject = document.getElementById('otherReasonReject');
-                                                if (this.checked) {
-                                                    otherReasonReject.style.display = 'block';
-                                                } else {
-                                                    otherReasonReject.style.display = 'none';
-                                                }
-                                            });
                                             // Show rejection confirmation modal on Reject button click
                                             $('#RenewalRejected').on('click', function() {
                                                 var applicationId = $(this).data('application-id');
@@ -1287,17 +1275,20 @@ $totalInActive = getTotalInactive($pdo);
                                             // Handle Confirm Rejection button click in the confirmation modal
                                             $('#confirmRenewalRejectButton').on('click', function() {
                                                 var applicationId = $(this).data('application-id');
-                                                console.log('Application ID:', applicationId); // Log the applicationId for debugging
+                                                console.log('Application ID:', applicationId);
                                                 var reasons = [];
-                                                $('#rejectReuploadReasons input[type="checkbox"]:checked').each(function() {
-                                                    reasons.push($(this).next('label').text());
-                                                });
-                                                if ($('#checkbox4.1').is(':checked')) {
-                                                    var otherReason = $('#otherReasonText').val();
-                                                    if (otherReason) {
-                                                        reasons.push(otherReason);
+
+                                                // Collect both checkbox and textarea reasons
+                                                $('#rejectReuploadReasons input[type="checkbox"]:checked, #otherReasonText').each(function() {
+                                                    if ($(this).is('textarea')) {
+                                                        let textValue = $(this).val().trim();
+                                                        if (textValue) {
+                                                            reasons.push(textValue);
+                                                        }
+                                                    } else {
+                                                        reasons.push($(this).next('label').text());
                                                     }
-                                                }
+                                                });
 
                                                 $.ajax({
                                                     url: '../../backends/admin/reject_permit.php',
@@ -1307,15 +1298,17 @@ $totalInActive = getTotalInactive($pdo);
                                                         reasons: reasons
                                                     },
                                                     success: function(response) {
-                                                        console.log(response); // Log the response for debugging
+                                                        console.log(response);
                                                         alert('Business permit renewal rejected successfully.');
                                                         $('#RenewalRejectModal').modal('hide');
                                                         $('#RejectPermitModal').modal('hide');
                                                         $('#ResubmitModal').modal('hide');
-                                                        fetchExpiredBusinesses(); // Refresh the table
+                                                        // Clear the textarea
+                                                        $('#otherReasonText').val('');
+                                                        fetchExpiredBusinesses();
                                                     },
                                                     error: function(xhr, status, error) {
-                                                        console.error(xhr.responseText); // Log the error response for debugging
+                                                        console.error(xhr.responseText);
                                                         alert('Failed to reject business permit renewal.');
                                                     }
                                                 });

@@ -95,3 +95,4 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['applicationId']) && i
 } else {
   echo json_encode(['error' => 'Invalid request']);
 }
+
