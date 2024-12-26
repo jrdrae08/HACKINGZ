@@ -18,7 +18,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
     <title>Admin Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
     <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
     <link rel="stylesheet" href="../css/admin.css">
 
     <style>
@@ -70,71 +75,106 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                         </div>
                     </div>
                     <hr>
-                    <!-- Table Element -->
-                    <div class="card border-0 shadow">
-                        <div class="card-header">
-                            <h5 class="card-title">
-                                Tourism Visitor Record
-                            </h5>
-                            <h6 class="card-subtitle text-muted">
-                                Current month: October
-                            </h6>
-                        </div>
-                        <div class="card-body">
+
+                    <div class="row mt-3">
+                        <div class="col-lg-8 col-12">
+                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                                <i class="fa fa-calendar"></i>&nbsp;
+                                <span></span> <i class="fa fa-caret-down"></i>
+                            </div>
+
                             <div class="table-responsive">
-                                <table class="table table-bordered">
-                                    <thead>
-                                        <tr>
-                                            <th rowspan="3" class=" border-2 border-dark">Day</th>
-                                            <th rowspan="3" class=" border-2 border-dark">Week Day <br>(Mon-Sun) </th>
-                                            <th colspan="9" class="bg-success border-2 border-dark" style="text-align: center;">Philippines</th>
-                                            <th colspan="3" class="bg-info  border-2 border-dark" style="text-align: center;">Foreign Country Residence</th>
-                                            <th rowspan="3" class="bg-warning-subtle border-2 border-dark" style="text-align: center;">Grand Total<br>Number of Visitors</th>
-                                        </tr>
-                                        <tr>
-                                            <th colspan="3" class="bg-success-subtle border border-bottom border-dark border-1" style="text-align: center;">This City/Municipality</th>
-                                            <th colspan="3" class="bg-success-subtle  border-2 border-dark" style="text-align: center;">Other City/Municipality</th>
-                                            <th colspan="3" class="bg-success-subtle  border-2 border-dark" style="text-align: center;">Other Province</th>
-                                            <th colspan="3" class="bg-info-subtle  border-2 border-dark" style="text-align: center;">Foreign Country</th>
-                                        </tr>
-                                        <tr>
-                                            <th class="bg-primary-subtle  border-2 border-dark">Male</th>
-                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
-                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
-                                            <th class="bg-primary-subtle border-2 border-dark">Male</th>
-                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
-                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
-                                            <th class="bg-primary-subtle border-2 border-dark">Male</th>
-                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
-                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
-                                            <th class="bg-primary-subtle border-2 border-dark">Male</th>
-                                            <th class="bg-danger-subtle  border-2 border-dark">Female</th>
-                                            <th class="bg-warning-subtle border-2 border-dark">Total</th>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        <tr>
-                                            <td class="border-2 border-dark">1</td>
-                                            <td class="border-2 border-dark">Mon</td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                            <td class="border-2 border-dark"></td>
-                                        </tr>
-                                    </tbody>
-                                </table>
+                                <div class="chart-container bg-light rounded mt-3" style="position: relative; height:50vh px; width:100vh">
+                                    <canvas id="myLineChart"></canvas>
+                                </div>
                             </div>
                         </div>
+                        <div class="col-lg-4 col-12">
+
+                        </div>
                     </div>
+
+                    <script type="text/javascript">
+                        $(function() {
+                            let myLineChart = null; // Global chart instance
+                            var start = moment().subtract(29, 'days');
+                            var end = moment();
+
+                            function cb(start, end) {
+                                $('#reportrange span').html(start.format('MMMM D, YYYY') + ' - ' + end.format('MMMM D, YYYY'));
+                                fetchChartData(start.format('YYYY-MM-DD'), end.format('YYYY-MM-DD'));
+                            }
+
+                            $('#reportrange').daterangepicker({
+                                startDate: start,
+                                endDate: end,
+                                ranges: {
+                                    'Today': [moment(), moment()],
+                                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                                    'Last 14 Days': [moment().subtract(13, 'days'), moment()],
+                                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                                    'This Week': [moment().startOf('week'), moment().endOf('week')],
+                                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')],
+                                    'Maximum': [moment().subtract(1, 'year'), moment()]
+                                }
+                            }, cb);
+
+                            function fetchChartData(startDate, endDate) {
+                                fetch(`../../backends/admin/analytics_demog.php?startDate=${startDate}&endDate=${endDate}`)
+                                    .then(response => response.json())
+                                    .then(data => {
+                                        const labels = data.map(item => item.date);
+                                        const totalAttendees = data.map(item => item.totalnumAttendees);
+
+                                        // Destroy existing chart if it exists
+                                        if (myLineChart) {
+                                            myLineChart.destroy();
+                                        }
+
+                                        const ctx = document.getElementById('myLineChart').getContext('2d');
+                                        myLineChart = new Chart(ctx, {
+                                            type: 'line',
+                                            data: {
+                                                labels: labels,
+                                                datasets: [{
+                                                    label: 'Total Number of Attendees',
+                                                    data: totalAttendees,
+                                                    borderColor: 'rgba(75, 192, 192, 1)',
+                                                    borderWidth: 1,
+                                                    fill: false
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                scales: {
+                                                    x: {
+                                                        beginAtZero: true
+                                                    },
+                                                    y: {
+                                                        beginAtZero: true,
+                                                        min: 0,
+                                                        max: 150,
+                                                        ticks: {
+                                                            stepSize: 10,
+                                                            callback: function(value) {
+                                                                if (value === 5) return '5';
+                                                                return value;
+                                                            }
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        });
+                                    });
+                            }
+
+                            cb(start, end); // Initial load
+                        });
+                    </script>
+
+
                 </div>
             </main>
             <a href="#" class="theme-toggle">
