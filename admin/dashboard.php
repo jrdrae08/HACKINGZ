@@ -165,7 +165,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
 
                             function updateLineChart(data) {
                                 const labels = data.map(item => item.date);
-                                const totalAttendees = data.map(item => item.totalnumAttendees);
+                                const totalAttendees = data.map(item => parseInt(item.totalnumAttendees) || 0);
+                                const total = totalAttendees.reduce((a, b) => parseInt(a) + parseInt(b), 0);
 
                                 if (myLineChart) myLineChart.destroy();
 
@@ -184,6 +185,19 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                     },
                                     options: {
                                         responsive: true,
+                                        plugins: {
+                                            title: {
+                                                display: true,
+                                                text: `Total Attendees: ${parseInt(total)}`
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        return `Attendees: ${parseInt(context.parsed.y)}`;
+                                                    }
+                                                }
+                                            }
+                                        },
                                         scales: {
                                             y: {
                                                 beginAtZero: true,
@@ -206,7 +220,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                 locationPieChart = new Chart(pieCtx, {
                                     type: 'pie',
                                     data: {
-                                        labels: ['This City', 'Other City', 'Other Province', 'Foreign Country'],
+                                        labels: [
+                                            `This City: ${locationTotals.thisCity}`,
+                                            `Other City: ${locationTotals.otherCity}`,
+                                            `Other Province: ${locationTotals.otherProvince}`,
+                                            `Foreign Country: ${locationTotals.foreignCountry}`
+                                        ],
                                         datasets: [{
                                             data: [
                                                 locationTotals.thisCity,
@@ -226,7 +245,21 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                         responsive: true,
                                         plugins: {
                                             legend: {
-                                                position: 'bottom'
+                                                position: 'bottom',
+                                                labels: {
+                                                    generateLabels: function(chart) {
+                                                        const data = chart.data;
+                                                        if (data.labels.length && data.datasets.length) {
+                                                            return data.labels.map((label, i) => ({
+                                                                text: label,
+                                                                fillStyle: data.datasets[0].backgroundColor[i],
+                                                                hidden: isNaN(data.datasets[0].data[i]),
+                                                                index: i
+                                                            }));
+                                                        }
+                                                        return [];
+                                                    }
+                                                }
                                             },
                                             title: {
                                                 display: true,
@@ -264,6 +297,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                             title: {
                                                 display: true,
                                                 text: 'Gender Distribution'
+                                            },
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function(context) {
+                                                        let label = context.dataset.label || '';
+                                                        if (context.parsed.x !== null) {
+                                                            label = context.label + ': ' + context.parsed.x;
+                                                        }
+                                                        return label;
+                                                    }
+                                                }
+                                            }
+                                        },
+                                        scales: {
+                                            x: {
+                                                beginAtZero: true
+                                            },
+                                            y: {
+                                                ticks: {
+                                                    callback: function(value, index) {
+                                                        const count = [genderTotals.male, genderTotals.female][index];
+                                                        return `${['Male', 'Female'][index]}: ${count}`;
+                                                    }
+                                                }
                                             }
                                         }
                                     }
