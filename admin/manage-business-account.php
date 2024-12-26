@@ -313,7 +313,16 @@ $totalInActive = getTotalInactive($pdo);
                                                                     orderable: false,
                                                                     targets: 3
                                                                 } // Disable sorting on the "Actions" column
-                                                            ]
+                                                            ],
+                                                            order: [
+                                                                [0, 'desc']
+                                                            ], // Sort first column (Date Registered) in descending order
+                                                            createdRow: function(row, data, dataIndex) {
+                                                                const status = $(row).find('.status').text();
+                                                                if ((status === 'New' || status === 'Reapply')) {
+                                                                    $(row).addClass('highlight-new');
+                                                                }
+                                                            }
                                                         });
                                                         table.clear(); // Clear the table
 
@@ -455,10 +464,6 @@ $totalInActive = getTotalInactive($pdo);
                                                     });
                                                 });
                                             </script>
-
-
-
-
                                         </div>
 
                                         <!-- Accepted business -->
@@ -637,6 +642,9 @@ $totalInActive = getTotalInactive($pdo);
                                                             orderable: false,
                                                             targets: [3, 4]
                                                         }],
+                                                        order: [
+                                                            [0, 'desc']
+                                                        ], // Sort first column (Date Registered) in descending order
                                                         drawCallback: function() {
                                                             attachEventListeners();
                                                         }
@@ -766,7 +774,10 @@ $totalInActive = getTotalInactive($pdo);
                                                                 orderable: false,
                                                                 targets: 3
                                                             } // Disable sorting on the "Actions" column
-                                                        ]
+                                                        ],
+                                                        order: [
+                                                            [0, 'desc']
+                                                        ], // Sort first column (Date Registered) in descending order
                                                     });
                                                     table.clear(); // Clear the table
 
@@ -862,7 +873,10 @@ $totalInActive = getTotalInactive($pdo);
                                                                 orderable: false,
                                                                 targets: 3
                                                             } // Disable sorting on the "Actions" column
-                                                        ]
+                                                        ],
+                                                        order: [
+                                                            [0, 'desc']
+                                                        ], // Sort first column (Date Registered) in descending order
                                                     });
                                                     table.clear(); // Clear the table
 
@@ -1006,7 +1020,10 @@ $totalInActive = getTotalInactive($pdo);
                                                                         searchable: false,
                                                                         targets: 3
                                                                     } // Disable searching for the "Actions" column
-                                                                ]
+                                                                ],
+                                                                order: [
+                                                                    [0, 'desc']
+                                                                ], // Sort first column (Date Registered) in descending order
                                                             });
                                                         },
                                                         error: function() {
