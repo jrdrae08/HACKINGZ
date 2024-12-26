@@ -6,23 +6,25 @@ include '../includes/db.php';
 $businessInfoID = isset($_GET['businessInfoID']) ? (int) $_GET['businessInfoID'] : 1;
 
 try {
-  // Fetch businesses with BusinessType 'Resort', 'Farm', and 'Falls'
+  // Fetch businesses with BusinessType 'Resort', 'Farm', and 'Falls' where isActive is 1
   $stmt = $pdo->prepare("
       SELECT bm.Thumbnail, bm.Quotation, bif.BusinessName, bif.BusinessInfoID, bt.TypeName
       FROM business_media bm
       JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
       JOIN businesstype bt ON bif.BusinessTypeID = bt.BusinessTypeID
-      WHERE bt.TypeName IN ('Resort', 'Farm', 'Falls')
+      WHERE bm.isActive = 1
   ");
   $stmt->execute();
   $businesses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
   // Separate businesses by type
+  $allBusinesses = [];
   $resortBusinesses = [];
   $farmBusinesses = [];
   $fallsBusinesses = [];
 
   foreach ($businesses as $business) {
+    $allBusinesses[] = $business;
     switch ($business['TypeName']) {
       case 'Resort':
         $resortBusinesses[] = $business;

@@ -1,5 +1,5 @@
 <?php
-include '../backends/subadmin/fetch_alldestination_category.php';
+// include '../backends/subadmin/fetch_alldestination_category.php';
 include '../backends/subadmin/fetch_resortdestination_category.php';
 include '../backends/subadmin/fetch_features_category.php';
 
@@ -117,7 +117,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                         <div class="tab-content">
                             <div class="tab-pane fade <?= $activeTab === 'all' ? 'show active' : '' ?>" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabindex="0">
                                 <div class="row d-flex justify-content-center">
-                                    <?php foreach ($businesses as $business): ?>
+                                    <?php foreach ($allBusinesses as $business): ?>
                                         <div class="col-lg-6 col-12 mb-3 mb-3"> <!-- Adjust column sizes for different screens -->
                                             <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                                                 <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
