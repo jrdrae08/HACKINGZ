@@ -894,24 +894,28 @@ try {
                     </div>
                     <div id="rooms" class="col-xl-9 col-lg-10 col-11 py-5">
                         <h5 class="text-dark dm-sans-text fw-bold mb-3">Related rooms from the same destination:</h5>
-                        <div class="row g-3 ">
-                            <?php foreach ($relatedRooms as $relatedRoom): ?>
-                                <div class="col-xl-3 col-lg-4 col-md-4 col-12 mb-2 d-flex justify-content-center">
-                                    <div class="card card-shadow">
-                                        <div class="img-container">
-                                            <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($relatedRoom['image1']); ?>" class="card-img-top" alt="Room Image">
-                                        </div>
-                                        <div class="card-body">
-                                            <h3 class="card-title m-0 p-0 fw-bold cormorant-text"><?php echo htmlspecialchars($relatedRoom['roomName']); ?></h3>
-                                            <p class="card-text m-0 p-0 dm-sans-text text-secondary">Time Schedule: <?php echo date("g:i A", strtotime($relatedRoom['timeStart'])) . ' - ' . date("g:i A", strtotime($relatedRoom['timeEnd'])); ?></p>
-                                            <p class="card-text m-0 p-0 dm-sans-text text-secondary">Max Adult: <?php echo htmlspecialchars($relatedRoom['adultMax']); ?></p>
-                                            <p class="card-text m-0 p-0 dm-sans-text text-secondary">Max Children: <?php echo htmlspecialchars($relatedRoom['ChildrenMax']); ?></p>
-                                            <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($relatedRoom['roomPrice']); ?></span>/Night</h6>
-                                            <a href="../../resort/page-3.php?roomID=<?php echo $relatedRoom['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                        <div class="row g-3">
+                            <?php if (!empty($relatedRooms)): ?>
+                                <?php foreach ($relatedRooms as $relatedRoom): ?>
+                                    <div class="col-xl-3 col-lg-4 col-md-4 col-12 mb-2 d-flex justify-content-center">
+                                        <div class="card card-shadow">
+                                            <div class="img-container">
+                                                <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($relatedRoom['image1']); ?>" class="card-img-top" alt="Room Image">
+                                            </div>
+                                            <div class="card-body">
+                                                <h3 class="card-title m-0 p-0 fw-bold cormorant-text"><?php echo htmlspecialchars($relatedRoom['roomName']); ?></h3>
+                                                <p class="card-text m-0 p-0 dm-sans-text text-secondary">Time Schedule: <?php echo date("g:i A", strtotime($relatedRoom['timeStart'])) . ' - ' . date("g:i A", strtotime($relatedRoom['timeEnd'])); ?></p>
+                                                <p class="card-text m-0 p-0 dm-sans-text text-secondary">Max Adult: <?php echo htmlspecialchars($relatedRoom['adultMax']); ?></p>
+                                                <p class="card-text m-0 p-0 dm-sans-text text-secondary">Max Children: <?php echo htmlspecialchars($relatedRoom['ChildrenMax']); ?></p>
+                                                <h6 class="mt-3 dm-sans-text fw-bold text-secondary text-end">Price: <span class="text-danger">&#8369 <?php echo htmlspecialchars($relatedRoom['roomPrice']); ?></span>/Night</h6>
+                                                <a href="../../resort/page-3.php?roomID=<?php echo $relatedRoom['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="btn btn-book d-grid dm-sans-text rounded p-2">Book Now</a>
+                                            </div>
                                         </div>
                                     </div>
-                                </div>
-                            <?php endforeach; ?>
+                                <?php endforeach; ?>
+                            <?php else: ?>
+                                <p class="text-dark">No Related available rooms.</p>
+                            <?php endif; ?>
                         </div>
                     </div>
                 </div>

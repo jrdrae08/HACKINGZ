@@ -276,7 +276,7 @@ try {
                                     </div>
                                 <?php endforeach; ?>
                             <?php else: ?>
-                                <p>No available rooms.</p>
+                                <p class="text-dark">No available rooms.</p>
                             <?php endif; ?>
                         </div>
                     </div>
