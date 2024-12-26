@@ -137,7 +137,7 @@ try {
         <section class="bg-light rounded-top rounded-top-3" id="destination-information">
             <div class="container-fluid">
                 <div class="row d-flex justify-content-center">
-                    <div class="col-lg-8 col-md-10 col-11 py-3">
+                    <div class="col-xl-8 col-lg-9 col-md-10 col-11 py-3">
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item dm-sans-text"><a href="../../resort/page-0.php">Destinations</a></li>
@@ -146,7 +146,7 @@ try {
                         </nav>
                     </div>
 
-                    <div class="col-lg-8 col-md-10 col-11 pb-3">
+                    <div class="col-xl-8 col-lg-9 col-md-10 col-11 pb-3">
                         <div class="row g-2 d-flex justify-content-start">
                             <?php
                             $images = [
@@ -161,7 +161,7 @@ try {
                                 if ($image) {
                                     echo '<div class="col-lg-2 col-md-4 col-6">';
                                     echo '<a href="../../businessowner/businessmediacategory/' . htmlspecialchars($image) . '" data-fancybox="gallery">';
-                                    echo '<img src="../../businessowner/businessmediacategory/' . htmlspecialchars($image) . '" class="img-fluid rounded object-fit-cover destinations-images" alt="Large Image">';
+                                    echo '<img src="../../businessowner/businessmediacategory/' . htmlspecialchars($image) . '" class="img-fluid rounded object-fit-cover" alt="Large Image" style="height:150px; width:100%;">';
                                     echo '</a>';
                                     echo '</div>';
                                 }
@@ -190,7 +190,7 @@ try {
                         </div>
                     </div> -->
 
-                    <div class="col-lg-8 col-md-10 col-11">
+                    <div class="col-xl-8 col-lg-9 col-md-10 col-11">
                         <div class="row d-flex justify-content-between">
                             <div class="col-lg-8 col-12 mb-3">
                                 <div class="card border border-secondary rounded mb-3">
@@ -209,7 +209,7 @@ try {
                                             <?php if (!empty($facilities)): ?>
                                                 <?php foreach ($facilities as $facility): ?>
                                                     <div class="col-lg-4 col-6">
-                                                        <p><i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($facility['FacilityName']); ?></p>
+                                                        <p><i class="bi bi-check-circle text-success"></i> <?php echo htmlspecialchars($facility['FacilityName']); ?></p>
                                                     </div>
                                                 <?php endforeach; ?>
                                             <?php else: ?>
@@ -226,7 +226,7 @@ try {
                                             <?php if (!empty($features)): ?>
                                                 <?php foreach ($features as $feature): ?>
                                                     <div class="col-lg-4 col-6">
-                                                        <p><i class="bi bi-check-circle"></i> <?php echo htmlspecialchars($feature['FeatureName']); ?></p>
+                                                        <p><i class="bi bi-check-circle text-success"></i> <?php echo htmlspecialchars($feature['FeatureName']); ?></p>
                                                     </div>
                                                 <?php endforeach; ?>
                                             <?php else: ?>
@@ -254,12 +254,12 @@ try {
                         </div>
                     </div>
 
-                    <div id="rooms" class="col-lg-8 col-md-10 col-11 mb-3">
-                        <h5 class="text-dark dm-sans-text fw-bold ms-3 mb-3">Available Rooms</h5>
+                    <div id="rooms" class="col-xl-8 col-lg-9 col-md-10 col-11 mb-3">
+                        <h5 class="text-dark dm-sans-text fw-bold my-3">Available Rooms</h5>
                         <div class="row g-3">
                             <?php if (!empty($rooms)): ?>
                                 <?php foreach ($rooms as $room): ?>
-                                    <div class="col-xl-3 col-lg-4 col-md-6 col-12 mb">
+                                    <div class="col-xxl-3 col-xl-4 col-lg-5 col-md-6 col-12 mb">
                                         <div class="card card-shadow">
                                             <div class="img-container">
                                                 <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($room['image1']); ?>" class="card-img-top" alt="Room Image">

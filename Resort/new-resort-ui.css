@@ -274,7 +274,6 @@ body {
 
 .card-text-1 {
     font-size: 15px;
-    text-align: justify;
 }
 
 .card-text-0 {
@@ -283,7 +282,7 @@ body {
 
 
 .destination-page {
-    padding: 70px 130px;
+    padding: 70px 0;
 }
 
 .card-trans {
@@ -296,13 +295,13 @@ body {
 
 @media (max-width: 1200px) {
     .destination-page {
-        padding: 70px 70px;
+        padding: 50px 0 !important;
     }
 }
 
 @media (max-width: 998px) {
     .destination-page {
-        padding: 70px 10px !important;
+        padding: 40px 0 !important;
     }
 
     .card-text-1 {
@@ -335,7 +334,7 @@ body {
 
 @media (max-width: 768px) {
     .destination-page {
-        padding: 70px 10px !important;
+        padding: 20px 0 !important;
     }
 
     .card-text-1 {
