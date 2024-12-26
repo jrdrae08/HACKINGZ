@@ -634,155 +634,107 @@ $totalInActive = getTotalInactive($pdo);
                                                 function displayApprovedBusinesses() {
                                                     const table = $('#acceptedBusinessesTable').DataTable({
                                                         columnDefs: [{
-                                                                orderable: false,
-                                                                targets: [3, 4]
-                                                            } // Disable sorting on the "Status" and "Actions" columns
-                                                        ]
+                                                            orderable: false,
+                                                            targets: [3, 4]
+                                                        }],
+                                                        drawCallback: function() {
+                                                            attachEventListeners();
+                                                        }
                                                     });
-                                                    table.clear(); // Clear the table
+
+                                                    table.clear();
 
                                                     approvedBusinesses.forEach(business => {
                                                         const row = `
-                    <tr>
-                        <td>${business['Date Registered']}</td>
-                        <td>${business['BusinessType']}</td>
-                        <td>${business['BusinessName']}</td>
-                        <td>
-                            <label class="switch">
-                                <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
-                                <div class="switch-button">
-                                    <span class="switch-button-left">Inactive</span>
-                                    <span class="switch-button-right">Active</span>
-                                </div>
-                            </label>
-                        </td>
-                        <td>
-                            <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
-                                <i class="bi bi-eye"></i>
-                            </button>
-                            <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
-                                <i class="bi bi-x-lg"></i>
-                            </button>
-                        </td>
-                    </tr>
-                `;
+                <tr>
+                    <td>${business['Date Registered']}</td>
+                    <td>${business['BusinessType']}</td>
+                    <td>${business['BusinessName']}</td>
+                    <td>
+                        <label class="switch">
+                            <input class="switch-input" type="checkbox" ${business['BusinessStatus'] == 'Active' ? 'checked' : ''} data-business-id="${business['AccountID']}">
+                            <div class="switch-button">
+                                <span class="switch-button-left">Inactive</span>
+                                <span class="switch-button-right">Active</span>
+                            </div>
+                        </label>
+                    </td>
+                    <td>
+                        <button class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewbusinessinfo" data-business='${JSON.stringify(business)}'>
+                            <i class="bi bi-eye"></i>
+                        </button>
+                        <button class="btn btn-danger m-1" data-business-id="${business['AccountID']}" ${business['BusinessStatus'] == 'Inactive' ? '' : 'disabled'}>
+                            <i class="bi bi-x-lg"></i>
+                        </button>
+                    </td>
+                </tr>
+            `;
                                                         table.row.add($(row));
                                                     });
 
                                                     table.draw();
-                                                    attachEventListeners();
                                                 }
 
                                                 function attachEventListeners() {
-                                                    document.querySelectorAll('.switch-input').forEach(function(toggle) {
-                                                        toggle.addEventListener('change', function(event) {
-                                                            businessId = this.dataset.businessId;
-                                                            status = this.checked ? 'Active' : 'Inactive';
-                                                            actionType = 'toggle';
-                                                            confirmationMessageAccepted.innerText = `Are you sure you want to set this business to ${status}?`;
-                                                            modalBusinessId.value = businessId;
-                                                            confirmationModalAccepted.show();
+                                                    // Use event delegation
+                                                    $('#acceptedBusinessesTable').off('change', '.switch-input').on('change', '.switch-input', function(event) {
+                                                        const toggle = this;
+                                                        businessId = toggle.dataset.businessId;
+                                                        status = toggle.checked ? 'Active' : 'Inactive';
+                                                        actionType = 'toggle';
 
-                                                            // Store the current checkbox state
-                                                            const originalCheckedState = this.checked;
+                                                        $('#confirmationMessageAccepted').text(`Are you sure you want to set this business to ${status}?`);
+                                                        $('#modalBusinessId').val(businessId);
 
-                                                            // If the user cancels the confirmation, revert the checkbox state
-                                                            document.querySelectorAll('#confirmationModalAccepted .btn-close, #confirmationModalAccepted .btn-secondary').forEach(button => {
-                                                                button.addEventListener('click', function() {
-                                                                    toggle.checked = !originalCheckedState;
-                                                                }, {
-                                                                    once: true
-                                                                });
-                                                            });
+                                                        const originalCheckedState = toggle.checked;
+                                                        toggle.checked = !originalCheckedState; // Revert temporarily
+
+                                                        const modal = new bootstrap.Modal(document.getElementById('confirmationModalAccepted'));
+                                                        modal.show();
+
+                                                        // Handle confirmation
+                                                        $('#confirmButtonAccepted').off('click').on('click', function() {
+                                                            toggle.checked = originalCheckedState;
+                                                            handleStatusUpdate(businessId, status, toggle);
+                                                            modal.hide();
                                                         });
-                                                    });
 
-                                                    document.querySelectorAll('.btn-danger[data-business-id]').forEach(function(button) {
-                                                        button.addEventListener('click', function(event) {
-                                                            businessId = this.dataset.businessId;
-                                                            archiveBusinessId.value = businessId;
-                                                            archiveModal.show();
+                                                        // Handle cancellation
+                                                        $('.btn-close, .btn-secondary', '#confirmationModalAccepted').off('click').on('click', function() {
+                                                            toggle.checked = !originalCheckedState;
+                                                            modal.hide();
                                                         });
                                                     });
                                                 }
 
-                                                displayApprovedBusinesses(); // Display all businesses on page load
-
-                                                const confirmationModalAccepted = new bootstrap.Modal(document.getElementById('confirmationModalAccepted'));
-                                                const confirmButtonAccepted = document.getElementById('confirmButtonAccepted');
-                                                const confirmationMessageAccepted = document.getElementById('confirmationMessageAccepted');
-                                                const modalBusinessId = document.getElementById('modalBusinessId');
-
-                                                const archiveModal = new bootstrap.Modal(document.getElementById('archiveModal'));
-                                                const confirmArchiveBtn = document.getElementById('confirmArchiveBtn');
-                                                const archiveBusinessId = document.getElementById('archiveBusinessId');
-
-                                                confirmButtonAccepted.addEventListener('click', function() {
-                                                    const businessId = modalBusinessId.value;
-                                                    if (actionType === 'toggle') {
-                                                        fetch('../backends/admin/active_inactive.php', {
-                                                                method: 'POST',
-                                                                headers: {
-                                                                    'Content-Type': 'application/json'
-                                                                },
-                                                                body: JSON.stringify({
-                                                                    id: businessId,
-                                                                    status: status
-                                                                })
-                                                            })
-                                                            .then(response => response.json())
-                                                            .then(data => {
-                                                                if (!data.success) {
-                                                                    alert('Failed to update status');
-                                                                    document.querySelector(`.switch-input[data-business-id="${businessId}"]`).checked = status === 'Active' ? false : true;
-                                                                } else {
-                                                                    document.querySelector(`.btn-danger[data-business-id="${businessId}"]`).disabled = status === 'Inactive' ? false : true;
-                                                                }
-                                                                confirmationModalAccepted.hide();
-                                                            })
-                                                            .catch(error => {
-                                                                console.error('Error:', error);
-                                                                alert('Failed to update status');
-                                                                document.querySelector(`.switch-input[data-business-id="${businessId}"]`).checked = status === 'Active' ? false : true;
-                                                                confirmationModalAccepted.hide();
-                                                            });
-                                                    }
-                                                });
-
-                                                confirmArchiveBtn.addEventListener('click', function() {
-                                                    const businessId = archiveBusinessId.value;
-                                                    fetch('../backends/admin/archive_account.php', {
+                                                function handleStatusUpdate(businessId, status, toggle) {
+                                                    fetch('../backends/admin/active_inactive.php', {
                                                             method: 'POST',
                                                             headers: {
-                                                                'Content-Type': 'application/x-www-form-urlencoded'
+                                                                'Content-Type': 'application/json'
                                                             },
-                                                            body: 'business_id=' + businessId
+                                                            body: JSON.stringify({
+                                                                id: businessId,
+                                                                status: status
+                                                            })
                                                         })
-                                                        .then(response => response.text())
+                                                        .then(response => response.json())
                                                         .then(data => {
-                                                            alert('Account archived successfully');
-                                                            location.reload();
+                                                            if (!data.success) {
+                                                                alert('Failed to update status');
+                                                                toggle.checked = !toggle.checked;
+                                                            } else {
+                                                                $(`.btn-danger[data-business-id="${businessId}"]`).prop('disabled', status === 'Active');
+                                                            }
                                                         })
                                                         .catch(error => {
                                                             console.error('Error:', error);
-                                                            alert('Failed to archive account');
+                                                            alert('Failed to update status');
+                                                            toggle.checked = !toggle.checked;
                                                         });
-                                                    archiveModal.hide();
-                                                });
+                                                }
 
-                                                document.getElementById('confirmationModalAccepted').addEventListener('hidden.bs.modal', function() {
-                                                    const backdrops = document.querySelectorAll('.modal-backdrop');
-                                                    backdrops.forEach(backdrop => {
-                                                        backdrop.parentNode.removeChild(backdrop);
-                                                    });
-                                                });
-
-                                                document.getElementById('archiveModal').addEventListener('hidden.bs.modal', function() {
-                                                    const backdrops = document.querySelectorAll('.modal-backdrop');
-                                                    backdrops.forEach(backdrop => {
-                                                        backdrop.parentNode.removeChild(backdrop);
-                                                    });
-                                                });
+                                                displayApprovedBusinesses();
                                             });
                                         </script>
 
