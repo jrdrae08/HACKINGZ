@@ -6,15 +6,19 @@ function fetchData($pdo, $startDate, $endDate)
   $query = "
     SELECT 
         DATE(t.created_at) as date,
-        SUM(t.totalnumAttendees) as totalnumAttendees
+        SUM(t.totalnumAttendees) as totalnumAttendees,
+        SUM(t.thisCity) as thisCity,
+        SUM(t.otherCity) as otherCity,
+        SUM(t.otherProvince) as otherProvince,
+        SUM(t.foreignCountry) as foreignCountry
     FROM (
-        SELECT created_at, totalnumAttendees 
+        SELECT created_at, totalnumAttendees, thisCity, otherCity, otherProvince, foreignCountry 
         FROM demographics 
         UNION ALL
-        SELECT created_at, totalnumAttendees 
+        SELECT created_at, totalnumAttendees, thisCity, otherCity, otherProvince, foreignCountry 
         FROM bownerdemographics
         UNION ALL
-        SELECT created_at, totalnumAttendees 
+        SELECT created_at, totalnumAttendees, thisCity, otherCity, otherProvince, foreignCountry 
         FROM userdemographics 
         WHERE isAccepted = 'Accepted'
     ) t

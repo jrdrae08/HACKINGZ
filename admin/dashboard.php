@@ -90,13 +90,16 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                             </div>
                         </div>
                         <div class="col-lg-4 col-12">
-
+                            <div class="chart-container bg-light rounded mt-3" style="position: relative;">
+                                <canvas id="locationPieChart"></canvas>
+                            </div>
                         </div>
                     </div>
 
                     <script type="text/javascript">
                         $(function() {
-                            let myLineChart = null; // Global chart instance
+                            let myLineChart = null;
+                            let locationPieChart = null;
                             var start = moment().subtract(29, 'days');
                             var end = moment();
 
@@ -125,16 +128,30 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                 fetch(`../../backends/admin/analytics_demog.php?startDate=${startDate}&endDate=${endDate}`)
                                     .then(response => response.json())
                                     .then(data => {
+                                        // Line Chart
                                         const labels = data.map(item => item.date);
                                         const totalAttendees = data.map(item => item.totalnumAttendees);
 
-                                        // Destroy existing chart if it exists
+                                        // Calculate location totals for pie chart
+                                        const locationTotals = data.reduce((acc, curr) => ({
+                                            thisCity: acc.thisCity + parseInt(curr.thisCity || 0),
+                                            otherCity: acc.otherCity + parseInt(curr.otherCity || 0),
+                                            otherProvince: acc.otherProvince + parseInt(curr.otherProvince || 0),
+                                            foreignCountry: acc.foreignCountry + parseInt(curr.foreignCountry || 0)
+                                        }), {
+                                            thisCity: 0,
+                                            otherCity: 0,
+                                            otherProvince: 0,
+                                            foreignCountry: 0
+                                        });
+
+                                        // Update Line Chart
                                         if (myLineChart) {
                                             myLineChart.destroy();
                                         }
 
-                                        const ctx = document.getElementById('myLineChart').getContext('2d');
-                                        myLineChart = new Chart(ctx, {
+                                        const lineCtx = document.getElementById('myLineChart').getContext('2d');
+                                        myLineChart = new Chart(lineCtx, {
                                             type: 'line',
                                             data: {
                                                 labels: labels,
@@ -163,6 +180,45 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                                                 return value;
                                                             }
                                                         }
+                                                    }
+                                                }
+                                            }
+                                        });
+
+                                        // Update Pie Chart
+                                        if (locationPieChart) {
+                                            locationPieChart.destroy();
+                                        }
+
+                                        const pieCtx = document.getElementById('locationPieChart').getContext('2d');
+                                        locationPieChart = new Chart(pieCtx, {
+                                            type: 'pie',
+                                            data: {
+                                                labels: ['This City', 'Other City', 'Other Province', 'Foreign Country'],
+                                                datasets: [{
+                                                    data: [
+                                                        locationTotals.thisCity,
+                                                        locationTotals.otherCity,
+                                                        locationTotals.otherProvince,
+                                                        locationTotals.foreignCountry
+                                                    ],
+                                                    backgroundColor: [
+                                                        'rgba(255, 99, 132, 0.8)',
+                                                        'rgba(54, 162, 235, 0.8)',
+                                                        'rgba(255, 206, 86, 0.8)',
+                                                        'rgba(75, 192, 192, 0.8)'
+                                                    ]
+                                                }]
+                                            },
+                                            options: {
+                                                responsive: true,
+                                                plugins: {
+                                                    legend: {
+                                                        position: 'bottom'
+                                                    },
+                                                    title: {
+                                                        display: true,
+                                                        text: 'Attendee Locations'
                                                     }
                                                 }
                                             }
