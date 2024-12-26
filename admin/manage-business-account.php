@@ -985,10 +985,10 @@ $totalInActive = getTotalInactive($pdo);
 
                                                             response.forEach(function(business) {
                                                                 var remark = '';
-                                                                if (business.PermitExpDate < new Date().toISOString().split('T')[0]) {
-                                                                    remark = '<span class="text-danger fw-bold">Expired Permit</span>';
-                                                                } else if (business.reuploadDate) {
+                                                                if (business.reuploadDate) {
                                                                     remark = '<span class="text-success fw-bold">Uploaded New</span>';
+                                                                } else if (business.PermitExpDate < new Date().toISOString().split('T')[0]) {
+                                                                    remark = '<span class="text-danger fw-bold">Expired Permit</span>';
                                                                 } else {
                                                                     remark = '<span class="text-warning fw-bold">Expired Soon</span>';
                                                                 }
@@ -1022,8 +1022,9 @@ $totalInActive = getTotalInactive($pdo);
                                                                     } // Disable searching for the "Actions" column
                                                                 ],
                                                                 order: [
-                                                                    [0, 'desc']
-                                                                ], // Sort first column (Date Registered) in descending order
+                                                                    [4, 'desc'], // Sort by the "Business Permit Remark" column in ascending order
+                                                                    [0, 'desc'] // Then sort by the "Date Registered" column in descending order
+                                                                ]
                                                             });
                                                         },
                                                         error: function() {
