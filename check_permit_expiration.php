@@ -94,11 +94,29 @@ try {
     $mail->send();
 
     // Update the ReminderSent column to 1
-    $updateStmt = $pdo->prepare('UPDATE businessapplicationform SET ReminderSent = 1 WHERE ApplicationID = :applicationID');
+    // Update ReminderSent and reset isRenew if conditions met
+    $updateStmt = $pdo->prepare('
+        UPDATE businessapplicationform 
+        SET 
+            ReminderSent = 1,
+            isRenew = CASE 
+                WHEN ReminderSent = 1 AND isRenew = 1 THEN 0
+                ELSE isRenew 
+            END
+        WHERE ApplicationID = :applicationID
+    ');
     $updateStmt->bindParam(':applicationID', $applicationID, PDO::PARAM_INT);
     $updateStmt->execute();
   }
-
+  // Update isActive in business_media if PermitExpDate is in the past and ReminderSent is 1
+  $updateMediaStmt = $pdo->prepare('
+  UPDATE business_media bm
+  JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
+  JOIN businessapplicationform baf ON bif.ApplicationID = baf.ApplicationID
+  SET bm.isActive = 0
+  WHERE baf.PermitExpDate < CURDATE() AND baf.ReminderSent = 1
+');
+  $updateMediaStmt->execute();
   echo 'Reminder emails sent successfully.';
 } catch (Exception $e) {
   error_log('Failed to send reminder emails: ' . $e->getMessage());
