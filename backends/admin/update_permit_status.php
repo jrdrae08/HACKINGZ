@@ -58,6 +58,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['applicationId'])) {
                                    WHERE ApplicationID = ?");
       $stmt->execute([$uniqueID . '-' . $baseName, $applicationId]);
 
+      // Update business_media isActive if it is 0
+      $updateMediaStmt = $pdo->prepare("UPDATE business_media bm
+JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
+SET bm.isActive = 1
+WHERE bif.ApplicationID = ? AND bm.isActive = 0");
+      $updateMediaStmt->execute([$applicationId]);
+
       // Send an email notification
       $mail = new PHPMailer(true);
       $mail->isSMTP();
