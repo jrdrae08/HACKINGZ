@@ -26,7 +26,7 @@ try {
   $renewalEndDate = new DateTime("{$nextYear}-01-20", $timezone);
 
   // Query the database for permits expiring on December 31st, with status 'Approved', and ReminderSent = 0
-  $stmt = $pdo->prepare('SELECT ApplicationID, Email, PermitExpDate FROM businessapplicationform WHERE PermitExpDate = :endOfYear AND Status = "Approved" AND ReminderSent = 0');
+  $stmt = $pdo->prepare('SELECT ApplicationID, Email, PermitExpDate, RefNum, RegistrantFirstName, RegistrantMiddleName, RegistrantLastName FROM businessapplicationform WHERE PermitExpDate = :endOfYear AND Status = "Approved" AND ReminderSent = 0');
   $stmt->bindParam(':endOfYear', $endOfYear->format('Y-m-d'), PDO::PARAM_STR);
   $stmt->execute();
   $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -35,6 +35,14 @@ try {
     $applicationID = $row['ApplicationID'];
     $email = $row['Email'];
     $permitExpDate = new DateTime($row['PermitExpDate']);
+    $refNum = $row['RefNum'];
+
+    // Fetch the business owner's name
+    $ownerName = $row['RegistrantFirstName'];
+    if (!empty($row['RegistrantMiddleName'])) {
+      $ownerName .= ' ' . $row['RegistrantMiddleName'];
+    }
+    $ownerName .= ' ' . $row['RegistrantLastName'];
 
     // Calculate the number of days left until the renewal period ends
     $daysLeft = $currentDate->diff($renewalEndDate)->days;
@@ -79,10 +87,12 @@ try {
       <td>
         <div style="max-width: 600px; background-color: #ffffff; border: 1px solid #eaebed; border-radius: 16px; margin: 20px auto; padding: 24px;">
           <img src="cid:logo_cid" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
-          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Dear Business Owner,</p>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Dear ' . $ownerName . ',</p>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">This is a reminder that your business permit is set to expire on ' . $permitExpDate->format('Y-m-d') . '.</p>
           <div class="countdown">Days left to renew: ' . $daysLeft . '</div>
-          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Please take the necessary steps to renew your permit before the renewal period ends on ' . $renewalEndDate->format('Y-m-d') . '.</p>
+            <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Please take the necessary steps to renew your permit. The renewal period starts on January 1 and ends on January 20, ' . $nextYear . '.</p>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Your reference number is: <strong>' . $refNum . '</strong>. You can use this reference number to renew your business permit by visiting the following link:</p>
+          <p><a href="https://majayjaytourism.ngrok.io/businessowner/enter_renew_code.php">Renew Your Business Permit</a></p>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Best regards,<br><strong>Majayjay Tourist Admin</strong></p>
         </div>
       </td>
