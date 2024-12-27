@@ -115,6 +115,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                 <div class="row d-flex justify-content-center">
                     <div class="col-xl-10 col-md-11 col-12">
                         <div class="tab-content">
+                            <input type="text" id="searchInput" class="form-control mb-3" placeholder="Search businesses...">
                             <div class="tab-pane fade <?= $activeTab === 'all' ? 'show active' : '' ?>" id="pills-all" role="tabpanel" aria-labelledby="pills-all-tab" tabindex="0">
                                 <div class="row d-flex justify-content-center">
                                     <?php foreach ($allBusinesses as $business): ?>
@@ -157,6 +158,119 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                     <?php endforeach; ?>
                                 </div>
                             </div>
+                            <script>
+                                document.addEventListener('DOMContentLoaded', function() {
+                                    const searchInput = document.getElementById('searchInput');
+                                    const containers = {
+                                        all: document.querySelector('#pills-all .row'),
+                                        resort: document.querySelector('#pills-resort .row'),
+                                        farms: document.querySelector('#pills-farms .row'),
+                                        falls: document.querySelector('#pills-falls .row')
+                                    };
+
+                                    // Store original content for each tab
+                                    const originalContent = {};
+                                    Object.keys(containers).forEach(key => {
+                                        if (containers[key]) {
+                                            originalContent[key] = containers[key].innerHTML;
+                                        }
+                                    });
+
+                                    let timeoutId;
+
+                                    searchInput.addEventListener('input', function(e) {
+                                        clearTimeout(timeoutId);
+                                        const searchTerm = e.target.value.trim();
+
+                                        // Restore original content if search is empty
+                                        if (!searchTerm) {
+                                            Object.keys(containers).forEach(key => {
+                                                if (containers[key]) {
+                                                    containers[key].innerHTML = originalContent[key];
+                                                }
+                                            });
+                                            return;
+                                        }
+
+                                        timeoutId = setTimeout(() => {
+                                            fetch(`../../backends/subadmin/search.php?q=${encodeURIComponent(searchTerm)}`)
+                                                .then(response => response.json())
+                                                .then(data => {
+                                                    if (data.status === 'success') {
+                                                        updateAllTabs(data.results);
+                                                    }
+                                                })
+                                                .catch(error => {
+                                                    console.error('Search error:', error);
+                                                    // Restore original content on error
+                                                    Object.keys(containers).forEach(key => {
+                                                        if (containers[key]) {
+                                                            containers[key].innerHTML = originalContent[key];
+                                                        }
+                                                    });
+                                                });
+                                        }, 300);
+                                    });
+
+                                    function updateAllTabs(businesses) {
+                                        const groupedBusinesses = {
+                                            all: businesses,
+                                            resort: businesses.filter(b => b.TypeName === 'Resort'),
+                                            farms: businesses.filter(b => b.TypeName === 'Farm'),
+                                            falls: businesses.filter(b => b.TypeName === 'Falls')
+                                        };
+
+                                        Object.keys(groupedBusinesses).forEach(type => {
+                                            const container = containers[type];
+                                            if (!container) return;
+
+                                            const results = groupedBusinesses[type];
+
+                                            if (!results.length) {
+                                                container.innerHTML = `
+                    <div class="col-12 text-center">
+                        <p class="text-muted">No businesses found matching your search.</p>
+                    </div>`;
+                                                return;
+                                            }
+
+                                            container.innerHTML = results.map(business => `
+                <div class="col-lg-6 col-12 mb-3">
+                    <a href="page-1.php?businessInfoID=${encodeURIComponent(business.BusinessInfoID)}" class="text-decoration-none">
+                        <div class="card card-trans shadow d-flex justify-content-center h-100">
+                            <div class="row g-0">
+                                <div class="col-lg-7 col-md-6 col-12">
+                                    <img src="../../businessowner/businessmediacategory/${business.Thumbnail}"
+                                        class="img-fluid rounded-start"
+                                        alt="Business Image"
+                                        style="object-fit: cover; height: 300px; width: 100%;">
+                                </div>
+                                <div class="col-lg-5 col-md-6 col-12 d-flex flex-column">
+                                    <div class="card-body d-flex flex-column">
+                                        <h5 class="card-title card-title-1 dm-sans-text fw-bold text-center text-color-1">
+                                            ${business.BusinessName}
+                                        </h5>
+                                        <p class="card-text-1 text-center text-truncate-8 dm-sans-text">
+                                            ${business.Quotation}
+                                        </p>
+                                        <div class="features mt-auto">
+                                            <p class="card-text dm-sans-text">
+                                                <small class="text-secondary border p-1 rounded fw-bold d-flex justify-content-center text-center">
+                                                    ${business.Features || 'No features available'}
+                                                </small>
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </a>
+                </div>
+            `).join('');
+                                        });
+                                    }
+                                });
+                            </script>
 
                             <div class="tab-pane fade <?= $activeTab === 'resort' ? 'show active' : '' ?>" id="pills-resort" role="tabpanel" aria-labelledby="pills-resort-tab" tabindex="0">
                                 <div class="row destination-lists d-flex justify-content-center">
@@ -400,6 +514,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
             </div>
         </section>
     </main>
+    <script src="https://cdn.jsdelivr.net/npm/fuse.js@7.0.0"></script>
 
 </body>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" integrity="sha384-YvpcrYf0tY3lHB60NNkmXc5s9fDVZLESaAA55NDzOxhy9GkcIdslK1eN7N6jIeHz" crossorigin="anonymous"></script>
