@@ -30,10 +30,12 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     array_push($errors, "Business Permit Expiration Date must be December 31.");
   }
 
-  // Fetch the existing PermitExpDate from the database
-  $stmt = $pdo->prepare("SELECT PermitExpDate FROM businessapplicationform WHERE ApplicationID = ?");
+  // Fetch the existing PermitExpDate and renewalReject from the database
+  $stmt = $pdo->prepare("SELECT PermitExpDate, renewalReject FROM businessapplicationform WHERE ApplicationID = ?");
   $stmt->execute([$applicationID]);
-  $existingPermitExpDate = $stmt->fetchColumn();
+  $result = $stmt->fetch(PDO::FETCH_ASSOC);
+  $existingPermitExpDate = $result['PermitExpDate'];
+  $renewalReject = $result['renewalReject'];
 
   if ($existingPermitExpDate) {
     $existingPermitExpDate = new DateTime($existingPermitExpDate);
@@ -94,10 +96,15 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
 
   if (empty($errors)) {
     try {
-      // Insert the new BusinessPermitImage, newPermitDate, and reuploadDate into the database
+      // Insert the new BusinessPermitImage, newPermitDate, reuploadDate, and reset renewalReject to 0 if it was 1
       $reuploadDate = $currentDate->format('Y-m-d');
-      $stmt = $pdo->prepare("UPDATE businessapplicationform SET BusinessPermitImage = ?, newPermitDate = ?, reuploadDate = ? WHERE ApplicationID = ?");
-      $stmt->execute([$newImageName, $pexpidate, $reuploadDate, $applicationID]);
+      if ($renewalReject == 1) {
+        $stmt = $pdo->prepare("UPDATE businessapplicationform SET BusinessPermitImage = ?, newPermitDate = ?, reuploadDate = ?, renewalReject = 0 WHERE ApplicationID = ?");
+        $stmt->execute([$newImageName, $pexpidate, $reuploadDate, $applicationID]);
+      } else {
+        $stmt = $pdo->prepare("UPDATE businessapplicationform SET BusinessPermitImage = ?, newPermitDate = ?, reuploadDate = ? WHERE ApplicationID = ?");
+        $stmt->execute([$newImageName, $pexpidate, $reuploadDate, $applicationID]);
+      }
 
       $_SESSION['type'] = "success";
       $_SESSION['message'] = "Business Permit updated successfully.";

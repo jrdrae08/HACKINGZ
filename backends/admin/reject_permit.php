@@ -46,14 +46,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['applicationId']) && i
       if (file_exists($newImagePath)) {
         unlink($newImagePath);
       }
-
       // Update the database
       $stmt = $pdo->prepare("UPDATE businessapplicationform 
-                                   SET newPermitDate = NULL, 
-                                       reuploadDate = NULL 
-                                   WHERE ApplicationID = ?");
+                       SET newPermitDate = NULL, 
+                           reuploadDate = NULL, 
+                           renewalReject = 1 
+                       WHERE ApplicationID = ?");
       $stmt->execute([$applicationId]);
-
       // Send an email notification
       $mail = new PHPMailer(true);
       $mail->isSMTP();
@@ -95,4 +94,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['applicationId']) && i
 } else {
   echo json_encode(['error' => 'Invalid request']);
 }
-

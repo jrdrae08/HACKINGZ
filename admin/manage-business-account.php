@@ -1095,6 +1095,7 @@ $totalInActive = getTotalInactive($pdo);
                                                         },
                                                         success: function(response) {
                                                             alert('Business permit status updated successfully.');
+                                                            location.reload();
                                                             $('#RenewalApproveModal').modal('hide');
                                                             $('#ResubmitModal').modal('hide');
                                                             fetchExpiredBusinesses(); // Refresh the table
@@ -1270,6 +1271,7 @@ $totalInActive = getTotalInactive($pdo);
                                                     success: function(response) {
                                                         console.log(response);
                                                         alert('Business permit renewal rejected successfully.');
+                                                        location.reload();
                                                         $('#RenewalRejectModal').modal('hide');
                                                         $('#RejectPermitModal').modal('hide');
                                                         $('#ResubmitModal').modal('hide');

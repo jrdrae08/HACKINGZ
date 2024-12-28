@@ -5,6 +5,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     header('Location: ../login.php');
     exit;
 }
+include '../includes/db.php';
+
+// Fetch the RefNum based on the ApplicationID stored in the session
+$applicationID = $_SESSION['bowner_id'];
+$stmt = $pdo->prepare('SELECT RefNum, ReminderSent, isRenew, reuploadDate, renewalReject FROM businessapplicationform WHERE ApplicationID = :applicationID');
+$stmt->execute(['applicationID' => $applicationID]);
+$application = $stmt->fetch(PDO::FETCH_ASSOC);
+$refNum = $application['RefNum'];
+$reminderSent = $application['ReminderSent'];
+$isRenew = $application['isRenew'];
+$reuploadDate = $application['reuploadDate'];
+$renewalReject = $application['renewalReject'];
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -31,7 +43,31 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
             <main class="content px-3 py-2">
                 <div class="container-fluid">
-                    <div class="mb-3">
+
+                    <?php if ($reminderSent == 1 && $isRenew == 0 && is_null($reuploadDate) && $renewalReject == 0): ?>
+                        <div class="warning bg-danger border border-secondary rounded shadow p-2 mb-2">
+                            <h5 class="fw-bold text-light">Warning!</h5>
+                            <p class="fw-bold text-light">Your business permit will soon expire. Please upload your new business permit as soon as possible to keep your business visible on the website. Use this reference number to renew your business: <strong><?php echo htmlspecialchars($refNum); ?></strong></p>
+                            <a href="https://majayjaytourism.ngrok.io/businessowner/enter_renew_code.php" class="btn btn-primary" target="_blank">Click here to upload</a>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($reminderSent == 1 && !is_null($reuploadDate)): ?>
+                        <div class="warning bg-warning border border-secondary rounded shadow p-2">
+                            <h5 class="fw-bold text-dark">Pending...</h5>
+                            <p class="fw-bold text-dark">Please wait for the Administrator to check and accept the business permit you uploaded.</p>
+                        </div>
+                    <?php endif; ?>
+
+                    <?php if ($reminderSent == 1 && $isRenew == 0 && is_null($reuploadDate) && $renewalReject == 1): ?>
+                        <div class="warning bg-danger border border-secondary rounded shadow p-2 mb-2">
+                            <h5 class="fw-bold text-light">Warning!</h5>
+                            <p class="fw-bold text-light">Your business permit has been rejected. Please upload your new business permit as soon as possible to keep your business visible on the website. You can check your email for the reason why your renewal was rejected. Use this reference number to renew your business: <strong><?php echo htmlspecialchars($refNum); ?></strong></p>
+                            <a href="https://majayjaytourism.ngrok.io/businessowner/enter_renew_code.php" class="btn btn-primary" target="_blank">Click here to upload</a>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="my-3">
                         <h3>Dashboard</h3>
                     </div>
                     <div class="row">
