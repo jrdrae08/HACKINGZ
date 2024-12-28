@@ -116,12 +116,6 @@ function resizeImage($file, $width, $height, $targetFile)
     case 'png':
       $image = imagecreatefrompng($file);
       break;
-    case 'gif':
-      $image = imagecreatefromgif($file);
-      break;
-    case 'webp':
-      $image = imagecreatefromwebp($file);
-      break;
     default:
       $_SESSION['error'] = "Unsupported image format.";
       header("Location: ../../businessowner/front-card.php");
