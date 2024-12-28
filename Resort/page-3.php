@@ -520,7 +520,7 @@ try {
                                                     <hr class="mt-5">
                                                     <h5 class="fw-bold">Companions' Information</h5>
                                                     <div class="col-12">
-                                                        <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="Select Checkin and Checkout Date" required>
+                                                        <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="Select Checkin and Checkout Date" required readonly>
                                                         <label for="daterange" class="fw-bold dm-sans-text">Select Checkin and Checkout Date</label>
                                                         <script>
                                                             $(document).ready(function() {
