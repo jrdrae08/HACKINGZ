@@ -107,7 +107,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       }
 
       $_SESSION['type'] = "success";
-      $_SESSION['message'] = "Business Permit updated successfully.";
       header('Location: ../../businessowner/success.php');
       exit();
     } catch (PDOException $e) {
