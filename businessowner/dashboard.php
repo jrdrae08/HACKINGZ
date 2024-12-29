@@ -210,10 +210,11 @@ include '../backends/subadmin/dashboard-notif.php';
                             }
 
                             function updateLineChart(data) {
-                                // Calculate total before chart creation
+                                // Initialize total with default 0
                                 const totalAttendees = data.reduce((sum, item) =>
                                     sum + parseInt(item.totalnumAttendees || 0), 0
                                 );
+
                                 console.log('Updating line chart');
                                 const ctx = document.getElementById('myLineChart').getContext('2d');
 
@@ -227,8 +228,8 @@ include '../backends/subadmin/dashboard-notif.php';
                                     data: {
                                         labels: data.map(item => moment(item.date).format('MM/DD/YYYY')),
                                         datasets: [{
-                                            label: `Total Attendees: ${totalAttendees}`,
-                                            data: data.map(item => item.totalnumAttendees),
+                                            label: `Total Attendees: ${totalAttendees || 0}`,
+                                            data: data.map(item => parseInt(item.totalnumAttendees || 0)),
                                             borderColor: 'rgb(75, 192, 192)',
                                             tension: 0.1
                                         }]
@@ -242,6 +243,14 @@ include '../backends/subadmin/dashboard-notif.php';
                                             },
                                             legend: {
                                                 display: true
+                                            }
+                                        },
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    precision: 0
+                                                }
                                             }
                                         }
                                     }
@@ -257,12 +266,21 @@ include '../backends/subadmin/dashboard-notif.php';
                                     pieChart.destroy();
                                 }
 
-                                const totals = data.reduce((acc, curr) => ({
-                                    thisCity: (acc.thisCity || 0) + parseInt(curr.thisCity || 0),
-                                    otherCity: (acc.otherCity || 0) + parseInt(curr.otherCity || 0),
-                                    otherProvince: (acc.otherProvince || 0) + parseInt(curr.otherProvince || 0),
-                                    foreignCountry: (acc.foreignCountry || 0) + parseInt(curr.foreignCountry || 0)
-                                }), {});
+                                // Initialize totals with defaults
+                                const totals = {
+                                    thisCity: 0,
+                                    otherCity: 0,
+                                    otherProvince: 0,
+                                    foreignCountry: 0
+                                };
+
+                                // Calculate with null checks
+                                data.forEach(curr => {
+                                    totals.thisCity += parseInt(curr.thisCity || 0);
+                                    totals.otherCity += parseInt(curr.otherCity || 0);
+                                    totals.otherProvince += parseInt(curr.otherProvince || 0);
+                                    totals.foreignCountry += parseInt(curr.foreignCountry || 0);
+                                });
 
                                 console.log('Location totals:', totals);
 
@@ -313,35 +331,45 @@ include '../backends/subadmin/dashboard-notif.php';
                                     barChart.destroy();
                                 }
 
-                                const totals = data.reduce((acc, curr) => ({
-                                    male: (acc.male || 0) + parseInt(curr.totalmale || 0),
-                                    female: (acc.female || 0) + parseInt(curr.totalfemale || 0)
-                                }), {});
+                                // Initialize with default values
+                                const totals = {
+                                    male: 0,
+                                    female: 0
+                                };
+
+                                // Calculate totals with null checks
+                                data.forEach(curr => {
+                                    totals.male += parseInt(curr.totalmale || 0);
+                                    totals.female += parseInt(curr.totalfemale || 0);
+                                });
 
                                 console.log('Gender totals:', totals);
 
                                 barChart = new Chart(ctx, {
                                     type: 'bar',
                                     data: {
-                                        labels: [`Male: ${totals.male}`, `Female: ${totals.female}`],
+                                        labels: [`Male: ${totals.male || 0}`, `Female: ${totals.female || 0}`],
                                         datasets: [{
                                             label: 'Gender Distribution',
-                                            data: [totals.male, totals.female],
+                                            data: [totals.male || 0, totals.female || 0],
                                             backgroundColor: ['#36A2EB', '#FF6384']
                                         }]
                                     },
                                     options: {
-                                        indexAxis: 'y', // This makes the chart horizontal
+                                        indexAxis: 'y',
                                         responsive: true,
                                         maintainAspectRatio: false,
                                         scales: {
-                                            x: { // Changed from y to x for horizontal
-                                                beginAtZero: true
+                                            x: {
+                                                beginAtZero: true,
+                                                ticks: {
+                                                    precision: 0 // Show whole numbers only
+                                                }
                                             }
                                         },
                                         plugins: {
                                             legend: {
-                                                display: false // Hide legend since labels contain the information
+                                                display: false
                                             }
                                         }
                                     }
@@ -354,6 +382,7 @@ include '../backends/subadmin/dashboard-notif.php';
                         });
                     </script>
                 </div>
+
             </main>
             <a href="#" class="theme-toggle">
                 <i class="fa-regular fa-sun"></i>
