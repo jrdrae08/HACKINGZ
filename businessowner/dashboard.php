@@ -382,7 +382,6 @@ include '../backends/subadmin/dashboard-notif.php';
                         });
                     </script>
                 </div>
-
             </main>
             <a href="#" class="theme-toggle">
                 <i class="fa-regular fa-sun"></i>

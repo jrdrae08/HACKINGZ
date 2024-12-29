@@ -71,6 +71,13 @@
                     Announcements
                 </a>
             </li>
+
+            <li class="sidebar-item">
+                <a href="../businessowner/print-demographics-report.php" class="sidebar-link">
+                    <i class="bi bi-printer"></i>
+                    Print Report
+                </a>
+            </li>
         </ul>
     </div>
 </aside>

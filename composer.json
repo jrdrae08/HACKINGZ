@@ -5,6 +5,7 @@
         "hayageek/oauth2-yahoo": "^2.0",
         "stevenmaguire/oauth2-microsoft": "^2.2",
         "greew/oauth2-azure-provider": "^1.0",
-        "endroid/qr-code": "^6.0"
+        "endroid/qr-code": "^6.0",
+        "tecnickcom/tcpdf": "^6.8"
     }
 }
