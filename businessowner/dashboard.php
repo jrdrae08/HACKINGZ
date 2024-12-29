@@ -210,6 +210,10 @@ include '../backends/subadmin/dashboard-notif.php';
                             }
 
                             function updateLineChart(data) {
+                                // Calculate total before chart creation
+                                const totalAttendees = data.reduce((sum, item) =>
+                                    sum + parseInt(item.totalnumAttendees || 0), 0
+                                );
                                 console.log('Updating line chart');
                                 const ctx = document.getElementById('myLineChart').getContext('2d');
 
@@ -223,7 +227,7 @@ include '../backends/subadmin/dashboard-notif.php';
                                     data: {
                                         labels: data.map(item => moment(item.date).format('MM/DD/YYYY')),
                                         datasets: [{
-                                            label: 'Daily Visitors',
+                                            label: `Total Attendees: ${totalAttendees}`,
                                             data: data.map(item => item.totalnumAttendees),
                                             borderColor: 'rgb(75, 192, 192)',
                                             tension: 0.1
@@ -265,7 +269,12 @@ include '../backends/subadmin/dashboard-notif.php';
                                 pieChart = new Chart(ctx, {
                                     type: 'pie',
                                     data: {
-                                        labels: ['This City', 'Other City', 'Other Province', 'Foreign'],
+                                        labels: [
+                                            `This City: ${totals.thisCity}`,
+                                            `Other City: ${totals.otherCity}`,
+                                            `Other Province: ${totals.otherProvince}`,
+                                            `Foreign: ${totals.foreignCountry}`
+                                        ],
                                         datasets: [{
                                             data: Object.values(totals),
                                             backgroundColor: ['#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0']
@@ -274,6 +283,19 @@ include '../backends/subadmin/dashboard-notif.php';
                                     options: {
                                         responsive: true,
                                         plugins: {
+                                            title: {
+                                                display: true,
+                                                text: 'Attendee Locations',
+                                                position: 'top',
+                                                font: {
+                                                    size: 12,
+                                                    bold: true
+                                                },
+                                                padding: {
+                                                    top: 10,
+                                                    bottom: 10
+                                                }
+                                            },
                                             legend: {
                                                 position: 'bottom'
                                             }
@@ -301,7 +323,7 @@ include '../backends/subadmin/dashboard-notif.php';
                                 barChart = new Chart(ctx, {
                                     type: 'bar',
                                     data: {
-                                        labels: ['Male', 'Female'],
+                                        labels: [`Male: ${totals.male}`, `Female: ${totals.female}`],
                                         datasets: [{
                                             label: 'Gender Distribution',
                                             data: [totals.male, totals.female],
