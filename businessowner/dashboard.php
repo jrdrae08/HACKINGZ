@@ -331,11 +331,17 @@ include '../backends/subadmin/dashboard-notif.php';
                                         }]
                                     },
                                     options: {
+                                        indexAxis: 'y', // This makes the chart horizontal
                                         responsive: true,
                                         maintainAspectRatio: false,
                                         scales: {
-                                            y: {
+                                            x: { // Changed from y to x for horizontal
                                                 beginAtZero: true
+                                            }
+                                        },
+                                        plugins: {
+                                            legend: {
+                                                display: false // Hide legend since labels contain the information
                                             }
                                         }
                                     }
