@@ -16,15 +16,14 @@ foreach ($businesses as $business) {
   $businessInfoID = $business['BusinessInfoID'];
 
   $featuresStmt = $pdo->prepare("
-        SELECT f.FeatureName 
+        SELECT f.FeatureID, f.FeatureName, bf.IsActive
         FROM business_features bf 
         JOIN features f ON bf.FeatureID = f.FeatureID
-        WHERE bf.BusinessInfoID = :businessInfoID AND f.IsActive = 1
+        WHERE bf.BusinessInfoID = :businessInfoID AND bf.IsActive = 1
     ");
   $featuresStmt->execute(['businessInfoID' => $businessInfoID]);
   $featuresData[$businessInfoID] = $featuresStmt->fetchAll(PDO::FETCH_ASSOC);
 }
-
 // Optional: You can output the data as JSON or in any format you prefer
 // header('Content-Type: application/json');
 // echo json_encode(['businesses' => $businesses, 'features' => $featuresData]);

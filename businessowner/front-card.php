@@ -167,7 +167,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                         <div class="row m-4">
                                             <div class="col-lg-4 col-md-6 mb-3 text-center">
                                                 <p>Image 1</p>
-                                                <input name="business-image-1" type="file" id="business-image-input-1" style="display: none;"  accept="image/jpeg, image/jpg, image/png"  onchange="uploadImage('business-image-input-1', 'business-image-1')" disabled>
+                                                <input name="business-image-1" type="file" id="business-image-input-1" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-1', 'business-image-1')" disabled>
                                                 <label for="business-image-input-1" class="image-container">
                                                     <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 1" id="business-image-1">
                                                 </label>
@@ -504,13 +504,18 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                 const featuresContainer = document.getElementById('featuresContainer');
                 featuresContainer.innerHTML = '';
 
+                if (features.length === 0) {
+                    featuresContainer.innerHTML = '<p>No features found.</p>';
+                    return;
+                }
+
                 features.forEach(feature => {
                     const featureDiv = document.createElement('div');
                     featureDiv.className = 'form-check form-check-inline';
                     featureDiv.innerHTML = `
-            <input class="form-check-input" type="checkbox" id="feature${feature.FeatureID}" value="${feature.FeatureID}" ${feature.IsActive == 1 ? 'checked' : ''} onchange="onCheckboxChange(${feature.FeatureID}, this)">
-            <label class="form-check-label" for="feature${feature.FeatureID}">${feature.FeatureName}</label>
-        `;
+                <input class="form-check-input" type="checkbox" id="feature${feature.FeatureID}" value="${feature.FeatureID}" ${feature.IsActive == 1 ? 'checked' : ''} onchange="onCheckboxChange(${feature.FeatureID}, this)">
+                <label class="form-check-label" for="feature${feature.FeatureID}">${feature.FeatureName}</label>
+            `;
                     featuresContainer.appendChild(featureDiv);
                 });
 
@@ -588,12 +593,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
             targetCheckbox.checked = !currentCheckedStatus;
         }
     });
-
-
-
-
-
-
 
     function toggleDeleteButton() {
         const selectedFeatures = document.querySelectorAll('.form-check-input:checked');
