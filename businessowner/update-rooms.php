@@ -6,7 +6,6 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     exit;
 }
 $roomID = $_GET['roomID'] ?? null;
-echo $roomID;
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">

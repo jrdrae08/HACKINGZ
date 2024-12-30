@@ -6,6 +6,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     header('Location: ../login.php');
     exit;
 }
+
 ?>
 <!DOCTYPE html>
 <html lang="en" data-bs-theme="dark">
@@ -30,47 +31,65 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
             <?php include '../businessowner/includes/navbar.php'; ?>
 
-            <main class="content px-3 py-2">
-                <div class="mb-3">
-                    <h3>Manage Accommodation</h3>
-                </div>
+            <main class="content py-2">
                 <div class="container-fluid">
+                    <div class="mb-3">
+                        <h3>Manage Accommodation</h3>
+                    </div>
                     <div class="row justify-content-center align-items-center g-2">
 
-                        <div class="col-lg-8 col-11 mb-4 d-flex justify-content-between">
+                        <div class="col-xl-9 col-12 mb-4 d-flex justify-content-between">
                             <a href="../businessowner/add-rooms.php" class="btn btn-success"><i class="bi bi-plus-circle pe-2"></i>Add Room</a>
                             <button type="button" class="btn btn-danger" data-bs-toggle="modal" data-bs-target="#archiveroom"><i class="bi bi-archive pe-2"></i></i>Archives</button>
                         </div>
 
-                        <div class="col-xl-8 col-lg-8 col-md-8">
+                        <div class="col-xl-9 col-12">
                             <?php if (!empty($rooms)): ?>
                                 <?php foreach ($rooms as $room): ?>
                                     <div class="card shadow-lg rounded">
                                         <div class="card-body">
                                             <div class="row d-flex justify-content-center">
-                                                <div class="col-xxl-7 col-xl-12 col-lg-10 col-sm-12">
-                                                    <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid img-thumbnail rounded" alt="room first image" style="object-fit: cover; height: 350px; width: 100%;">
+                                                <div class="col-xl-7 col-lg-7 col-sm-12">
+                                                    <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid rounded" alt="room first image" style="object-fit: cover; min-height: 100%; width: 100%;">
                                                 </div>
-                                                <div class="col-xxl-5 col-xl-8 col-lg-10 col-sm-12">
-                                                    <div>
-                                                        <h4 class="text-center mt-2"><strong>₱ <?php echo htmlspecialchars(number_format($room['roomPrice'], 2)); ?></strong></h4>
-                                                    </div>
+                                                <div class="col-xl-5 col-lg-5 col-sm-12">
+
                                                     <div class="col-md-12 d-flex justify-content-center">
-                                                        <h2 class="text-color-1 cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h2>
+                                                        <h2 class="text-success cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h2>
                                                     </div>
-                                                    <div class="col-md-12 d-flex justify-content-center">
-                                                        <p class="mx-3" style="text-align:justify;">Lorem ipsum dolor sit amet consectetur, adipisicing elit. Unde, sed? Lorem ipsum, dolor sit amet consectetur adipisicing elit. Id, voluptas?</p>
+
+                                                    <div class="col-md-12">
+                                                        <p><strong>Price</strong></p>
+                                                        <h6 class="">₱ <?php echo htmlspecialchars(number_format($room['roomPrice'], 2)); ?></h6>
                                                     </div>
-                                                    <div class="col-md-12 d-flex justify-content-center">
+                                                    <?php foreach ($rooms as $room): ?>
+                                                        <div class="col-md-12">
+                                                            <p><strong>Time Schedule</strong></p>
+                                                            <h6 class=""><?php echo date("g:i A", strtotime($room['timeStart'])); ?> - <?php echo date("g:i A", strtotime($room['timeEnd'])); ?></h6>
+                                                        </div>
+                                                    <?php endforeach; ?>
+                                                    <div class="col-md-12">
                                                         <p><strong>Features</strong></p>
-                                                    </div>
-                                                    <div class="col-md-12 d-flex justify-content-center">
-                                                        <p><strong>Facilities</strong></p>
+                                                        <div class="row g-2">
+                                                            <?php foreach ($room['features'] as $feature): ?>
+                                                                <div class="col-4">
+                                                                    <p><?php echo htmlspecialchars($feature['FeatureName']); ?></p>
+                                                                </div>
+                                                            <?php endforeach; ?>
+                                                        </div>
                                                     </div>
                                                     <div class="col-md-12">
-                                                        <div class="d-flex justify-content-center">
-                                                            <p><strong>Guests</strong></p>
+                                                        <p><strong>Facilities</strong></p>
+                                                        <div class="row g-2">
+                                                            <?php foreach ($room['facilities'] as $facility): ?>
+                                                                <div class="col-4">
+                                                                    <p><?php echo htmlspecialchars($facility['FacilityName']); ?></p>
+                                                                </div>
+                                                            <?php endforeach; ?>
                                                         </div>
+                                                    </div>
+                                                    <div class="col-md-12">
+                                                        <p><strong>Guests</strong></p>
                                                         <div class="d-flex justify-content-evenly">
                                                             <p>Max Adult: <?php echo htmlspecialchars($room['adultMax']); ?></p>
                                                             <p>Max Children: <?php echo htmlspecialchars($room['ChildrenMax']); ?></p>
