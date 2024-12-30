@@ -42,34 +42,34 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
             <!-- navbar -->
             <?php include '../admin/includes/navbar.php'; ?>
 
-            <main class="content px-3 py-2">
+            <main class="content py-2">
                 <div class="container-fluid">
                     <div class="mb-3">
                         <h3>Dashboard</h3>
                     </div>
                     <div class="row">
-                        <h5>Tourist Reservation</h5>
-                        <div class="col-12 col-md-4 d-flex">
+                        <h5>Totals</h5>
+                        <div class="col-12 col-md-4 mb-2 d-flex">
                             <div class="card flex-fill border-0 new shadow">
                                 <div class="card-body text-center">
-                                    <h5>New</h5>
-                                    <h4> 2</h4>
+                                    <h4 class="fw-bold" class="fw-bold">Total Visitors</h4>
+                                    <h5 class=""> 282,731,298</h5>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 mb-2 d-flex">
+                            <div class="card flex-fill border-0 ongoing shadow">
+                                <div class="card-body text-center">
+                                    <h4 class="fw-bold">Total Businesses Registered</h4>
+                                    <h5> 62,323</h5>
                                 </div>
                             </div>
                         </div>
                         <div class="col-12 col-md-4 d-flex">
-                            <div class="card flex-fill border-0 ongoing shadow">
-                                <div class="card-body text-center">
-                                    <h5>Ongoing</h5>
-                                    <h4> 6</h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4 d-flex s">
                             <div class="card flex-fill border-0 available shadow">
                                 <div class="card-body text-center">
-                                    <h5> Available Rooms</h5>
-                                    <h4>5</h4>
+                                    <h4 class="fw-bold">Total Tourist Account Registered</h4>
+                                    <h5>5</h5>
                                 </div>
                             </div>
                         </div>
@@ -77,27 +77,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                     <hr>
 
                     <div class="row mt-3">
-                        <div class="col-lg-8 col-12">
-                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                        <h5>Data Analytics</h5>
+                        <div class=" col-xl-3 col-lg-4 col-12 mb-3 d-flex">
+                            <p class="me-2">Filter:</p>
+                            <div id="reportrange" class="shadow rounded" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
                                 <i class="fa fa-calendar"></i>&nbsp;
                                 <span></span> <i class="fa fa-caret-down"></i>
                             </div>
-                            <div class="table-responsive">
-                                <div class="chart-container bg-light rounded mt-3" style="position: relative; height:50vh; width:100vh">
-                                    <canvas id="myLineChart"></canvas>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-8 col-12 mb-3">
+                                    <div class="table-responsive">
+                                        <div class="chart-container p-2 bg-light d-flex justify-content-center rounded shadow">
+                                            <canvas id="myLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-12 mb-2">
+                                    <div class="chart-container d-flex justify-content-center bg-light rounded p-2 shadow mb-3">
+                                        <canvas id="genderBarChart"></canvas>
+                                    </div>
+                                    <div class="chart-container d-flex justify-content-center bg-light rounded p-2 shadow">
+                                        <canvas id="locationPieChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-12 mb-2">
+
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-12">
-                            <div class="chart-container bg-light rounded mt-3" style="position: relative;">
-                                <canvas id="locationPieChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-12">
-                            <div class="chart-container bg-light rounded" style="position: relative; height:30vh">
-                                <canvas id="genderBarChart"></canvas>
-                            </div>
-                        </div>
+
+
+
                     </div>
 
                     <script type="text/javascript">
