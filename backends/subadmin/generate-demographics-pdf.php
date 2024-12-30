@@ -44,21 +44,11 @@ try {
   $query = "
     SELECT 
       DATE(t.created_at) as date,
-      COALESCE(SUM(CASE WHEN t.location = 'This City/Municipality' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as thisCityMale,
-      COALESCE(SUM(CASE WHEN t.location = 'This City/Municipality' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as thisCityFemale,
-      COALESCE(SUM(CASE WHEN t.location = 'Other City/Municipality' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as otherCityMale,
-      COALESCE(SUM(CASE WHEN t.location = 'Other City/Municipality' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as otherCityFemale,
-      COALESCE(SUM(CASE WHEN t.location = 'Other Province' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as otherProvinceMale,
-      COALESCE(SUM(CASE WHEN t.location = 'Other Province' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as otherProvinceFemale,
-      COALESCE(SUM(CASE WHEN t.location = 'Foreign Country' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as foreignCountryMale,
-      COALESCE(SUM(CASE WHEN t.location = 'Foreign Country' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as foreignCountryFemale,
-      COALESCE(SUM(CASE WHEN t.location = 'This City/Municipality' THEN 1 ELSE 0 END), 0) as thisCity,
-      COALESCE(SUM(CASE WHEN t.location = 'Other City/Municipality' THEN 1 ELSE 0 END), 0) as otherCity,
-      COALESCE(SUM(CASE WHEN t.location = 'Other Province' THEN 1 ELSE 0 END), 0) as otherProvince,
-      COALESCE(SUM(CASE WHEN t.location = 'Foreign Country' THEN 1 ELSE 0 END), 0) as foreignCountry,
       COALESCE(SUM(t.totalnumAttendees), 0) as totalnumAttendees,
       COALESCE(SUM(t.totalmale), 0) as totalmale,
-      COALESCE(SUM(t.totalfemale), 0) as totalfemale
+      COALESCE(SUM(t.totalfemale), 0) as totalfemale,
+      GROUP_CONCAT(t.sex ORDER BY t.created_at SEPARATOR ', ') as sex,
+      GROUP_CONCAT(t.location ORDER BY t.created_at SEPARATOR ', ') as location
     FROM (
       SELECT created_at, totalnumAttendees, totalmale, totalfemale, sex, location 
       FROM bownerdemographics 
@@ -87,43 +77,67 @@ try {
   $groupedData = [];
 
   foreach ($result as $row) {
-    $date = $row['date'];
+    $sexes = explode(', ', $row['sex']);
+    $locations = explode(', ', $row['location']);
 
-    if (!isset($groupedData[$date])) {
-      $groupedData[$date] = [
-        'thisCityMale' => 0,
-        'thisCityFemale' => 0,
-        'otherCityMale' => 0,
-        'otherCityFemale' => 0,
-        'otherProvinceMale' => 0,
-        'otherProvinceFemale' => 0,
-        'foreignCountryMale' => 0,
-        'foreignCountryFemale' => 0,
-        'totalnumAttendees' => 0,
-        'totalmale' => 0,
-        'totalfemale' => 0,
-        'thisCity' => 0,
-        'otherCity' => 0,
-        'otherProvince' => 0,
-        'foreignCountry' => 0
-      ];
+    foreach ($sexes as $index => $sex) {
+      $location = $locations[$index];
+
+      if (!isset($groupedData[$row['date']])) {
+        $groupedData[$row['date']] = [
+          'thisCityMale' => 0,
+          'thisCityFemale' => 0,
+          'otherCityMale' => 0,
+          'otherCityFemale' => 0,
+          'otherProvinceMale' => 0,
+          'otherProvinceFemale' => 0,
+          'foreignCountryMale' => 0,
+          'foreignCountryFemale' => 0,
+          'totalnumAttendees' => $row['totalnumAttendees'],
+          'totalmale' => $row['totalmale'],
+          'totalfemale' => $row['totalfemale'],
+          'thisCity' => 0,
+          'otherCity' => 0,
+          'otherProvince' => 0,
+          'foreignCountry' => 0
+        ];
+      }
+
+      switch ($location) {
+        case 'This City/Municipality':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['thisCityMale']++;
+          } else {
+            $groupedData[$row['date']]['thisCityFemale']++;
+          }
+          $groupedData[$row['date']]['thisCity']++;
+          break;
+        case 'Other City/Municipality':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['otherCityMale']++;
+          } else {
+            $groupedData[$row['date']]['otherCityFemale']++;
+          }
+          $groupedData[$row['date']]['otherCity']++;
+          break;
+        case 'Other Province':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['otherProvinceMale']++;
+          } else {
+            $groupedData[$row['date']]['otherProvinceFemale']++;
+          }
+          $groupedData[$row['date']]['otherProvince']++;
+          break;
+        case 'Foreign Country':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['foreignCountryMale']++;
+          } else {
+            $groupedData[$row['date']]['foreignCountryFemale']++;
+          }
+          $groupedData[$row['date']]['foreignCountry']++;
+          break;
+      }
     }
-
-    $groupedData[$date]['thisCityMale'] += $row['thisCityMale'];
-    $groupedData[$date]['thisCityFemale'] += $row['thisCityFemale'];
-    $groupedData[$date]['otherCityMale'] += $row['otherCityMale'];
-    $groupedData[$date]['otherCityFemale'] += $row['otherCityFemale'];
-    $groupedData[$date]['otherProvinceMale'] += $row['otherProvinceMale'];
-    $groupedData[$date]['otherProvinceFemale'] += $row['otherProvinceFemale'];
-    $groupedData[$date]['foreignCountryMale'] += $row['foreignCountryMale'];
-    $groupedData[$date]['foreignCountryFemale'] += $row['foreignCountryFemale'];
-    $groupedData[$date]['totalnumAttendees'] += $row['totalnumAttendees'];
-    $groupedData[$date]['totalmale'] += $row['totalmale'];
-    $groupedData[$date]['totalfemale'] += $row['totalfemale'];
-    $groupedData[$date]['thisCity'] += $row['thisCity'];
-    $groupedData[$date]['otherCity'] += $row['otherCity'];
-    $groupedData[$date]['otherProvince'] += $row['otherProvince'];
-    $groupedData[$date]['foreignCountry'] += $row['foreignCountry'];
   }
 
   // Generate table HTML

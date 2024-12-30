@@ -21,37 +21,29 @@ function fetchAnalytics($pdo, $startDate, $endDate, $applicationID)
     error_log("Fetching analytics for applicationID: $applicationID, date range: $startDate to $endDate");
 
     $query = "
-      SELECT 
-        DATE(t.created_at) as date,
-        COALESCE(SUM(CASE WHEN t.location = 'This City/Municipality' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as thisCityMale,
-        COALESCE(SUM(CASE WHEN t.location = 'This City/Municipality' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as thisCityFemale,
-        COALESCE(SUM(CASE WHEN t.location = 'Other City/Municipality' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as otherCityMale,
-        COALESCE(SUM(CASE WHEN t.location = 'Other City/Municipality' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as otherCityFemale,
-        COALESCE(SUM(CASE WHEN t.location = 'Other Province' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as otherProvinceMale,
-        COALESCE(SUM(CASE WHEN t.location = 'Other Province' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as otherProvinceFemale,
-        COALESCE(SUM(CASE WHEN t.location = 'Foreign Country' AND t.sex = 'Male' THEN 1 ELSE 0 END), 0) as foreignCountryMale,
-        COALESCE(SUM(CASE WHEN t.location = 'Foreign Country' AND t.sex = 'Female' THEN 1 ELSE 0 END), 0) as foreignCountryFemale,
-        COALESCE(SUM(CASE WHEN t.location = 'This City/Municipality' THEN 1 ELSE 0 END), 0) as thisCity,
-        COALESCE(SUM(CASE WHEN t.location = 'Other City/Municipality' THEN 1 ELSE 0 END), 0) as otherCity,
-        COALESCE(SUM(CASE WHEN t.location = 'Other Province' THEN 1 ELSE 0 END), 0) as otherProvince,
-        COALESCE(SUM(CASE WHEN t.location = 'Foreign Country' THEN 1 ELSE 0 END), 0) as foreignCountry,
-        COALESCE(SUM(t.totalnumAttendees), 0) as totalnumAttendees,
-        COALESCE(SUM(t.totalmale), 0) as totalmale,
-        COALESCE(SUM(t.totalfemale), 0) as totalfemale
-      FROM (
-        SELECT created_at, totalnumAttendees, totalmale, totalfemale, sex, location 
-        FROM bownerdemographics 
-        WHERE ApplicationID = :applicationID
-        UNION ALL
-        SELECT created_at, totalnumAttendees, totalmale, totalfemale, sex, location 
-        FROM userdemographics ud
-        INNER JOIN businessinformationform bi ON ud.BusinessInfoID = bi.BusinessInfoID
-        WHERE bi.ApplicationID = :applicationID 
-        AND ud.isAccepted = 'Accepted'
-      ) t
-      WHERE DATE(t.created_at) BETWEEN :startDate AND :endDate
-      GROUP BY DATE(t.created_at)
-      ORDER BY DATE(t.created_at)";
+            SELECT 
+                DATE(t.created_at) as date,
+                COALESCE(SUM(t.totalnumAttendees), 0) as totalnumAttendees,
+                COALESCE(SUM(t.totalmale), 0) as totalmale,
+                COALESCE(SUM(t.totalfemale), 0) as totalfemale,
+                GROUP_CONCAT(t.sex ORDER BY t.created_at SEPARATOR ', ') as sex,
+                GROUP_CONCAT(t.location ORDER BY t.created_at SEPARATOR ', ') as location
+            FROM (
+                SELECT created_at, totalnumAttendees, totalmale, totalfemale, 
+                       sex, location 
+                FROM bownerdemographics 
+                WHERE ApplicationID = :applicationID
+                UNION ALL
+                SELECT created_at, totalnumAttendees, totalmale, totalfemale, 
+                       sex, location 
+                FROM userdemographics ud
+                INNER JOIN businessinformationform bi ON ud.BusinessInfoID = bi.BusinessInfoID
+                WHERE bi.ApplicationID = :applicationID 
+                AND ud.isAccepted = 'Accepted'
+            ) t
+            WHERE DATE(t.created_at) BETWEEN :startDate AND :endDate
+            GROUP BY DATE(t.created_at)
+            ORDER BY DATE(t.created_at)";
 
     $stmt = $pdo->prepare($query);
     $params = [
@@ -65,7 +57,73 @@ function fetchAnalytics($pdo, $startDate, $endDate, $applicationID)
     $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     error_log("Query result count: " . count($result));
 
-    return $result;
+    $groupedData = [];
+
+    foreach ($result as $row) {
+      $sexes = explode(', ', $row['sex']);
+      $locations = explode(', ', $row['location']);
+
+      foreach ($sexes as $index => $sex) {
+        $location = $locations[$index];
+
+        if (!isset($groupedData[$row['date']])) {
+          $groupedData[$row['date']] = [
+            'thisCityMale' => 0,
+            'thisCityFemale' => 0,
+            'otherCityMale' => 0,
+            'otherCityFemale' => 0,
+            'otherProvinceMale' => 0,
+            'otherProvinceFemale' => 0,
+            'foreignCountryMale' => 0,
+            'foreignCountryFemale' => 0,
+            'totalnumAttendees' => $row['totalnumAttendees'],
+            'totalmale' => $row['totalmale'],
+            'totalfemale' => $row['totalfemale'],
+            'thisCity' => 0,
+            'otherCity' => 0,
+            'otherProvince' => 0,
+            'foreignCountry' => 0
+          ];
+        }
+
+        switch ($location) {
+          case 'This City/Municipality':
+            if ($sex === 'Male') {
+              $groupedData[$row['date']]['thisCityMale']++;
+            } else {
+              $groupedData[$row['date']]['thisCityFemale']++;
+            }
+            $groupedData[$row['date']]['thisCity']++;
+            break;
+          case 'Other City/Municipality':
+            if ($sex === 'Male') {
+              $groupedData[$row['date']]['otherCityMale']++;
+            } else {
+              $groupedData[$row['date']]['otherCityFemale']++;
+            }
+            $groupedData[$row['date']]['otherCity']++;
+            break;
+          case 'Other Province':
+            if ($sex === 'Male') {
+              $groupedData[$row['date']]['otherProvinceMale']++;
+            } else {
+              $groupedData[$row['date']]['otherProvinceFemale']++;
+            }
+            $groupedData[$row['date']]['otherProvince']++;
+            break;
+          case 'Foreign Country':
+            if ($sex === 'Male') {
+              $groupedData[$row['date']]['foreignCountryMale']++;
+            } else {
+              $groupedData[$row['date']]['foreignCountryFemale']++;
+            }
+            $groupedData[$row['date']]['foreignCountry']++;
+            break;
+        }
+      }
+    }
+
+    return array_values($groupedData);
   } catch (PDOException $e) {
     error_log("Database error: " . $e->getMessage());
     return ['error' => 'Database error occurred: ' . $e->getMessage()];
