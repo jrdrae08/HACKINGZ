@@ -41,27 +41,26 @@ try {
   $pdf->Cell(0, 10, "Period: " . date('F d, Y', strtotime($startDate)) . " - " . date('F d, Y', strtotime($endDate)), 0, 1, 'C');
 
   // Query data
-  $query = "SELECT 
-        DATE(t.created_at) as date,
-        COALESCE(SUM(t.totalnumAttendees), 0) as totalnumAttendees,
-        COALESCE(SUM(t.totalmale), 0) as totalmale,
-        COALESCE(SUM(t.totalfemale), 0) as totalfemale,
-        COALESCE(SUM(t.thisCity), 0) as thisCity,
-        COALESCE(SUM(t.otherCity), 0) as otherCity,
-        COALESCE(SUM(t.otherProvince), 0) as otherProvince,
-        COALESCE(SUM(t.foreignCountry), 0) as foreignCountry
+  $query = "
+    SELECT 
+      DATE(t.created_at) as date,
+      COALESCE(SUM(t.totalnumAttendees), 0) as totalnumAttendees,
+      COALESCE(SUM(t.totalmale), 0) as totalmale,
+      COALESCE(SUM(t.totalfemale), 0) as totalfemale,
+      GROUP_CONCAT(t.sex) as sex,
+      GROUP_CONCAT(t.location) as location
     FROM (
-        SELECT created_at, totalnumAttendees, totalmale, totalfemale, 
-               thisCity, otherCity, otherProvince, foreignCountry 
-        FROM bownerdemographics 
-        WHERE ApplicationID = :applicationID
-        UNION ALL
-        SELECT created_at, totalnumAttendees, totalmale, totalfemale, 
-               thisCity, otherCity, otherProvince, foreignCountry 
-        FROM userdemographics ud
-        INNER JOIN businessinformationform bi ON ud.BusinessInfoID = bi.BusinessInfoID
-        WHERE bi.ApplicationID = :applicationID 
-        AND ud.isAccepted = 'Accepted'
+      SELECT created_at, totalnumAttendees, totalmale, totalfemale, 
+             sex, location 
+      FROM bownerdemographics 
+      WHERE ApplicationID = :applicationID
+      UNION ALL
+      SELECT created_at, totalnumAttendees, totalmale, totalfemale, 
+             sex, location 
+      FROM userdemographics ud
+      INNER JOIN businessinformationform bi ON ud.BusinessInfoID = bi.BusinessInfoID
+      WHERE bi.ApplicationID = :applicationID 
+      AND ud.isAccepted = 'Accepted'
     ) t
     WHERE DATE(t.created_at) BETWEEN :startDate AND :endDate
     GROUP BY DATE(t.created_at)
@@ -73,6 +72,75 @@ try {
     'startDate' => $startDate,
     'endDate' => $endDate
   ]);
+
+  $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  error_log("Query result count: " . count($result));
+
+  $groupedData = [];
+
+  foreach ($result as $row) {
+    $sexes = explode(', ', $row['sex']);
+    $locations = explode(', ', $row['location']);
+
+    foreach ($sexes as $index => $sex) {
+      $location = $locations[$index];
+
+      if (!isset($groupedData[$row['date']])) {
+        $groupedData[$row['date']] = [
+          'thisCityMale' => 0,
+          'thisCityFemale' => 0,
+          'otherCityMale' => 0,
+          'otherCityFemale' => 0,
+          'otherProvinceMale' => 0,
+          'otherProvinceFemale' => 0,
+          'foreignCountryMale' => 0,
+          'foreignCountryFemale' => 0,
+          'totalnumAttendees' => $row['totalnumAttendees'],
+          'totalmale' => $row['totalmale'],
+          'totalfemale' => $row['totalfemale'],
+          'thisCity' => 0,
+          'otherCity' => 0,
+          'otherProvince' => 0,
+          'foreignCountry' => 0
+        ];
+      }
+
+      switch ($location) {
+        case 'This City/Municipality':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['thisCityMale']++;
+          } else {
+            $groupedData[$row['date']]['thisCityFemale']++;
+          }
+          $groupedData[$row['date']]['thisCity']++;
+          break;
+        case 'Other City/Municipality':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['otherCityMale']++;
+          } else {
+            $groupedData[$row['date']]['otherCityFemale']++;
+          }
+          $groupedData[$row['date']]['otherCity']++;
+          break;
+        case 'Other Province':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['otherProvinceMale']++;
+          } else {
+            $groupedData[$row['date']]['otherProvinceFemale']++;
+          }
+          $groupedData[$row['date']]['otherProvince']++;
+          break;
+        case 'Foreign Country':
+          if ($sex === 'Male') {
+            $groupedData[$row['date']]['foreignCountryMale']++;
+          } else {
+            $groupedData[$row['date']]['foreignCountryFemale']++;
+          }
+          $groupedData[$row['date']]['foreignCountry']++;
+          break;
+      }
+    }
+  }
 
   // Generate table HTML
   $html = '
@@ -107,8 +175,8 @@ try {
     </tr>
 </thead>
     <tbody>';
-  while ($row = $stmt->fetch()) {
-    $date = new DateTime($row['date']);
+  foreach ($groupedData as $date => $data) {
+    $dateObj = new DateTime($date);
     $html .= sprintf(
       '<tr>
               <td style="text-align:center;">%s</td>
@@ -127,21 +195,21 @@ try {
               <td style="text-align:center;">%d</td>
               <td style="text-align:center;">%d</td>
           </tr>',
-      $date->format('j'),
-      $date->format('D'),
-      $row['totalmale'] ?? 0,
-      $row['totalfemale'] ?? 0,
-      $row['thisCity'] ?? 0,
-      $row['totalmale'] ?? 0,
-      $row['totalfemale'] ?? 0,
-      $row['otherCity'] ?? 0,
-      $row['totalmale'] ?? 0,
-      $row['totalfemale'] ?? 0,
-      $row['otherProvince'] ?? 0,
-      $row['totalmale'] ?? 0,
-      $row['totalfemale'] ?? 0,
-      $row['foreignCountry'] ?? 0,
-      $row['totalnumAttendees'] ?? 0
+      $dateObj->format('j'),
+      $dateObj->format('D'),
+      $data['thisCityMale'] ?? 0,
+      $data['thisCityFemale'] ?? 0,
+      $data['thisCity'] ?? 0,
+      $data['otherCityMale'] ?? 0,
+      $data['otherCityFemale'] ?? 0,
+      $data['otherCity'] ?? 0,
+      $data['otherProvinceMale'] ?? 0,
+      $data['otherProvinceFemale'] ?? 0,
+      $data['otherProvince'] ?? 0,
+      $data['foreignCountryMale'] ?? 0,
+      $data['foreignCountryFemale'] ?? 0,
+      $data['foreignCountry'] ?? 0,
+      $data['totalnumAttendees'] ?? 0
     );
   }
 

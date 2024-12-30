@@ -108,35 +108,39 @@ $businessInfoID = $_SESSION['business_info_id'];
 
             function updateTable(startDate, endDate) {
               $.ajax({
-                url: '../../backends/subadmin/fetch_dashboard_analytics.php',
+                url: '../../backends/subadmin/print-report-bo.php',
                 type: 'GET',
                 data: {
                   startDate,
                   endDate
                 },
                 success: function(data) {
+                  if (!Array.isArray(data)) {
+                    console.error('Expected an array but got:', data);
+                    return;
+                  }
                   $('table tbody').empty();
                   data.forEach(item => {
                     const date = moment(item.date);
                     const row = `
-                    <tr>
-                        <td class="border-2 border-dark">${date.format('D')}</td>
-                        <td class="border-2 border-dark">${date.format('ddd')}</td>
-                        <td class="border-2 border-dark">${item.thisCityMale || 0}</td>
-                        <td class="border-2 border-dark">${item.thisCityFemale || 0}</td>
-                        <td class="border-2 border-dark">${item.thisCity || 0}</td>
-                        <td class="border-2 border-dark">${item.otherCityMale || 0}</td>
-                        <td class="border-2 border-dark">${item.otherCityFemale || 0}</td>
-                        <td class="border-2 border-dark">${item.otherCity || 0}</td>
-                        <td class="border-2 border-dark">${item.otherProvinceMale || 0}</td>
-                        <td class="border-2 border-dark">${item.otherProvinceFemale || 0}</td>
-                        <td class="border-2 border-dark">${item.otherProvince || 0}</td>
-                        <td class="border-2 border-dark">${item.foreignCountryMale || 0}</td>
-                        <td class="border-2 border-dark">${item.foreignCountryFemale || 0}</td>
-                        <td class="border-2 border-dark">${item.foreignCountry || 0}</td>
-                        <td class="border-2 border-dark">${item.totalnumAttendees || 0}</td>
-                    </tr>
-                `;
+        <tr>
+            <td class="border-2 border-dark">${date.format('D')}</td>
+            <td class="border-2 border-dark">${date.format('ddd')}</td>
+            <td class="border-2 border-dark">${item.thisCityMale || 0}</td>
+            <td class="border-2 border-dark">${item.thisCityFemale || 0}</td>
+            <td class="border-2 border-dark">${item.thisCity || 0}</td>
+            <td class="border-2 border-dark">${item.otherCityMale || 0}</td>
+            <td class="border-2 border-dark">${item.otherCityFemale || 0}</td>
+            <td class="border-2 border-dark">${item.otherCity || 0}</td>
+            <td class="border-2 border-dark">${item.otherProvinceMale || 0}</td>
+            <td class="border-2 border-dark">${item.otherProvinceFemale || 0}</td>
+            <td class="border-2 border-dark">${item.otherProvince || 0}</td>
+            <td class="border-2 border-dark">${item.foreignCountryMale || 0}</td>
+            <td class="border-2 border-dark">${item.foreignCountryFemale || 0}</td>
+            <td class="border-2 border-dark">${item.foreignCountry || 0}</td>
+            <td class="border-2 border-dark">${item.totalnumAttendees || 0}</td>
+        </tr>
+    `;
                     $('table tbody').append(row);
                   });
                 }
