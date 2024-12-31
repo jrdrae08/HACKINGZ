@@ -115,13 +115,33 @@ $businessInfoID = $_SESSION['business_info_id'];
                   endDate
                 },
                 success: function(data) {
+                  console.log('Data received:', data); // Debug data structure
+
                   if (!Array.isArray(data)) {
                     console.error('Expected an array but got:', data);
                     return;
                   }
+
                   $('table tbody').empty();
                   data.forEach(item => {
-                    const date = moment(item.date);
+                    console.log('Processing item:', item); // Debug item
+
+                    // Ensure date field exists
+                    if (!item.date) {
+                      console.error('No date field in item:', item);
+                      return;
+                    }
+
+                    // Parse the grouped date from backend
+                    const date = moment(item.date, 'YYYY-MM-DD');
+
+                    if (!date.isValid()) {
+                      console.error('Invalid grouped date:', item.date);
+                      return;
+                    }
+
+                    console.log('Parsed date:', date.format('YYYY-MM-DD')); // Debug parsed date
+
                     const row = `
         <tr>
             <td class="border-2 border-dark">${date.format('D')}</td>
@@ -139,10 +159,12 @@ $businessInfoID = $_SESSION['business_info_id'];
             <td class="border-2 border-dark">${item.foreignCountryFemale || 0}</td>
             <td class="border-2 border-dark">${item.foreignCountry || 0}</td>
             <td class="border-2 border-dark">${item.totalnumAttendees || 0}</td>
-        </tr>
-    `;
+        </tr>`;
                     $('table tbody').append(row);
                   });
+                },
+                error: function(xhr, status, error) {
+                  console.error('Ajax error:', error);
                 }
               });
             }

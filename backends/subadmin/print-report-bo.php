@@ -68,6 +68,7 @@ function fetchAnalytics($pdo, $startDate, $endDate, $applicationID)
 
         if (!isset($groupedData[$row['date']])) {
           $groupedData[$row['date']] = [
+            'date' => $row['date'], // Ensure date is included
             'thisCityMale' => 0,
             'thisCityFemale' => 0,
             'otherCityMale' => 0,
