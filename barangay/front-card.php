@@ -500,6 +500,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
         const selectedHighlights = document.querySelectorAll('.form-check-input:checked');
         const highlightIDs = Array.from(selectedHighlights).map(checkbox => checkbox.value);
 
+        console.log('Selected highlights for deletion:', highlightIDs); // Debugging statement
+
         highlightIDs.forEach(highlightID => {
             fetch('../../backends/barangay/delete_highlights.php', {
                     method: 'POST',
@@ -512,12 +514,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                 })
                 .then(response => response.json())
                 .then(data => {
+                    console.log('Delete response:', data); // Debugging statement
                     if (data.status === 'success') {
                         fetchHighlights();
                         notyf.success(data.message);
                     } else {
                         notyf.error(data.message);
                     }
+                })
+                .catch(error => {
+                    console.error('Error deleting highlight:', error); // Debugging statement
+                    notyf.error('Error deleting highlight');
                 });
         });
     }
