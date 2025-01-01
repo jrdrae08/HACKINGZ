@@ -240,7 +240,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                         <div class="card card-trans shadow d-flex justify-content-center h-100">
                             <div class="row g-0">
                                 <div class="col-lg-7 col-md-6 col-12">
-                                    <img src="../../businessowner/businessmediacategory/${business.Thumbnail}"
+                                    <img src="${business.TypeName === 'Falls' ? '../../barangay/fallsCategory/' : '../../businessowner/businessmediacategory/'}${business.Thumbnail}"
                                         class="img-fluid rounded-start"
                                         alt="Business Image"
                                         style="object-fit: cover; height: 300px; width: 100%;">
@@ -248,7 +248,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                 <div class="col-lg-5 col-md-6 col-12 d-flex flex-column">
                                     <div class="card-body d-flex flex-column">
                                         <h5 class="card-title card-title-1 dm-sans-text fw-bold text-center text-color-1">
-                                            ${business.BusinessName}
+                                            ${business.BusinessName || business.establishment}
                                         </h5>
                                         <p class="card-text-1 text-center text-truncate-8 dm-sans-text">
                                             ${business.Quotation}
@@ -383,29 +383,29 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                                     <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                         <div class="row g-0">
                                                             <div class="col-xl-7 col-lg-6 col-md-6 col-12">
-                                                                <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
+                                                                <img src="../../barangay/fallsCategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
                                                                     class="img-fluid rounded-start"
                                                                     alt="Business Image"
                                                                     style="object-fit: cover; height: 300px; width: 100%;">
                                                             </div>
                                                             <div class="col-xl-5 col-lg-6 col-md-6 col-12 d-flex flex-column">
                                                                 <div class="card-body d-flex flex-column"> <!-- flex-column to make content stack vertically -->
-                                                                    <h5 class="card-title card-title-1 dm-sans-text fw-bold text-center text-color-1"><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
+                                                                    <h5 class="card-title card-title-1 dm-sans-text fw-bold text-center text-color-1"><?php echo htmlspecialchars($business['establishment']); ?></h5>
                                                                     <p class="card-text-1 text-center text-truncate-8 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
                                                                     <div class="features mt-auto"> <!-- mt-auto pushes the features to the bottom of the card body -->
                                                                         <p class="card-text dm-sans-text">
-                                                                            < <small class="text-secondary border p-1 rounded fw-bold d-flex justify-content-center text-center">
+                                                                            <small class="text-secondary border p-1 rounded fw-bold d-flex justify-content-center text-center">
                                                                                 <?php
-                                                                                $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
-                                                                                if (!empty($currentBusinessFeatures)):
-                                                                                    foreach ($currentBusinessFeatures as $feature):
-                                                                                        echo htmlspecialchars($feature['FeatureName']) . ' • ';
+                                                                                $currentBusinessHighlights = $organizedHighlights[$business['barangayId']] ?? [];
+                                                                                if (!empty($currentBusinessHighlights)):
+                                                                                    foreach ($currentBusinessHighlights as $highlight):
+                                                                                        echo htmlspecialchars($highlight['HighlightName']) . ' • ';
                                                                                     endforeach;
                                                                                 else:
-                                                                                    echo 'No features available';
+                                                                                    echo 'No highlights available';
                                                                                 endif;
                                                                                 ?>
-                                                                                </small>
+                                                                            </small>
                                                                         </p>
                                                                     </div>
                                                                 </div>

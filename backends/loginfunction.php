@@ -71,6 +71,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         if ($account['role'] == 'subadmin') {
           if ($account['BusinessType'] === 'Falls') {
             $_SESSION['role'] = 'barangay';
+            $_SESSION['barangay_id'] = $account['barangayId']; // Store barangayId in session
             header("Location: ../barangay/dashboard.php");
           } else {
             $_SESSION['role'] = 'businessowner';
@@ -78,8 +79,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
           }
           exit;
         }
-      }
-    }
+            }
+          }
 
     // Check in the useraccount table
     $stmt = $pdo->prepare("SELECT * FROM useraccount WHERE email = ?");
