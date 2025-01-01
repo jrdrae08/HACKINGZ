@@ -167,7 +167,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                                                 <p>Image 1</p>
                                                 <input name="business-image-1" type="file" id="business-image-input-1" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-1', 'business-image-1')" disabled>
                                                 <label for="business-image-input-1" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 1" id="business-image-1">
+                                                    <img src="<?= isset($existingMedia['Image1']) ? '../../barangay/fallsCategory/' . htmlspecialchars($existingMedia['Image1']) : '../img/general-img/insert.png' ?>" class="rounded img-fluid shadow border" alt="Business Image 1" id="business-image-1">
                                                 </label>
                                             </div>
 
@@ -175,7 +175,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                                                 <p>Image 2</p>
                                                 <input name="business-image-2" type="file" id="business-image-input-2" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-2', 'business-image-2')" disabled>
                                                 <label for="business-image-input-2" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 2" id="business-image-2">
+                                                    <img src="<?= isset($existingMedia['Image2']) ? '../../barangay/fallsCategory/' . htmlspecialchars($existingMedia['Image2']) : '../img/general-img/insert.png' ?>" class="rounded img-fluid shadow border" alt="Business Image 2" id="business-image-2">
                                                 </label>
                                             </div>
 
@@ -183,7 +183,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                                                 <p>Image 3</p>
                                                 <input name="business-image-3" type="file" id="business-image-input-3" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-3', 'business-image-3')" disabled>
                                                 <label for="business-image-input-3" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 3" id="business-image-3">
+                                                    <img src="<?= isset($existingMedia['Image3']) ? '../../barangay/fallsCategory/' . htmlspecialchars($existingMedia['Image3']) : '../img/general-img/insert.png' ?>" class="rounded img-fluid shadow border" alt="Business Image 3" id="business-image-3">
                                                 </label>
                                             </div>
 
@@ -191,7 +191,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                                                 <p>Image 4</p>
                                                 <input name="business-image-4" type="file" id="business-image-input-4" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-4', 'business-image-4')" disabled>
                                                 <label for="business-image-input-4" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 4" id="business-image-4">
+                                                    <img src="<?= isset($existingMedia['Image4']) ? '../../barangay/fallsCategory/' . htmlspecialchars($existingMedia['Image4']) : '../img/general-img/insert.png' ?>" class="rounded img-fluid shadow border" alt="Business Image 4" id="business-image-4">
                                                 </label>
                                             </div>
 
@@ -199,7 +199,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                                                 <p>Image 5</p>
                                                 <input name="business-image-5" type="file" id="business-image-input-5" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-5', 'business-image-5')" disabled>
                                                 <label for="business-image-input-5" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 5" id="business-image-5">
+                                                    <img src="<?= isset($existingMedia['Image5']) ? '../../barangay/fallsCategory/' . htmlspecialchars($existingMedia['Image5']) : '../img/general-img/insert.png' ?>" class="rounded img-fluid shadow border" alt="Business Image 5" id="business-image-5">
                                                 </label>
                                             </div>
 
@@ -207,7 +207,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                                                 <p>Image 6</p>
                                                 <input name="business-image-6" type="file" id="business-image-input-6" style="display: none;" accept="image/jpeg, image/jpg, image/png" onchange="uploadImage('business-image-input-6', 'business-image-6')" disabled>
                                                 <label for="business-image-input-6" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 6" id="business-image-6">
+                                                    <img src="<?= isset($existingMedia['Image6']) ? '../../barangay/fallsCategory/' . htmlspecialchars($existingMedia['Image6']) : '../img/general-img/insert.png' ?>" class="rounded img-fluid shadow border" alt="Business Image 6" id="business-image-6">
                                                 </label>
                                             </div>
                                         </div>

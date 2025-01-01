@@ -26,7 +26,7 @@ function uploadFile($inputName, $existingFile = null)
   $targetDir = "../../barangay/fallsCategory/";
   $originalName = basename($_FILES[$inputName]["name"]);
   $fileExtension = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
-  $uniqueName = uniqid() . '.' . $fileExtension;
+  $uniqueName = uniqid() . '.webp';
   $targetFile = $targetDir . $uniqueName;
 
   // Check if image file is an actual image
@@ -37,13 +37,40 @@ function uploadFile($inputName, $existingFile = null)
     exit;
   }
 
-  if (move_uploaded_file($_FILES[$inputName]["tmp_name"], $targetFile)) {
+  // Compress and convert image to WebP
+  $image = null;
+  switch ($fileExtension) {
+    case 'jpg':
+    case 'jpeg':
+      $image = imagecreatefromjpeg($_FILES[$inputName]["tmp_name"]);
+      break;
+    case 'png':
+      $image = imagecreatefrompng($_FILES[$inputName]["tmp_name"]);
+      break;
+    case 'gif':
+      $image = imagecreatefromgif($_FILES[$inputName]["tmp_name"]);
+      break;
+    default:
+      $_SESSION['error'] = "Unsupported file type.";
+      header("Location: ../../barangay/front-card.php");
+      exit;
+  }
+
+  if ($image === null) {
+    $_SESSION['error'] = "Failed to create image resource.";
+    header("Location: ../../barangay/front-card.php");
+    exit;
+  }
+
+  if (imagewebp($image, $targetFile, 80)) { // 80 is the quality for WebP
+    imagedestroy($image);
     // Delete the old file if it exists
     if ($existingFile && file_exists($targetDir . $existingFile)) {
       unlink($targetDir . $existingFile);
     }
     return $uniqueName;
   } else {
+    imagedestroy($image);
     $_SESSION['error'] = "Sorry, there was an error uploading your file.";
     header("Location: ../../barangay/front-card.php");
     exit;
@@ -51,20 +78,43 @@ function uploadFile($inputName, $existingFile = null)
 }
 
 try {
+  // Validate quotation
+  if (empty($_POST['quotation'])) {
+    $_SESSION['error'] = 'Quotation is required.';
+    header('Location: ../../barangay/front-card.php');
+    exit;
+  }
+
   // Check if the barangay already has media
   $stmt = $pdo->prepare("SELECT * FROM business_media WHERE barangayId = ?");
   $stmt->execute([$barangayId]);
   $existingMedia = $stmt->fetch(PDO::FETCH_ASSOC);
 
   // Handle file uploads with unique names
-  $defaultImage = 'default-image.png'; // Set a path to a default image or keep it as null
-  $thumbnail = uploadFile('thumbnail-image-1', $existingMedia['Thumbnail'] ?? null) ?? $defaultImage;
-  $image1 = uploadFile('business-image-1', $existingMedia['Image1'] ?? null) ?? $defaultImage;
-  $image2 = uploadFile('business-image-2', $existingMedia['Image2'] ?? null) ?? $defaultImage;
-  $image3 = uploadFile('business-image-3', $existingMedia['Image3'] ?? null) ?? $defaultImage;
-  $image4 = uploadFile('business-image-4', $existingMedia['Image4'] ?? null) ?? $defaultImage;
-  $image5 = uploadFile('business-image-5', $existingMedia['Image5'] ?? null) ?? $defaultImage;
-  $image6 = uploadFile('business-image-6', $existingMedia['Image6'] ?? null) ?? $defaultImage;
+  $thumbnail = uploadFile('thumbnail-image-1', $existingMedia['Thumbnail'] ?? null);
+  $image1 = uploadFile('business-image-1', $existingMedia['Image1'] ?? null);
+  $image2 = uploadFile('business-image-2', $existingMedia['Image2'] ?? null);
+  $image3 = uploadFile('business-image-3', $existingMedia['Image3'] ?? null);
+  $image4 = uploadFile('business-image-4', $existingMedia['Image4'] ?? null);
+  $image5 = uploadFile('business-image-5', $existingMedia['Image5'] ?? null);
+  $image6 = uploadFile('business-image-6', $existingMedia['Image6'] ?? null);
+
+  // Validate that at least the thumbnail and two images are uploaded
+  $uploadedImages = array_filter([$image1, $image2, $image3, $image4, $image5, $image6]);
+
+  if (empty($thumbnail) || count($uploadedImages) < 2) {
+    $_SESSION['error'] = 'Please upload at least the thumbnail and two images.';
+    header('Location: ../../barangay/front-card.php');
+    exit;
+  }
+
+  // Set non-uploaded images to null
+  $image1 = $image1 ?: null;
+  $image2 = $image2 ?: null;
+  $image3 = $image3 ?: null;
+  $image4 = $image4 ?: null;
+  $image5 = $image5 ?: null;
+  $image6 = $image6 ?: null;
 
   $quotation = $_POST['quotation'];
 
