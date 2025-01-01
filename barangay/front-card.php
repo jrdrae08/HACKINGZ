@@ -45,9 +45,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
 
 <body>
     <div class="wrapper">
-        <?php include '../businessowner/includes/aside.php'; ?>
+        <?php include '../barangay/includes/aside.php'; ?>
         <div class="main">
-            <?php include '../businessowner/includes/navbar.php'; ?>
+            <?php include '../barangay/includes/navbar.php'; ?>
             <main class="content px-3 py-2">
                 <div class="container-fluid">
                     <div class="mb-3">
