@@ -2,7 +2,7 @@
 // include '../backends/subadmin/fetch_alldestination_category.php';
 include '../backends/subadmin/fetch_resortdestination_category.php';
 include '../backends/subadmin/fetch_features_category.php';
-
+include '../backends/barangay/fetch_highlights_category.php';
 session_start();
 
 // Check if userID is set in the URL and store it in the session
