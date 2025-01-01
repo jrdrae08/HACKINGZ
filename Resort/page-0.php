@@ -124,27 +124,33 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                                 <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                     <div class="row g-0">
                                                         <div class="col-lg-7 col-md-6 col-12">
-                                                            <img src="../../businessowner/businessmediacategory/<?php echo htmlspecialchars($business['Thumbnail']); ?>"
+                                                            <img src="<?= $business['TypeName'] === 'Falls' ? '../../barangay/fallsCategory/' : '../../businessowner/businessmediacategory/' ?><?php echo htmlspecialchars($business['Thumbnail']); ?>"
                                                                 class="img-fluid rounded-start"
                                                                 alt="Business Image"
                                                                 style="object-fit: cover; height: 300px; width: 100%;">
                                                         </div>
                                                         <div class="col-lg-5 col-md-6 col-12 d-flex flex-column">
                                                             <div class="card-body d-flex flex-column "> <!-- flex-column to make content stack vertically -->
-                                                                <h5 class="card-title card-title-1 dm-sans-text fw-bold text-center text-color-1"><?php echo htmlspecialchars($business['BusinessName']); ?></h5>
+                                                                <h5 class="card-title card-title-1 dm-sans-text fw-bold text-center text-color-1"><?php echo htmlspecialchars($business['BusinessName'] ?? $business['establishment']); ?></h5>
                                                                 <p class="card-text-1 text-center text-truncate-8 dm-sans-text"><?php echo htmlspecialchars($business['Quotation']); ?></p>
                                                                 <div class="features mt-auto"> <!-- mt-auto pushes the features to the bottom of the card body -->
                                                                     <p class="card-text dm-sans-text">
                                                                         <small class="text-secondary border p-1 rounded fw-bold d-flex justify-content-center text-center">
                                                                             <?php
-                                                                            $currentBusinessFeatures = $featuresData[$business['BusinessInfoID']] ?? [];
-                                                                            if (!empty($currentBusinessFeatures)):
-                                                                                foreach ($currentBusinessFeatures as $feature):
-                                                                                    echo htmlspecialchars($feature['FeatureName']) . ' • ';
-                                                                                endforeach;
-                                                                            else:
-                                                                                echo 'No features available';
-                                                                            endif;
+                                                                            if ($business['TypeName'] === 'Falls' && isset($business['barangayId'])) {
+                                                                                $currentBusinessHighlights = $organizedHighlights[$business['barangayId']] ?? [];
+                                                                                if (!empty($currentBusinessHighlights)) {
+                                                                                    foreach ($currentBusinessHighlights as $highlight) {
+                                                                                        echo htmlspecialchars($highlight['HighlightName']) . ' • ';
+                                                                                    }
+                                                                                } else {
+                                                                                    echo 'No highlights available';
+                                                                                }
+                                                                            } else {
+                                                                                echo !empty($featuresData[$business['BusinessInfoID']])
+                                                                                    ? implode(' • ', array_map('htmlspecialchars', array_column($featuresData[$business['BusinessInfoID']], 'FeatureName')))
+                                                                                    : 'No features available';
+                                                                            }
                                                                             ?>
                                                                         </small>
                                                                     </p>
@@ -256,7 +262,22 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                         <div class="features mt-auto">
                                             <p class="card-text dm-sans-text">
                                                 <small class="text-secondary border p-1 rounded fw-bold d-flex justify-content-center text-center">
-                                                    ${business.Features || 'No features available'}
+                                                    <?php
+                                                    if ($business['TypeName'] === 'Falls' && isset($business['barangayId'])) {
+                                                        $currentBusinessHighlights = $organizedHighlights[$business['barangayId']] ?? [];
+                                                        if (!empty($currentBusinessHighlights)) {
+                                                            foreach ($currentBusinessHighlights as $highlight) {
+                                                                echo htmlspecialchars($highlight['HighlightName']) . ' • ';
+                                                            }
+                                                        } else {
+                                                            echo 'No highlights available';
+                                                        }
+                                                    } else {
+                                                        echo !empty($featuresData[$business['BusinessInfoID']])
+                                                            ? implode(' • ', array_map('htmlspecialchars', array_column($featuresData[$business['BusinessInfoID']], 'FeatureName')))
+                                                            : 'No features available';
+                                                    }
+                                                    ?>
                                                 </small>
                                             </p>
                                         </div>
