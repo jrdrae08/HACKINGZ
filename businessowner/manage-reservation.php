@@ -250,6 +250,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                 fetchNewReservations(); // Refresh the reservations list
                                                                 $('#confirmationModalApprove').modal('hide');
                                                                 notyf.success('Reservation approved successfully!');
+                                                                setTimeout(function() {
+                                                                    location.reload();
+                                                                }, 3000);
                                                             } else {
                                                                 notyf.error(response.message);
                                                             }
@@ -699,6 +702,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                 fetchUpcomingReservations(); // Refresh the reservations list
                                                                 $('#confirmationUpcomingModal').modal('hide');
                                                                 notyf.success('Reservation approved successfully!');
+                                                                setTimeout(function() {
+                                                                    location.reload(); // Reload the page to reflect changes
+                                                                }, 3000);
                                                             } else {
                                                                 notyf.error(response.message);
                                                             }
@@ -759,6 +765,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                             data-reference-number="${reservation.gcashReference}"
                                         ><i class="bi bi-eye"></i></button>
                                         <button class="btn btn-success m-1 upcoming-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-is-upcoming="true" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
+                                <button class="btn btn-danger m-1 cancel-upcoming-reservation" data-revid="${reservation.revID}"><i class="bi bi-x-lg"></i></button>
                                     </td>
                                     <td>Accepted</td>
                                 </tr>
@@ -842,6 +849,80 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                 fetchUpcomingReservations();
                                             });
                                         </script>
+                                        <script>
+                                            document.addEventListener('DOMContentLoaded', function() {
+                                                let selectedRevID = null;
+                                                const notyf = new Notyf({
+                                                    duration: 3000, // Set duration to 3 seconds
+                                                    position: {
+                                                        x: 'right',
+                                                        y: 'top'
+                                                    }
+                                                });
+
+                                                $(document).on('click', '.cancel-upcoming-reservation', function() {
+                                                    selectedRevID = $(this).data('revid');
+                                                    console.log('Cancel button clicked for revID:', selectedRevID); // Debugging log
+
+                                                    // Show the confirmation modal
+                                                    const modal = new bootstrap.Modal(document.getElementById('cancelConfirmationModal'));
+                                                    modal.show();
+                                                });
+
+                                                const confirmCancelButton = document.getElementById('confirmCancelButton');
+                                                confirmCancelButton.addEventListener('click', function() {
+                                                    if (selectedRevID) {
+                                                        fetch('../../backends/subadmin/bowner_cancelreservation.php', {
+                                                                method: 'POST',
+                                                                headers: {
+                                                                    'Content-Type': 'application/json'
+                                                                },
+                                                                body: JSON.stringify({
+                                                                    revID: selectedRevID,
+                                                                    reasonCancel: 'Reservation has been canceled due to a delay in arrival.'
+                                                                })
+                                                            })
+                                                            .then(response => response.json())
+                                                            .then(data => {
+                                                                console.log('Response from server:', data); // Debugging log
+                                                                if (data.status === 'success') {
+                                                                    notyf.success('Reservation cancelled successfully.');
+                                                                    const modal = bootstrap.Modal.getInstance(document.getElementById('cancelConfirmationModal'));
+                                                                    modal.hide();
+                                                                    setTimeout(() => {
+                                                                        location.reload(); // Reload the page to reflect changes
+                                                                    }, 3000); // Wait for 3 seconds before reloading
+                                                                } else {
+                                                                    notyf.error('Error cancelling reservation: ' + data.message);
+                                                                }
+                                                            })
+                                                            .catch(error => {
+                                                                console.error('Error:', error);
+                                                                notyf.error('An error occurred while cancelling the reservation.');
+                                                            });
+                                                    }
+                                                });
+                                            });
+                                        </script>
+
+                                        <!-- Confirmation Modal for Cancellation -->
+                                        <div class="modal fade" id="cancelConfirmationModal" tabindex="-1" aria-labelledby="cancelConfirmationModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="cancelConfirmationModalLabel">Confirm Cancellation</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        Are you sure you want to cancel this reservation?
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">No</button>
+                                                        <button type="button" class="btn btn-danger" id="confirmCancelButton">Yes</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
 
                                         <!-- Confirmation Modal for Approval -->
                                         <div class="modal fade" id="confirmationUpcomingModal" tabindex="-1" aria-labelledby="confirmationUpcomingModalLabel" aria-hidden="true">
@@ -1068,6 +1149,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                                 fetchOngoingReservations(); // Refresh the list
                                                                                 $('#confirmationModal').modal('hide');
                                                                                 notyf.success('Reservation status updated to Complete.');
+                                                                                setTimeout(function() {
+                                                                                    location.reload(); // Reload the page to reflect changes
+                                                                                }, 3000);
                                                                             } else {
                                                                                 notyf.error(response.message);
                                                                             }

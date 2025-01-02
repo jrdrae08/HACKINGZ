@@ -12,7 +12,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $pdo->beginTransaction();
 
     // Update the reservation status to Complete
-    $stmt = $pdo->prepare("UPDATE reservations SET status = 'Complete' WHERE revID = :revID");
+    $stmt = $pdo->prepare("UPDATE reservations SET status = 'Completed' WHERE revID = :revID");
     $stmt->execute(['revID' => $revID]);
 
     $pdo->commit();
