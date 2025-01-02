@@ -676,6 +676,7 @@ try {
                                                                 const generateFormButton = document.getElementById('generateFormButton');
                                                                 const nextStepButton = document.getElementById('nextStep');
                                                                 const registerButton = document.getElementById('registerButton');
+                                                                const checkbox = document.getElementById('flexCheckDefault');
 
                                                                 if ((totalAdults > 0 || totalChildren > 0) && daterange) {
                                                                     generateFormButton.disabled = false;
@@ -698,7 +699,7 @@ try {
                                                                     if (nextStepButton) {
                                                                         nextStepButton.disabled = false;
                                                                     }
-                                                                    if (!nextStepButton) {
+                                                                    if (!nextStepButton && checkbox.checked) {
                                                                         registerButton.disabled = false;
                                                                     }
                                                                 } else {
@@ -710,6 +711,7 @@ try {
                                                                     }
                                                                 }
                                                             }
+
                                                             document.querySelector('input[name="total_adults"]').addEventListener('input', function() {
                                                                 const daterange = document.querySelector('input[name="daterange"]').value;
                                                                 if (!daterange && this.value > 0) {
@@ -721,7 +723,7 @@ try {
                                                             document.querySelector('input[name="total_children"]').addEventListener('input', function() {
                                                                 const daterange = document.querySelector('input[name="daterange"]').value;
                                                                 if (!daterange && this.value > 0) {
-                                                                    notyf.error('Please select a check-in and check-out date before adding a adult and chidren.');
+                                                                    notyf.error('Please select a check-in and check-out date before adding a adult and children.');
                                                                 }
                                                                 checkInputs();
                                                             });
@@ -733,6 +735,85 @@ try {
                                                         </script>
                                                     </div>
                                                     <div class="col-lg-12 d-grid">
+                                                        <?php if (!$hasPaymentMethod): ?>
+                                                            <!-- Terms and Conditions Checkbox -->
+                                                            <div class="form-check">
+                                                                <input class="form-check-input" type="checkbox" value="" id="flexCheckDefault" onclick="handleCheckboxClick(event)">
+                                                                <label class="form-check-label text-dark" for="flexCheckDefault">
+                                                                    I agree with the Terms and Conditions.
+                                                                </label>
+                                                            </div>
+
+                                                            <!-- Modal -->
+                                                            <div class="modal fade" id="termsModal" tabindex="-1" aria-labelledby="termsModalLabel" aria-hidden="true">
+                                                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable shadow">
+                                                                    <div class="modal-content">
+                                                                        <div class="modal-header">
+                                                                            <h5 class="modal-title" id="termsModalLabel">Terms and Conditions</h5>
+                                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                        </div>
+                                                                        <div class="modal-body">
+                                                                            <p class="fw-bold">Terms and Conditions of Online Reservation</p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">Acceptance of Terms</span>
+                                                                                By making a reservation through this platform, you agree to comply with and be bound by the following terms and conditions. Please read them carefully before proceeding.
+                                                                            </p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">Reservation Process</span>
+                                                                                All reservations are subject to availability and confirmation. A valid email address and contact information are required to complete the reservation process. Payment must be made as per the specified payment policy at the time of reservation.
+                                                                            </p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">Payment Policy</span>
+                                                                                Full or partial payment may be required to confirm the reservation, as stated during the booking process. Accepted payment methods include G-Cash payment only. All payments, including down payments, are non-refundable upon cancellation unless otherwise stated in the cancellation policy.
+                                                                            </p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">User Responsibilities</span>
+                                                                                Users must provide accurate and up-to-date information during the reservation process. Users are responsible for reviewing the details of their reservation for accuracy. Users must comply with any additional terms and conditions outlined by the service provider.
+                                                                            </p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">Service Provider Policies</span>
+                                                                                The service provider reserves the right to cancel or modify reservations in case of unforeseen circumstances. Additional charges may apply for changes requested after the reservation has been confirmed.
+                                                                            </p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">Liability</span>
+                                                                                The platform is not responsible for any direct or indirect damages resulting from the use of this service. Disputes arising from the reservation will be handled according to the service provider's policies.
+                                                                            </p>
+                                                                            <p style="text-align: justify;"><span class="fw-bold">Privacy Policy</span>
+                                                                                Personal information collected during the reservation process will be handled in accordance with our Privacy Policy. Users consent to the use of their information for the purpose of processing the reservation and providing related services.
+                                                                            </p>
+                                                                        </div>
+                                                                        <div class="modal-footer">
+                                                                            <button type="button" class="btn btn-secondary" id="rejectButton" data-bs-dismiss="modal">Reject</button>
+                                                                            <button type="button" class="btn btn-success" id="acceptButton" data-bs-dismiss="modal">Accept</button>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+
+                                                            <!-- JavaScript -->
+                                                            <script>
+                                                                const checkbox = document.getElementById('flexCheckDefault');
+                                                                const acceptButton = document.getElementById('acceptButton');
+                                                                const rejectButton = document.getElementById('rejectButton');
+
+                                                                function handleCheckboxClick(event) {
+                                                                    // Prevent the checkbox from toggling
+                                                                    event.preventDefault();
+
+                                                                    // Show the modal without the backdrop
+                                                                    const modal = new bootstrap.Modal(document.getElementById('termsModal'), {
+                                                                        backdrop: false // Disable the dark overlay
+                                                                    });
+                                                                    modal.show();
+                                                                }
+
+                                                                // When the Accept button is clicked
+                                                                acceptButton.addEventListener('click', () => {
+                                                                    checkbox.checked = true; // Check the checkbox
+                                                                    checkInputs(); // Re-check inputs to enable the button if all conditions are met
+                                                                });
+
+                                                                // When the Reject button is clicked
+                                                                rejectButton.addEventListener('click', () => {
+                                                                    checkbox.checked = false; // Ensure the checkbox remains unchecked
+                                                                    checkInputs(); // Re-check inputs to disable the button if conditions are not met
+                                                                });
+                                                            </script>
+                                                        <?php endif; ?>
                                                         <?php if ($hasPaymentMethod): ?>
                                                             <button type="button" id="nextStep" class="btn btn-success dm-sans-text mb-2" disabled>Proceed to Payment</button>
                                                         <?php else: ?>
@@ -777,12 +858,62 @@ try {
                                                         <i class="bi bi-info-circle me-1"></i><span class="fw-bold ">Business owner will review your transaction before accepting your reservation.</span>
                                                     </div>
 
+                                                    <!-- Terms and Conditions Checkbox -->
+                                                    <div class="col-lg-12 d-grid">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="flexCheckDefaultStep2" onclick="handleCheckboxClickStep2(event)">
+                                                            <label class="form-check-label text-dark" for="flexCheckDefaultStep2">
+                                                                I agree with the Terms and Conditions.
+                                                            </label>
+                                                        </div>
+
+                                                        <!-- Modal -->
+                                                        <div class="modal fade" id="termsModalStep2" tabindex="-1" aria-labelledby="termsModalLabelStep2" aria-hidden="true">
+                                                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable shadow">
+                                                                <div class="modal-content">
+                                                                    <div class="modal-header">
+                                                                        <h5 class="modal-title" id="termsModalLabelStep2">Terms and Conditions</h5>
+                                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                                    </div>
+                                                                    <div class="modal-body">
+                                                                        <p class="fw-bold">Terms and Conditions of Online Reservation</p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">Acceptance of Terms</span>
+                                                                            By making a reservation through this platform, you agree to comply with and be bound by the following terms and conditions. Please read them carefully before proceeding.
+                                                                        </p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">Reservation Process</span>
+                                                                            All reservations are subject to availability and confirmation. A valid email address and contact information are required to complete the reservation process. Payment must be made as per the specified payment policy at the time of reservation.
+                                                                        </p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">Payment Policy</span>
+                                                                            Full or partial payment may be required to confirm the reservation, as stated during the booking process. Accepted payment methods include G-Cash payment only. All payments, including down payments, are non-refundable upon cancellation unless otherwise stated in the cancellation policy.
+                                                                        </p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">User Responsibilities</span>
+                                                                            Users must provide accurate and up-to-date information during the reservation process. Users are responsible for reviewing the details of their reservation for accuracy. Users must comply with any additional terms and conditions outlined by the service provider.
+                                                                        </p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">Service Provider Policies</span>
+                                                                            The service provider reserves the right to cancel or modify reservations in case of unforeseen circumstances. Additional charges may apply for changes requested after the reservation has been confirmed.
+                                                                        </p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">Liability</span>
+                                                                            The platform is not responsible for any direct or indirect damages resulting from the use of this service. Disputes arising from the reservation will be handled according to the service provider's policies.
+                                                                        </p>
+                                                                        <p style="text-align: justify;"><span class="fw-bold">Privacy Policy</span>
+                                                                            Personal information collected during the reservation process will be handled in accordance with our Privacy Policy. Users consent to the use of their information for the purpose of processing the reservation and providing related services.
+                                                                        </p>
+                                                                    </div>
+                                                                    <div class="modal-footer">
+                                                                        <button type="button" class="btn btn-secondary" id="rejectButtonStep2" data-bs-dismiss="modal">Reject</button>
+                                                                        <button type="button" class="btn btn-success" id="acceptButtonStep2" data-bs-dismiss="modal">Accept</button>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                        </div>
+                                                    </div>
+
                                                     <div class="col-lg-12 my-3">
                                                         <div class="d-grid col-12 mx-auto">
                                                             <button type="button" class="btn btn-secondary mb-2" id="previousStep">Back</button>
                                                         </div>
                                                         <div class="d-grid col-12 mx-auto">
-                                                            <button type="button" class="btn btn-success" id="registerButton" data-bs-toggle="modal" data-bs-target="#reservationConfirmationModal" disabled>Confirm Booking</button>
+                                                            <button type="button" class="btn btn-success" id="registerButtonStep2" data-bs-toggle="modal" data-bs-target="#reservationConfirmationModal" disabled>Confirm Booking</button>
                                                         </div>
                                                     </div>
                                                 </div>
@@ -828,9 +959,12 @@ try {
                                                 const progressBar = document.getElementById('progressBar');
                                                 const step1 = document.getElementById('step1');
                                                 const step2 = document.getElementById('step2');
-                                                const registerButton = document.getElementById('registerButton');
+                                                const registerButtonStep2 = document.getElementById('registerButtonStep2');
                                                 const proofOfPayment = document.getElementById('proofofpayment');
                                                 const gcashReference = document.getElementById('gcash_reference');
+                                                const checkboxStep2 = document.getElementById('flexCheckDefaultStep2');
+                                                const acceptButtonStep2 = document.getElementById('acceptButtonStep2');
+                                                const rejectButtonStep2 = document.getElementById('rejectButtonStep2');
 
                                                 document.getElementById('nextStep').addEventListener('click', function() {
                                                     step1.classList.add('d-none');
@@ -847,24 +981,32 @@ try {
                                                     progressBar.style.width = '50%';
                                                     progressBar.setAttribute('aria-valuenow', '50');
                                                     progressBar.textContent = 'Step 1 of 2';
-                                                    registerButton.disabled = true; // Disable the confirm button when going back to step 1
+                                                    registerButtonStep2.disabled = true; // Disable the confirm button when going back to step 1
                                                 });
 
                                                 function checkStep2Inputs() {
-                                                    if (proofOfPayment.files.length > 0 && gcashReference.value.trim() !== '') {
-                                                        registerButton.disabled = false;
+                                                    if (proofOfPayment.files.length > 0 && gcashReference.value.trim() !== '' && checkboxStep2.checked) {
+                                                        registerButtonStep2.disabled = false;
                                                     } else {
-                                                        registerButton.disabled = true;
+                                                        registerButtonStep2.disabled = true;
                                                     }
                                                 }
 
                                                 proofOfPayment.addEventListener('change', checkStep2Inputs);
                                                 gcashReference.addEventListener('input', checkStep2Inputs);
+                                                checkboxStep2.addEventListener('change', checkStep2Inputs);
 
-                                                // Enable the confirm button if there is no payment method
-                                                <?php if (!$hasPaymentMethod): ?>
-                                                    registerButton.disabled = false;
-                                                <?php endif; ?>
+                                                // When the Accept button is clicked
+                                                acceptButtonStep2.addEventListener('click', () => {
+                                                    checkboxStep2.checked = true; // Check the checkbox
+                                                    checkStep2Inputs(); // Re-check inputs to enable the button if all conditions are met
+                                                });
+
+                                                // When the Reject button is clicked
+                                                rejectButtonStep2.addEventListener('click', () => {
+                                                    checkboxStep2.checked = false; // Ensure the checkbox remains unchecked
+                                                    checkStep2Inputs(); // Re-check inputs to disable the button if conditions are not met
+                                                });
 
                                                 // Format GCash reference number as xxxx xxx xxxxxx and limit to 13 digits
                                                 gcashReference.addEventListener('input', function() {
@@ -885,6 +1027,18 @@ try {
                                                 document.getElementById('multiStepForm').addEventListener('submit', function() {
                                                     gcashReference.value = gcashReference.value.replace(/\s/g, ''); // Remove spaces
                                                 });
+
+                                                // Modal handling for terms and conditions in step 2
+                                                function handleCheckboxClickStep2(event) {
+                                                    // Prevent the checkbox from toggling
+                                                    event.preventDefault();
+
+                                                    // Show the modal without the backdrop
+                                                    const modal = new bootstrap.Modal(document.getElementById('termsModalStep2'), {
+                                                        backdrop: false // Disable the dark overlay
+                                                    });
+                                                    modal.show();
+                                                }
                                             </script>
                                     </div>
                                 </div>
