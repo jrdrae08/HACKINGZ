@@ -12,19 +12,24 @@ $businessInfoID = $_SESSION['business_info_id'];
 
 try {
   $stmt = $pdo->prepare("
-    SELECT DISTINCT r.revID, r.datetime AS timeBooked, ri.roomName, r.fullname AS customerName, r.regadd AS address, r.regnum AS contactNumber, u.id_type, u.front_id, u.back_id,
-           ud.totalnumAttendees, ud.totalmale, ud.totalfemale, ud.thisCity, ud.otherCity, ud.otherProvince, ud.foreignCountry, ud.name AS attendeeNames, ud.sex AS attendeeSexes, ud.location AS attendeeLocations,
-           up.proofOfPayment, up.gcashReference
-    FROM reservations r
-    JOIN roominfotable ri ON r.roomID = ri.roomID
-    JOIN users u ON r.userID = u.userId
-    LEFT JOIN userdemographics ud ON r.userID = ud.userID AND r.roomID = ud.roomID AND ri.BusinessInfoID = ud.BusinessInfoID AND r.datetime = ud.created_at
-    LEFT JOIN userpayment up ON r.roomID = up.roomID AND r.userID = up.userID AND ri.BusinessInfoID = up.businessinfoID
-    WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Accepted'
-    ORDER BY r.datetime DESC
-  ");
+        SELECT DISTINCT r.revID, r.datetime AS timeBooked, ri.roomName, r.fullname AS customerName, r.regadd AS address, r.regnum AS contactNumber, u.id_type, u.front_id, u.back_id,
+               ud.totalnumAttendees, ud.totalmale, ud.totalfemale, ud.thisCity, ud.otherCity, ud.otherProvince, ud.foreignCountry, ud.name AS attendeeNames, ud.sex AS attendeeSexes, ud.location AS attendeeLocations,
+               up.proofOfPayment, up.gcashReference, r.checkin, ri.timeStart
+        FROM reservations r
+        JOIN roominfotable ri ON r.roomID = ri.roomID
+        JOIN users u ON r.userID = u.userId
+        LEFT JOIN userdemographics ud ON r.userID = ud.userID AND r.roomID = ud.roomID AND ri.BusinessInfoID = ud.BusinessInfoID AND r.datetime = ud.created_at
+        LEFT JOIN userpayment up ON r.roomID = up.roomID AND r.userID = up.userID AND ri.BusinessInfoID = up.businessinfoID
+        WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Accepted'
+        ORDER BY r.datetime DESC
+    ");
   $stmt->execute(['businessInfoID' => $businessInfoID]);
   $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  foreach ($reservations as &$reservation) {
+    $timeIn = new DateTime($reservation['checkin'] . ' ' . $reservation['timeStart']);
+    $reservation['timeInFormatted'] = $timeIn->format('g:i A F j, Y');
+  }
 
   if ($reservations) {
     echo json_encode(['status' => 'success', 'data' => $reservations]);
