@@ -16,9 +16,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   $brgyEmail = filter_var($_POST['brgyEmail'], FILTER_SANITIZE_EMAIL);
   $brgyPassword = $_POST['brgyPassword'];
   $brgyEstablishment = filter_var($_POST['brgyEstablishment'], FILTER_SANITIZE_STRING);
+  $brgyAddress = filter_var($_POST['brgyAddress'], FILTER_SANITIZE_STRING);
+  $contactNum = filter_var($_POST['contactNum'], FILTER_SANITIZE_STRING);
 
   // Validate input fields
-  if (empty($brgyEmail) || empty($brgyPassword) || empty($brgyEstablishment)) {
+  if (empty($brgyEmail) || empty($brgyPassword) || empty($brgyEstablishment) || empty($brgyAddress) || empty($contactNum)) {
     echo json_encode(['error' => 'All fields are required']);
     exit;
   }
@@ -52,13 +54,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 
     // Prepare to insert into database using PDO
-    $stmt = $pdo->prepare("INSERT INTO barangay_accounts (email, password, establishment) VALUES (:email, :password, :establishment)");
+    $stmt = $pdo->prepare("INSERT INTO barangay_accounts (email, password, establishment, address, contact) VALUES (:email, :password, :establishment, :address, :contact)");
 
     // Execute the statement with the provided values
     $stmt->execute([
       ':email' => $brgyEmail,
       ':password' => $brgyPassword,
-      ':establishment' => $brgyEstablishment
+      ':establishment' => $brgyEstablishment,
+      ':address' => $brgyAddress,
+      ':contact' => $contactNum
     ]);
 
     // Get the last inserted ID
@@ -124,7 +128,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 </div>
                 <div class="card-body">
                   <form id="barangayForm" class="needs-validation" novalidate method="POST">
-
                     <div class="row g-2 d-flex justify-content-center">
                       <!-- Email/Username Section -->
                       <div class="col-12 d-flex justify-content-center">
@@ -154,13 +157,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         </div>
                       </div>
 
+                      <!-- Barangay Establishment Section -->
                       <div class="col-12 d-flex justify-content-center">
                         <div class="col-lg-6 col-12">
                           <label for="brgyEstablishment" class="form-label">Barangay Establishment Name</label>
-                          <input type="text" class="form-control  shadow" id="brgyEstablishment" name="brgyEstablishment" required>
+                          <input type="text" class="form-control shadow" id="brgyEstablishment" name="brgyEstablishment" required>
                         </div>
                       </div>
 
+                      <!-- Address Section -->
+                      <div class="col-12 d-flex justify-content-center">
+                        <div class="col-lg-6 col-12">
+                          <label for="brgyAddress" class="form-label">Address</label>
+                          <input type="text" class="form-control shadow" id="brgyAddress" name="brgyAddress" required>
+                        </div>
+                      </div>
+
+                      <!-- Contact Number Section -->
+                      <div class="col-12 d-flex justify-content-center">
+                        <div class="col-lg-6 col-12">
+                          <label for="contactNum" class="form-label">Contact Number</label>
+                          <input type="text" class="form-control shadow" id="contactNum" name="contactNum" required oninput="handleContactInput(event)">
+                        </div>
+                      </div>
+
+                      <!-- Submit Section -->
                       <div class="col-12 mb-4 d-flex justify-content-center">
                         <div class="col-lg-6 col-12 d-flex justify-content-between mt-4">
                           <button type="submit" class="btn btn-success" id="submitBtn" disabled>Submit</button>
@@ -246,18 +267,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     document.getElementById('brgyEmail').addEventListener('input', checkFormValidity);
     document.getElementById('brgyPassword').addEventListener('input', checkFormValidity);
     document.getElementById('brgyEstablishment').addEventListener('input', checkFormValidity);
+    document.getElementById('brgyAddress').addEventListener('input', checkFormValidity);
+    document.getElementById('contactNum').addEventListener('input', checkFormValidity);
 
     function checkFormValidity() {
       const brgyEmail = document.getElementById('brgyEmail').value;
       const brgyPassword = document.getElementById('brgyPassword').value;
       const brgyEstablishment = document.getElementById('brgyEstablishment').value;
+      const brgyAddress = document.getElementById('brgyAddress').value;
+      const contactNum = document.getElementById('contactNum').value;
       const submitBtn = document.getElementById('submitBtn');
 
-      if (brgyEmail && brgyPassword && brgyEstablishment && validateEmail(brgyEmail)) {
+      if (brgyEmail && brgyPassword && brgyEstablishment && brgyAddress && contactNum && validateEmail(brgyEmail)) {
         submitBtn.disabled = false;
       } else {
         submitBtn.disabled = true;
       }
+    }
+
+    function handleContactInput(event) {
+      let value = event.target.value;
+      if (!value.startsWith('+63')) {
+        value = '+63' + value.replace(/\D/g, '');
+      } else {
+        value = '+63' + value.slice(3).replace(/\D/g, '');
+      }
+      if (value.length > 13) {
+        value = value.slice(0, 13);
+      }
+      event.target.value = value;
     }
 
     function validateEmail(email) {

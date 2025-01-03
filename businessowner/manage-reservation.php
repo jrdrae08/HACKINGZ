@@ -70,26 +70,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     <button class="nav-link pills btn me-2 mb-2" id="pills-cancel-tab" data-bs-toggle="pill" data-bs-target="#pills-cancel" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">CANCELED</button>
                                                 </li>
                                             </ul>
-                                        </div>
+                                        </div>                   
 
-                                        <div class="col-lg-1 col-sm-12 d-flex justify-content-center align-items-center">
-                                            <!-- Bell Icon with Dropdown -->
-                                            <div class="dropdown">
-                                                <i class="bi bi-bell-fill text-warning fs-3 dropdown-toggle" id="notification-icon" data-bs-toggle="dropdown" data-bs-auto-close="outside" aria-expanded="false"></i>
-                                                <ul class="dropdown-menu dropdown-menu-end shadow-lg" aria-labelledby="notification-icon">
-                                                    <li><a class="dropdown-item" href="#">Booking cancellation</a></li>
-                                                </ul>
-                                            </div>
-                                        </div>
-
-
-
-                                        <div class="col-lg-3 col-sm-12">
-                                            <form class="d-flex" role="search">
-                                                <input class="form-control shadow me-2" type="search" placeholder="Search" aria-label="Search">
-                                                <button class="btn btn-outline-success" type="submit">Search</button>
-                                            </form>
-                                        </div>
                                     </div>
                                 </div>
                                 <div class="card-body">

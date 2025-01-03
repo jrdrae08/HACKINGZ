@@ -120,7 +120,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                 <div class="row d-flex justify-content-center">
                                     <?php foreach ($allBusinesses as $business): ?>
                                         <div class="col-lg-6 col-12 mb-3 mb-3"> <!-- Adjust column sizes for different screens -->
-                                            <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
+                                            <a href="<?= $business['TypeName'] === 'Falls' ? 'page-4.php?barangayID=' . urlencode($business['barangayId']) : 'page-1.php?businessInfoID=' . urlencode($business['BusinessInfoID']); ?><?php echo isset($_SESSION['user_id']) ? '&userID=' . urlencode($_SESSION['user_id']) : ''; ?>" class="text-decoration-none">
                                                 <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                     <div class="row g-0">
                                                         <div class="col-lg-7 col-md-6 col-12">
@@ -240,13 +240,22 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                                 return;
                                             }
 
-                                            container.innerHTML = results.map(business => `
+                                            container.innerHTML = results.map(business => {
+                                                const barangayId = business.barangayId; // Declare variable to get barangayId
+                                                console.log('Business:', business); // Debugging statement
+                                                console.log('Barangay ID:', barangayId); // Debugging statement
+                                                return `
                 <div class="col-lg-6 col-12 mb-3">
-                    <a href="page-1.php?businessInfoID=${encodeURIComponent(business.BusinessInfoID)}" class="text-decoration-none">
+                    <a href="${business.TypeName === 'Falls' ? 
+                        `page-4.php?barangayID=${encodeURIComponent(barangayId)}` : 
+                        `page-1.php?businessInfoID=${encodeURIComponent(business.BusinessInfoID)}`}" 
+                        class="text-decoration-none">
                         <div class="card card-trans shadow d-flex justify-content-center h-100">
                             <div class="row g-0">
                                 <div class="col-lg-7 col-md-6 col-12">
-                                    <img src="${business.TypeName === 'Falls' ? '../../barangay/fallsCategory/' : '../../businessowner/businessmediacategory/'}${business.Thumbnail}"
+                                    <img src="${business.TypeName === 'Falls' ? 
+                                        '../../barangay/fallsCategory/' : 
+                                        '../../businessowner/businessmediacategory/'}${business.Thumbnail}"
                                         class="img-fluid rounded-start"
                                         alt="Business Image"
                                         style="object-fit: cover; height: 300px; width: 100%;">
@@ -262,22 +271,10 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                         <div class="features mt-auto">
                                             <p class="card-text dm-sans-text">
                                                 <small class="text-secondary border p-1 rounded fw-bold d-flex justify-content-center text-center">
-                                                    <?php
-                                                    if ($business['TypeName'] === 'Falls' && isset($business['barangayId'])) {
-                                                        $currentBusinessHighlights = $organizedHighlights[$business['barangayId']] ?? [];
-                                                        if (!empty($currentBusinessHighlights)) {
-                                                            foreach ($currentBusinessHighlights as $highlight) {
-                                                                echo htmlspecialchars($highlight['HighlightName']) . ' • ';
-                                                            }
-                                                        } else {
-                                                            echo 'No highlights available';
-                                                        }
-                                                    } else {
-                                                        echo !empty($featuresData[$business['BusinessInfoID']])
-                                                            ? implode(' • ', array_map('htmlspecialchars', array_column($featuresData[$business['BusinessInfoID']], 'FeatureName')))
-                                                            : 'No features available';
+                                                    ${business.TypeName === 'Falls' && barangayId ? 
+                                                        (business.highlights || []).map(h => h.HighlightName).join(' • ') || 'No highlights available' :
+                                                        (business.features || []).map(f => f.FeatureName).join(' • ') || 'No features available'
                                                     }
-                                                    ?>
                                                 </small>
                                             </p>
                                         </div>
@@ -287,7 +284,8 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                         </div>
                     </a>
                 </div>
-            `).join('');
+            `
+                                            }).join('');
                                         });
                                     }
                                 });
@@ -400,7 +398,7 @@ $activeTab = isset($_GET['tab']) ? $_GET['tab'] : 'all';
                                     <?php else: ?>
                                         <?php foreach ($fallsBusinesses as $business): ?>
                                             <div class="col-lg-6 col-12 mb-3 mb-3"> <!-- Adjust column sizes for different screens -->
-                                                <a href="page-1.php?businessInfoID=<?php echo urlencode($business['BusinessInfoID']); ?>" class="text-decoration-none">
+                                                <a href="page-4.php?barangayID=<?php echo urlencode($business['barangayId']); ?>" class="text-decoration-none">
                                                     <div class="card card-trans shadow d-flex justify-content-center h-100"> <!-- h-100 to ensure same height for all cards -->
                                                         <div class="row g-0">
                                                             <div class="col-xl-7 col-lg-6 col-md-6 col-12">

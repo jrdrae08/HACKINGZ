@@ -12,6 +12,7 @@ try {
             bif.BusinessInfoID, 
             bt.TypeName,
             ba.establishment,
+            ba.barangayId,  -- Include barangayId
             GROUP_CONCAT(f.FeatureName SEPARATOR ' • ') as Features
         FROM business_media bm
         JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
@@ -32,6 +33,7 @@ try {
             NULL as BusinessInfoID,
             'Falls' as TypeName,
             ba.establishment,
+            ba.barangayId,  -- Include barangayId
             NULL as Features
         FROM barangay_accounts ba
         LEFT JOIN business_media bm ON ba.barangayId = bm.barangayId AND bm.isActive = 1
@@ -41,8 +43,7 @@ try {
 
   $stmt = $pdo->prepare($query);
   $stmt->execute([
-    'search' => "%$searchTerm%",
-    'search2' => "%$searchTerm%"
+    'search' => "%$searchTerm%"
   ]);
   $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
