@@ -123,25 +123,33 @@ $businessInfoID = $_SESSION['business_info_id'];
                   }
 
                   $('table tbody').empty();
+                  let totals = {
+                    thisCityMale: 0,
+                    thisCityFemale: 0,
+                    thisCity: 0,
+                    otherCityMale: 0,
+                    otherCityFemale: 0,
+                    otherCity: 0,
+                    otherProvinceMale: 0,
+                    otherProvinceFemale: 0,
+                    otherProvince: 0,
+                    foreignCountryMale: 0,
+                    foreignCountryFemale: 0,
+                    foreignCountry: 0,
+                    totalnumAttendees: 0
+                  };
+
+                  // Create a map of dates to data
+                  const dataMap = {};
                   data.forEach(item => {
-                    console.log('Processing item:', item); // Debug item
+                    dataMap[item.date] = item;
+                  });
 
-                    // Ensure date field exists
-                    if (!item.date) {
-                      console.error('No date field in item:', item);
-                      return;
-                    }
-
-                    // Parse the grouped date from backend
-                    const date = moment(item.date, 'YYYY-MM-DD');
-
-                    if (!date.isValid()) {
-                      console.error('Invalid grouped date:', item.date);
-                      return;
-                    }
-
-                    console.log('Parsed date:', date.format('YYYY-MM-DD')); // Debug parsed date
-
+                  // Generate rows for each day of the month
+                  const start = moment(startDate);
+                  const end = moment(endDate);
+                  for (let date = start.clone(); date.isSameOrBefore(end); date.add(1, 'day')) {
+                    const item = dataMap[date.format('YYYY-MM-DD')] || {};
                     const row = `
         <tr>
             <td class="border-2 border-dark">${date.format('D')}</td>
@@ -161,7 +169,42 @@ $businessInfoID = $_SESSION['business_info_id'];
             <td class="border-2 border-dark">${item.totalnumAttendees || 0}</td>
         </tr>`;
                     $('table tbody').append(row);
-                  });
+
+                    // Update totals
+                    totals.thisCityMale += parseInt(item.thisCityMale) || 0;
+                    totals.thisCityFemale += parseInt(item.thisCityFemale) || 0;
+                    totals.thisCity += parseInt(item.thisCity) || 0;
+                    totals.otherCityMale += parseInt(item.otherCityMale) || 0;
+                    totals.otherCityFemale += parseInt(item.otherCityFemale) || 0;
+                    totals.otherCity += parseInt(item.otherCity) || 0;
+                    totals.otherProvinceMale += parseInt(item.otherProvinceMale) || 0;
+                    totals.otherProvinceFemale += parseInt(item.otherProvinceFemale) || 0;
+                    totals.otherProvince += parseInt(item.otherProvince) || 0;
+                    totals.foreignCountryMale += parseInt(item.foreignCountryMale) || 0;
+                    totals.foreignCountryFemale += parseInt(item.foreignCountryFemale) || 0;
+                    totals.foreignCountry += parseInt(item.foreignCountry) || 0;
+                    totals.totalnumAttendees += parseInt(item.totalnumAttendees) || 0;
+                  }
+
+                  // Append totals row
+                  const totalsRow = `
+        <tr>
+            <td class="border-2 border-dark" colspan="2">Total of this month</td>
+            <td class="border-2 border-dark">${totals.thisCityMale}</td>
+            <td class="border-2 border-dark">${totals.thisCityFemale}</td>
+            <td class="border-2 border-dark">${totals.thisCity}</td>
+            <td class="border-2 border-dark">${totals.otherCityMale}</td>
+            <td class="border-2 border-dark">${totals.otherCityFemale}</td>
+            <td class="border-2 border-dark">${totals.otherCity}</td>
+            <td class="border-2 border-dark">${totals.otherProvinceMale}</td>
+            <td class="border-2 border-dark">${totals.otherProvinceFemale}</td>
+            <td class="border-2 border-dark">${totals.otherProvince}</td>
+            <td class="border-2 border-dark">${totals.foreignCountryMale}</td>
+            <td class="border-2 border-dark">${totals.foreignCountryFemale}</td>
+            <td class="border-2 border-dark">${totals.foreignCountry}</td>
+            <td class="border-2 border-dark">${totals.totalnumAttendees}</td>
+        </tr>`;
+                  $('table tbody').append(totalsRow);
                 },
                 error: function(xhr, status, error) {
                   console.error('Ajax error:', error);
