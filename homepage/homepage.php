@@ -87,18 +87,18 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                         <div class="text-center">
                             <h2 class="text-success fw-bold">DISCOVER</h2>
                             <h4 class="text-dark">Our Tourist Destinations</h4>
-                            <p class="text-secondary">Lorem ipsum dolor sit, amet consectetur adipisicing elit. Nulla accusantium error voluptas recusandae assumenda sit, modi est amet unde fugiat?</p>
+                            <p class="text-secondary">Explore Majayjay&apos;s rich history, scenic beauty, and cultural attractions, offering a perfect mix of adventure and relaxation for every traveler.</p>
                             <a href="../Resort/page-0.php" class="btn text-light btn-success shadow text-center">View More</a>
                         </div>
                     </div>
                     <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-5 col-md-6 col-12">
-                                <img src="../img/general-img/majayjay-church.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
+                                <img src="../img/homepage/resort.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
                             </div>
                             <div class="col-md-6 col-12 my-3 text-dark text-center d-flex flex-column justify-content-center align-items-center">
                                 <h1 class="fw-bold">Delux Resorts</h1>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus error autem laboriosam? Nesciunt rem veniam, maxime amet, repellat incidunt libero nobis exercitationem neque dolores alias itaque laboriosam accusamus est fuga praesentium quisquam totam repellendus! Distinctio modi architecto temporibus! Officia facere repudiandae atque repellat ut quidem numquam doloribus consectetur qui voluptates.</p>
+                                <p>Delux Resorts offers a luxurious and relaxing vacation experience with premium accommodations, fine dining, and a variety of recreational activities. It caters to all types of travelers, including couples, families, and corporate groups, promising a memorable stay in a beautiful setting with top-notch service.</p>
                                 <a href="../Resort/page-0.php?tab=resort" class="btn text-light btn-success shadow">View More</a>
                             </div>
                         </div>
@@ -108,12 +108,12 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                         <div class="row d-flex justify-content-center">
                             <div class="col-md-6 col-12 my-3 text-dark text-center d-flex flex-column justify-content-center align-items-center">
                                 <h1 class="fw-bold">Beautiful Farms</h1>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus error autem laboriosam? Nesciunt rem veniam, maxime amet, repellat incidunt libero nobis exercitationem neque dolores alias itaque laboriosam accusamus est fuga praesentium quisquam totam repellendus! Distinctio modi architecto temporibus! Officia facere repudiandae atque repellat ut quidem numquam doloribus consectetur qui voluptates.</p>
+                                <p>Beautiful Farms offers a peaceful rural escape with scenic landscapes, farm tours, and hands-on experiences like produce picking. It’s perfect for nature lovers and those seeking a relaxing, farm-to-table experience.</p>
                                 <a href="../Resort/page-0.php?tab=farms" class="btn text-light btn-success shadow">View More</a>
                             </div>
 
                             <div class="col-lg-5 col-md-6 col-12 pb-5">
-                                <img src="../img/general-img/bg.png" class="img-fluid object-fit-cover rounded shadow" alt="">
+                                <img src="../img/homepage/farm.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
                             </div>
                         </div>
                     </div>
@@ -121,12 +121,12 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-5 col-md-6 col-12">
-                                <img src="../img/general-img/majayjay-church.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
+                                <img src="../img/homepage/waterfall.png" class="img-fluid object-fit-cover rounded shadow" alt="">
                             </div>
                             <div class="col-md-6 col-12  my-3 text-dark text-center py-3 d-flex flex-column justify-content-center align-items-center">
                                 <h1 class="fw-bold">Majayjay Waterfalls</h1>
-                                <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Doloribus error autem laboriosam? Nesciunt rem veniam, maxime amet, repellat incidunt libero nobis exercitationem neque dolores alias itaque laboriosam accusamus est fuga praesentium quisquam totam repellendus! Distinctio modi architecto temporibus! Officia facere repudiandae atque repellat ut quidem numquam doloribus consectetur qui voluptates.</p>
-                                <a href="../Resort/page-0.php" class="btn text-light btn-success shadow">View More</a>
+                                <p>Majayjay Waterfalls is a beautiful natural site in Majayjay, known for its lush surroundings and clear, cool waters. It’s a popular spot for hiking, swimming, and enjoying nature, offering a peaceful retreat for adventure seekers and relaxation.</p>
+                                <a href="../Resort/page-0.php?tab=falls" class="btn text-light btn-success shadow">View More</a>
                             </div>
                         </div>
                     </div>
@@ -147,12 +147,15 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                 <h5 class="text-success fw-bold text-start">ABOUT US</h5>
                             </div>
                             <div class="col-12">
-                                <p class="about-content text-dark">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Sapiente,
-                                    aperiam sed sint quisquam culpa ut nostrum rem iusto doloribus fuga voluptate, debitis quod placeat earum neque officia
-                                    eaque rerum eos iure? Reiciendis suscipit harum voluptas vel totam aperiam illo deleniti ipsa nihil unde sequi, illum velit
-                                    voluptatem quod est incidunt? Dolores neque facere odit deleniti veniam error esse, porro at ea minima, minus aliquam expedita
-                                    dicta veritatis maxime quasi nihil sed tempora ipsum harum incidunt optio, quos sapiente. Maiores itaque, est tenetur praesentium
-                                    nisi sequi tempore quisquam earum architecto nobis modi officiis provident ipsam mollitia blanditiis laboriosam consectetur similique accusantium!</p>
+                                <p class="about-content text-dark">Ayon sa matandang kasaysayan ang pangalang Majayjay Barangay ay napalitan ng pangalang Mahayhay o Majayjay nang dumating ang mga Kastila sa ating bansa. Ang mga nagtutungo sa Majayjay ay inilululan sa duyan o hamaka dahol sa lubhang mataas ang inaahong mga bundok na kinalalagyan ng lugar na iyon. Dahil nga sa mahabang pag-ahon at mabigat ang kanilang dala ang mga naglalakbay ay nagpatuloy sa pagtaghoy ng hay , hay, hay, na nagpapakilalang sila ay hirap na hirap sa kanilang pag lalakad
+
+                                    Nang ang mga kastila ay kasalukuyang nagpapalaganap ng pananakop sa bayan ng Majayjay, sila ay hindi lamang sa inaahong mga bundok nahihirapan kundi gayon din sa madawas at maliliit na daan, gayon din sa mga baku-bakong sapa at ilog at maliit na tinatawid. Dahil nga sa hirap na kanilang dinaranas ay napilitan silang magpahinga at inaalis ang pagod sa paghinga ng malalim at pagtaghoy ng hay, hay. hay.
+
+                                    Kapag tinatanong noon ang isang tagapag-buhat kung anong masasabi tungkol sa pook ng iyon, nga ang isinasagot ay maraming hay, hay muna bago dumating doon. At dito nagsimula ang pangalan ng bayan ng Majayjay.
+
+                                    Nang mga panahon iyon ang Majayjay ay isa sa pinakamalaking bayan sa Laguna. Ang mamayan ay umaabot sa 15,323 at nasasakupan nito ang nayon mga bayan ng Luisiana at Magdalena.
+
+                                    Nang taong 1880 ang nayon ng Ambling ng Munti ay naging bayan ng Magdalena at nang taong 1888 ang nayon ng Nasunog ay binigyan ng karapatang makapagsarili at bayan ng Luisiana. Sa pagiging bayan ng dalawang nayon, ang Majayjayay lumiit at nabawasan ang bilang ng mamamayan. Nagkaroon din ng paghahabulan sa hangganan ng bayan ng Liliw at Majayjay na tumagal mula noong 1917 hanggang 1925. Noong Oktobre 13, 1925, sa pamamagitan ng Kagawaran ng Interyor ay natapos ang usapin ng dalawang bayan at ang mga nayon ng Banaan, Tui, Silangang Bukal, Ibaba at Ilayang San Roque ay nananatiling sakop ng Majayjay</p>
                             </div>
                             <div class="col-12 text-center ">
                                 <a href="#contact" class="btn btn-success text-light shadow">Get in Touch</a>
@@ -171,7 +174,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                         <div class="col-lg-3 d-flex justify-content-center">
                             <a href="../businessowner/business-registration.php" class="text-decoration-none">
                                 <div class="card mb-3 rounded-0 shadow" style="width: 18rem;">
-                                    <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
+                                    <img src="../img/homepage/business-registration.jpg" class="card-img-top rounded-0 " alt="...">
                                     <div class="card-body">
                                         <p class="text-success text-start fw-bold">Business Registration</p>
                                         <p class="card-text text-dark text-start">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
@@ -183,7 +186,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                         <div class="col-lg-3 d-flex justify-content-center mb-sm-3">
                             <a href="../Resort/page-0.php" class="text-decoration-none">
                                 <div class="card rounded-0 shadow" style="width: 18rem;">
-                                    <img src="../img/general-img/majayjay-church.jpg" class="card-img-top rounded-0 " alt="...">
+                                    <img src="../img/homepage/online-reservation.jpg" class="card-img-top rounded-0 " alt="...">
                                     <div class="card-body">
                                         <p class="text-success text-start fw-bold">Online Reservation</p>
                                         <p class="card-text text-dark text-start">Some quick example text to build on the card title and make up the bulk of the card's content.</p>
