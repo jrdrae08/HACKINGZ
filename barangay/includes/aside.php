@@ -50,6 +50,12 @@
                     QR Code
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="../barangay/print-demographics-report.php" class="sidebar-link">
+                    <i class="bi bi-printer"></i>
+                    Print Report
+                </a>
+            </li>
         </ul>
     </div>
 </aside>
