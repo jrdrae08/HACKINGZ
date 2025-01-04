@@ -9,18 +9,20 @@ try {
   // Fetch businesses with BusinessType 'Resort', 'Farm', and 'Falls' where isActive is 1
   // and fetch establishment names and highlights for falls
   $stmt = $pdo->prepare("
-      SELECT bm.Thumbnail, bm.Quotation, bif.BusinessName, bif.BusinessInfoID, bt.TypeName, ba.barangayId, ba.establishment, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6
-      FROM business_media bm
-      JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
-      JOIN businesstype bt ON bif.BusinessTypeID = bt.BusinessTypeID
-      LEFT JOIN barangay_accounts ba ON bm.barangayId = ba.barangayId
-      WHERE bm.isActive = 1
-      UNION
-      SELECT bm.Thumbnail, bm.Quotation, NULL AS BusinessName, NULL AS BusinessInfoID, 'Falls' AS TypeName, ba.barangayId, ba.establishment, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6
-      FROM barangay_accounts ba
-      LEFT JOIN business_media bm ON ba.barangayId = bm.barangayId AND bm.isActive = 1
-      WHERE ba.BusinessTypeID = 21
-  ");
+  SELECT bm.Thumbnail, bm.Quotation, bif.BusinessName, bif.BusinessInfoID, bt.TypeName, ba.barangayId, ba.establishment, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6
+  FROM business_media bm
+  JOIN businessinformationform bif ON bm.BusinessInfoID = bif.BusinessInfoID
+  JOIN businesstype bt ON bif.BusinessTypeID = bt.BusinessTypeID
+  LEFT JOIN barangay_accounts ba ON bm.barangayId = ba.barangayId
+  WHERE bm.isActive = 1
+  UNION
+  SELECT bm.Thumbnail, bm.Quotation, NULL AS BusinessName, NULL AS BusinessInfoID, 'Falls' AS TypeName, ba.barangayId, ba.establishment, bm.Image1, bm.Image2, bm.Image3, bm.Image4, bm.Image5, bm.Image6
+  FROM barangay_accounts ba
+  LEFT JOIN business_media bm ON ba.barangayId = bm.barangayId AND bm.isActive = 1
+  WHERE ba.BusinessTypeID = 21 AND EXISTS (
+      SELECT 1 FROM business_media bm2 WHERE bm2.barangayId = ba.barangayId AND bm2.isActive = 1
+  )
+");
   $stmt->execute();
   $businesses = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
