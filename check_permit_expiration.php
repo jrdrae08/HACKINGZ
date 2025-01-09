@@ -21,12 +21,17 @@ try {
   $currentDate = new DateTime('now', $timezone);
   $endOfYear = new DateTime('last day of December', $timezone);
 
-  // Calculate the renewal end date (January 20th of the next year)
-  $nextYear = (int)$currentDate->format('Y') + 1;
-  $renewalEndDate = new DateTime("{$nextYear}-01-20", $timezone);
+  // Calculate the renewal end date (January 20th of the current year)
+  $renewalEndDate = new DateTime("{$currentDate->format('Y')}-01-20", $timezone);
 
-  // Query the database for permits expiring on December 31st, with status 'Approved', and ReminderSent = 0
-  $stmt = $pdo->prepare('SELECT ApplicationID, Email, PermitExpDate, RefNum, RegistrantFirstName, RegistrantMiddleName, RegistrantLastName FROM businessapplicationform WHERE PermitExpDate = :endOfYear AND Status = "Approved" AND ReminderSent = 0');
+  // Query the database for permits expiring on December 31st of the previous year, with status 'Approved', and ReminderSent = 0
+  $stmt = $pdo->prepare('SELECT ApplicationID, Email, PermitExpDate, RefNum, RegistrantFirstName, RegistrantMiddleName, RegistrantLastName 
+                         FROM businessapplicationform 
+                         WHERE PermitExpDate = :endOfYear 
+                         AND Status = "Approved" 
+                         AND ReminderSent = 0');
+  $previousYearEnd = (int)$currentDate->format('Y') - 1;
+  $endOfYear->setDate($previousYearEnd, 12, 31);
   $stmt->bindParam(':endOfYear', $endOfYear->format('Y-m-d'), PDO::PARAM_STR);
   $stmt->execute();
   $results = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -88,7 +93,7 @@ try {
         <div style="max-width: 600px; background-color: #ffffff; border: 1px solid #eaebed; border-radius: 16px; margin: 20px auto; padding: 24px;">
           <img src="cid:logo_cid" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Dear ' . $ownerName . ',</p>
-          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">This is a reminder that your business permit is set to expire on ' . $permitExpDate->format('Y-m-d') . '.</p>
+          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Mabuhay! This is a reminder that your business permit is set to expire on ' . $permitExpDate->format('Y-m-d') . '.</p>
           <div class="countdown">Days left to renew: ' . $daysLeft . '</div>
             <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Please take the necessary steps to renew your permit. The renewal period starts on January 1 and ends on January 20, ' . $nextYear . '.</p>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Your reference number is: <strong>' . $refNum . '</strong>. You can use this reference number to renew your business permit by visiting the following link:</p>
