@@ -149,7 +149,7 @@ session_start()
 
                                         <div class="my-2">
                                             <p class="note-text text-secondary m-0">Business Permit (upload image)</p>
-                                            <input type="file" class="form-control shadow m-0" name="permit" id="permit" accept=".jpeg, .png, .gif, .jpg" placeholder="" required>
+                                            <input type="file" class="form-control shadow m-0" name="permit" id="permit" accept=".jpeg, .png, .gif, .jpg, webp" placeholder="" required>
                                         </div>
 
                                         <div class="col-lg-12 mt-2">

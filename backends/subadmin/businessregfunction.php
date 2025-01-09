@@ -5,6 +5,116 @@ session_start();
 // Include the database connection file
 include '../../includes/db.php';
 
+function validateImage($permit)
+{
+  $errors = [];
+  $allowedFormats = ["jpg", "jpeg", "png", "gif", "webp"];
+  $imageFileType = strtolower(pathinfo($permit["name"], PATHINFO_EXTENSION));
+
+  // Check if image file is an actual image
+  $check = getimagesize($permit["tmp_name"]);
+  if ($check === false) {
+    $errors[] = "File is not an image.";
+  }
+
+  // Check file size (limit to 5MB)
+  if ($permit["size"] > 5000000) {
+    $errors[] = "Sorry, your file is too large.";
+  }
+
+  // Allow certain file formats
+  if (!in_array($imageFileType, $allowedFormats)) {
+    $errors[] = "Sorry, only JPG, JPEG, PNG, GIF & WEBP files are allowed.";
+  }
+
+  return $errors;
+}
+
+function compressAndConvertToWebP($permit, $target_dir)
+{
+  $imageFileType = strtolower(pathinfo($permit["name"], PATHINFO_EXTENSION));
+  $webp_image_name = uniqid() . '-' . date('Ymd') . '.webp';
+  $webp_target_file = $target_dir . $webp_image_name;
+
+  switch ($imageFileType) {
+    case 'jpg':
+    case 'jpeg':
+      $image = imagecreatefromjpeg($permit["tmp_name"]);
+      break;
+    case 'png':
+      $image = imagecreatefrompng($permit["tmp_name"]);
+      break;
+    case 'gif':
+      $image = imagecreatefromgif($permit["tmp_name"]);
+      break;
+    case 'webp':
+      $image = imagecreatefromwebp($permit["tmp_name"]);
+      break;
+    default:
+      $image = null;
+      break;
+  }
+
+  if ($image && imagewebp($image, $webp_target_file, 80)) {
+    imagedestroy($image);
+    return $webp_image_name;
+  } else {
+    return null;
+  }
+}
+
+function insertIntoDatabase($pdo, $data)
+{
+  try {
+    // Start transaction
+    $pdo->beginTransaction();
+
+    // Generate reference number
+    $refNum = 'REF-' . strtoupper(uniqid());
+
+    // Insert into businessapplicationform
+    $stmt1 = $pdo->prepare("INSERT INTO businessapplicationform (RegistrantFirstName, RegistrantMiddleName, RegistrantLastName, ContactNumber, Email, BusinessPermitImage, PermitExpDate, RefNum, IsRead)
+                                    VALUES (:fname, :mname, :lname, :contact, :email, :permit, :pexdate, :refnum, FALSE)");
+    $stmt1->execute([
+      ':fname' => $data['fname'],
+      ':mname' => $data['mname'],
+      ':lname' => $data['lname'],
+      ':contact' => $data['contact'],
+      ':email' => $data['email'],
+      ':permit' => $data['permit'],
+      ':pexdate' => $data['pexpidate'],
+      ':refnum' => $refNum
+    ]);
+
+    $application_id = $pdo->lastInsertId();
+
+    // Concatenate full address
+    $full_address = $data['street'] . ', ' . $data['barangay'] . ', ' . $data['city'] . ', ' . $data['province'];
+
+    // Insert into businessinformationform with concatenated full address
+    $stmt2 = $pdo->prepare("INSERT INTO businessinformationform (ApplicationID, BusinessName, BusinessAddress, BusinessTypeID, BusinessEmail, BusinessContactNumber, BusinessDescription)
+                                    VALUES (:application_id, :bname, :full_address, :btype, :bemail, :bcontact, :bdesc)");
+    $stmt2->execute([
+      ':application_id' => $application_id,
+      ':bname' => $data['bname'],
+      ':full_address' => $full_address,
+      ':btype' => $data['btype'],
+      ':bemail' => $data['bemail'],
+      ':bcontact' => $data['bcontact'],
+      ':bdesc' => $data['bdesc']
+    ]);
+
+    // Commit transaction
+    $pdo->commit();
+
+    return true;
+  } catch (PDOException $e) {
+    // Rollback transaction
+    $pdo->rollBack();
+    throw $e;
+  }
+}
+
 if ($_SERVER["REQUEST_METHOD"] == "POST") {
   $errors = array();
 
@@ -54,34 +164,17 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   if ($expirationDate->format('m') != '12' || $expirationDate->format('d') != '31') {
     array_push($errors, "Business Permit Expiration Date must be December 31.");
   }
+
   // Check if permit is uploaded
   if ($permit['error'] == 0) {
     $target_dir = "../../businessowner/uploadsapp/";
-    date_default_timezone_set('Asia/Hong_Kong'); // Set the timezone to Asia/Hong_Kong
-    $image_name = uniqid() . '-' . date('Ymd') . '-' . basename($permit["name"]); // Create a unique name for the file with date
-    $target_file = $target_dir . $image_name;
-    $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-    // Check if image file is an actual image
-    $check = getimagesize($permit["tmp_name"]);
-    if ($check === false) {
-      array_push($errors, "File is not an image.");
-    }
-
-    // Check file size (limit to 5MB)
-    if ($permit["size"] > 5000000) {
-      array_push($errors, "Sorry, your file is too large.");
-    }
-
-    // Allow certain file formats
-    if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-      array_push($errors, "Sorry, only JPG, JPEG, PNG & GIF files are allowed.");
-    }
-
-    // Check if $errors is empty
-    if (empty($errors)) {
-      if (!move_uploaded_file($permit["tmp_name"], $target_file)) {
-        array_push($errors, "Sorry, there was an error uploading your file.");
+    $imageErrors = validateImage($permit);
+    if (!empty($imageErrors)) {
+      $errors = array_merge($errors, $imageErrors);
+    } else {
+      $image_name = compressAndConvertToWebP($permit, $target_dir);
+      if ($image_name === null) {
+        $errors[] = "Sorry, there was an error converting your file to WebP.";
       }
     }
   } else {
@@ -117,47 +210,27 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
   }
 
   if (empty($errors)) {
+    $data = [
+      'fname' => $fname,
+      'mname' => $mname,
+      'lname' => $lname,
+      'contact' => $contact,
+      'email' => $email,
+      'permit' => $image_name,
+      'pexpidate' => $pexpidate,
+      'btype' => $btype,
+      'bname' => $bname,
+      'street' => $street,
+      'barangay' => $barangay,
+      'city' => $city,
+      'province' => $province,
+      'bemail' => $bemail,
+      'bcontact' => $bcontact,
+      'bdesc' => $bdesc
+    ];
+
     try {
-      // Start transaction
-      $pdo->beginTransaction();
-
-      // Generate reference number
-      $refNum = 'REF-' . strtoupper(uniqid());
-
-      // Insert into businessapplicationform
-      $stmt1 = $pdo->prepare("INSERT INTO businessapplicationform (RegistrantFirstName, RegistrantMiddleName, RegistrantLastName, ContactNumber, Email, BusinessPermitImage, PermitExpDate, RefNum, IsRead)
-                                    VALUES (:fname, :mname, :lname, :contact, :email, :permit, :pexdate, :refnum, FALSE)");
-      $stmt1->execute([
-        ':fname' => $fname,
-        ':mname' => $mname,
-        ':lname' => $lname,
-        ':contact' => $contact,
-        ':email' => $email,
-        ':permit' => $image_name,
-        ':pexdate' => $pexpidate,
-        ':refnum' => $refNum
-      ]);
-
-      $application_id = $pdo->lastInsertId();
-
-      // Concatenate full address
-      $full_address = $street . ', ' . $barangay . ', ' . $city . ', ' . $province;
-
-      // Insert into businessinformationform with concatenated full address
-      $stmt2 = $pdo->prepare("INSERT INTO businessinformationform (ApplicationID, BusinessName, BusinessAddress, BusinessTypeID, BusinessEmail, BusinessContactNumber, BusinessDescription)
-                                    VALUES (:application_id, :bname, :full_address, :btype, :bemail, :bcontact, :bdesc)");
-      $stmt2->execute([
-        ':application_id' => $application_id,
-        ':bname' => $bname,
-        ':full_address' => $full_address,
-        ':btype' => $btype,
-        ':bemail' => $bemail,
-        ':bcontact' => $bcontact,
-        ':bdesc' => $bdesc
-      ]);
-
-      // Commit transaction
-      $pdo->commit();
+      insertIntoDatabase($pdo, $data);
 
       // Clear form data from session
       unset($_SESSION['form_data']);
@@ -166,8 +239,6 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
       header('Location: ../../businessowner/success.php');
       exit();
     } catch (PDOException $e) {
-      // Rollback transaction
-      $pdo->rollBack();
       $_SESSION['message'] = "Error: " . $e->getMessage();
       $_SESSION['type'] = "danger";
       header('Location: ../../businessowner/business-registration.php');
