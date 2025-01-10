@@ -21,13 +21,13 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
   // Handle file uploads with unique names
   $defaultImage = 'default-image.png'; // Set a path to a default image or keep it as null
-  $thumbnail = uploadFile('thumbnail-image-1', true, [600, 600]) ?? $existingMedia['Thumbnail'] ?? $defaultImage;
-  $image1 = uploadFile('business-image-1', false) ?? $existingMedia['Image1'] ?? $defaultImage;
-  $image2 = uploadFile('business-image-2', false) ?? $existingMedia['Image2'] ?? $defaultImage;
-  $image3 = uploadFile('business-image-3', false) ?? $existingMedia['Image3'] ?? $defaultImage;
-  $image4 = uploadFile('business-image-4', false) ?? $existingMedia['Image4'] ?? $defaultImage;
-  $image5 = uploadFile('business-image-5', false) ?? $existingMedia['Image5'] ?? $defaultImage;
-  $image6 = uploadFile('business-image-6', false) ?? $existingMedia['Image6'] ?? $defaultImage;
+  $thumbnail = handleFileUpload('thumbnail-image-1', $existingMedia['Thumbnail'] ?? null) ?? $existingMedia['Thumbnail'] ?? $defaultImage;
+  $image1 = handleFileUpload('business-image-1', $existingMedia['Image1'] ?? null) ?? $existingMedia['Image1'] ?? $defaultImage;
+  $image2 = handleFileUpload('business-image-2', $existingMedia['Image2'] ?? null) ?? $existingMedia['Image2'] ?? $defaultImage;
+  $image3 = handleFileUpload('business-image-3', $existingMedia['Image3'] ?? null) ?? $existingMedia['Image3'] ?? $defaultImage;
+  $image4 = handleFileUpload('business-image-4', $existingMedia['Image4'] ?? null) ?? $existingMedia['Image4'] ?? $defaultImage;
+  $image5 = handleFileUpload('business-image-5', $existingMedia['Image5'] ?? null) ?? $existingMedia['Image5'] ?? $defaultImage;
+  $image6 = handleFileUpload('business-image-6', $existingMedia['Image6'] ?? null) ?? $existingMedia['Image6'] ?? $defaultImage;
 
   if ($existingMedia) {
     // Update existing media
@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   exit;
 }
 
-function uploadFile($inputName, $isThumbnail = false, $resizeDimensions = null)
+function handleFileUpload($inputName, $existingFile = null)
 {
   // Check if the file input exists and a file was uploaded
   if (!isset($_FILES[$inputName]) || $_FILES[$inputName]['error'] == UPLOAD_ERR_NO_FILE) {
@@ -81,95 +81,64 @@ function uploadFile($inputName, $isThumbnail = false, $resizeDimensions = null)
     exit;
   }
 
+  // Delete the existing file if it exists
+  if ($existingFile && file_exists($targetDir . $existingFile)) {
+    unlink($targetDir . $existingFile);
+  }
 
-  // Resize and save the image
-  if ($isThumbnail && $resizeDimensions) {
-    resizeImage($_FILES[$inputName]["tmp_name"], $resizeDimensions[0], $resizeDimensions[1], $targetFile);
+  if (move_uploaded_file($_FILES[$inputName]["tmp_name"], $targetFile)) {
+    $webpFile = convertToWebP($targetFile, $fileExtension);  // Convert the image to WebP after moving
+    return $webpFile;
   } else {
-    if (move_uploaded_file($_FILES[$inputName]["tmp_name"], $targetFile)) {
-      compressImage($targetFile, $targetFile, $fileExtension);  // Compress the image after moving
-      return $uniqueName;
-    } else {
-      $_SESSION['error'] = "Sorry, there was an error uploading your file.";
-      header("Location: ../../businessowner/front-card.php");
-      exit;
-    }
+    $_SESSION['error'] = "Sorry, there was an error uploading your file.";
+    header("Location: ../../businessowner/front-card.php");
+    exit;
   }
 
   return $uniqueName;
 }
 
-function resizeImage($file, $width, $height, $targetFile)
+function convertToWebP($source, $imageFileType)
 {
-  list($originalWidth, $originalHeight) = getimagesize($file);
-  $image_p = imagecreatetruecolor($width, $height);
-
-  // Determine file type and create an image resource
-  $image = null;
-  $imageFileType = strtolower(pathinfo($targetFile, PATHINFO_EXTENSION));
-
   switch ($imageFileType) {
     case 'jpg':
     case 'jpeg':
-      $image = imagecreatefromjpeg($file);
+      $image_p = imagecreatefromjpeg($source);
       break;
     case 'png':
-      $image = imagecreatefrompng($file);
+      $image_p = imagecreatefrompng($source);
       break;
+    case 'gif':
+      $image_p = imagecreatefromgif($source);
+      break;
+    case 'webp':
+      // If the source is already a WebP file, no need to convert
+      return basename($source);
     default:
       $_SESSION['error'] = "Unsupported image format.";
       header("Location: ../../businessowner/front-card.php");
       exit;
   }
 
-  // Check if the image resource is valid
-  if ($image === false) {
-    $_SESSION['error'] = "Failed to create image from file.";
-    header("Location: ../../businessowner/front-card.php");
-    exit;
+  $webpDestination = preg_replace('/\.[^.]+$/', '.webp', $source);
+
+  // Convert to true color image if necessary
+  if (imageistruecolor($image_p) === false) {
+    $trueColorImage = imagecreatetruecolor(imagesx($image_p), imagesy($image_p));
+    imagecopy($trueColorImage, $image_p, 0, 0, 0, 0, imagesx($image_p), imagesy($image_p));
+    imagedestroy($image_p);
+    $image_p = $trueColorImage;
   }
 
-  // Resample the image
-  imagecopyresampled($image_p, $image, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
-
-  // Output the resized image
-  switch ($imageFileType) {
-    case 'jpg':
-    case 'jpeg':
-      imagejpeg($image_p, $targetFile, 75); // Reduced quality for compression
-      break;
-    case 'png':
-      imagepng($image_p, $targetFile, 8); // Increased compression
-      break;
-    case 'gif':
-      imagegif($image_p, $targetFile);
-      break;
-  }
-
-  imagedestroy($image);
-  imagedestroy($image_p);
-}
-
-function compressImage($source, $destination, $imageFileType)
-{
-  $image_p = imagecreatefromstring(file_get_contents($source));
-
-  // Compress and save the image with more aggressive settings
-  switch ($imageFileType) {
-    case 'jpg':
-    case 'jpeg':
-      imagejpeg($image_p, $destination, 60); // Lower the quality to 60 (out of 100)
-      break;
-    case 'png':
-      imagepng($image_p, $destination, 8); // Increase the compression level to 8 (out of 9)
-      break;
-    case 'gif':
-      imagegif($image_p, $destination); // GIFs are generally small already
-      break;
-    case 'webp':
-      imagewebp($image_p, $destination, 80); // Convert to WebP with 80% quality
-      break;
-  }
+  // Convert to WebP and save the image
+  imagewebp($image_p, $webpDestination, 80);
 
   imagedestroy($image_p);
+
+  // Remove the original file if it exists
+  if (file_exists($source)) {
+    unlink($source);
+  }
+
+  return basename($webpDestination);
 }
