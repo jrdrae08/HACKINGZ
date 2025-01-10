@@ -10,41 +10,39 @@
     font-family: Arial, Helvetica, sans-serif;
 }
 
+.cormorant-text,
+.dm-sans-text,
+.montserrat-font,
+.poetsen-one-regular,
+.jaro-font {
+    font-optical-sizing: auto;
+    font-style: normal;
+}
 
 .cormorant-text {
     font-family: "Cormorant", serif;
-    font-optical-sizing: auto;
     font-weight: 1000;
-    font-style: normal;
 }
 
 .dm-sans-text {
     font-family: "DM Sans", sans-serif;
-    font-optical-sizing: auto;
     font-weight: 250;
-    font-style: normal;
 }
 
 .montserrat-font {
     font-family: "Montserrat", sans-serif;
-    font-optical-sizing: auto;
     font-weight: 500;
-    font-style: normal;
     color: #000;
 }
 
 .poetsen-one-regular {
     font-family: "Poetsen One", sans-serif;
     font-weight: 400;
-    font-style: normal;
 }
 
 .jaro-font {
-
     font-family: "Jaro", sans-serif;
-    font-optical-sizing: auto;
     font-weight: 400;
-    font-style: normal;
     color: white;
     text-shadow: 2px 2px 4px #000000;
 }
@@ -54,10 +52,9 @@ body {
     position: relative;
     width: 100%;
     height: 100vh;
-    background: url('../img/general-img/bg.png') center center/cover;
+    background: url('../img/general-img/bg.webp') center center/cover;
     background-attachment: fixed;
 }
-
 
 body::before {
     content: '';
@@ -75,45 +72,38 @@ body::before {
     color: white;
 }
 
-.btn-visit {
+.btn-visit,
+.btn-nav,
+.btn-login {
     background-color: #198754;
     border: none;
-
 }
 
-.btn-visit:hover {
-    color: white;
+.btn-visit:hover,
+.btn-nav:hover,
+.btn-login:hover {
     background-color: #146640;
+    color: white;
+}
+
+.btn-nav,
+.btn-login {
+    width: 100%;
+    font-size: 17px;
 }
 
 .btn-nav {
     margin: 0 20px;
-    width: 100%;
     border-radius: 50px;
-    /* text-align: center; */
-    font-size: 17px;
-    background-color: #198754;
-}
-
-.btn-nav:hover {
-    background-color: #146640;
 }
 
 .btn-login {
     margin-left: 20px;
-    width: 100%;
     text-align: center;
-    font-size: 17px;
-    border-radius: 50px 0px 0px 50px;
-    background-color: #198754;
-}
-
-.btn-login:hover {
-    background-color: #146640;
+    border-radius: 50px 0 0 50px;
 }
 
 .text-color-1 {
-    /* color: #3dac78; */
     color: #5A7D2C;
 }
 
@@ -130,17 +120,14 @@ body::before {
 }
 
 .text-color-5 {
-    /* color: #d8f3dc; */
     color: #fff8d8;
 }
 
 .bg-color-1 {
-    /* background-color:  #3dac78; */
     background-color: #5A7D2C;
 }
 
 .bg-color-1:hover {
-    /* background-color:  #3dac78; */
     background-color: #44611e;
 }
 
@@ -157,7 +144,6 @@ body::before {
 }
 
 .bg-color-5 {
-    /* background-color:  #d8f3dc; */
     background-color: #ffffff;
 }
 
@@ -165,10 +151,9 @@ body::before {
     background-color: rgb(205, 218, 187);
 }
 
-
 /*** 
 ====================================================================
-	Header Page
+  Header Page
 ====================================================================
  ***/
 .home-header {
@@ -177,41 +162,26 @@ body::before {
 
 /*** 
 ====================================================================
-	Discover Page
+  Discover Page
 ====================================================================
  ***/
 
-
-/* .slider-wrapper .image-list {
-    gap: 18px;
-    grid-template-columns: repeat(10,1fr);
-    font-size: 0;
-    overflow-x: auto;
-    scrollbar-width: none;
-}
-.slider-wrapper .image-list::-webkit-scrollbar {
-    display: none;
-}
-
-.slider-wrapper .image-list .image-item {
-    width: 325px;
-    height: 400px;
-    object-fit: cover;
-} */
-
-
-.discover-container {
+.discover-container,
+.service-container {
     background: #F1F4FD;
 }
 
-.discover-content {
+.discover-content,
+.featured-cards .card,
+.service-cards .card {
     transition: transform 0.5s ease;
 }
 
-.discover-content:hover {
+.discover-content:hover,
+.featured-cards .card:hover,
+.service-cards .card:hover {
     transform: scale(1.05);
 }
-
 
 .discover-img {
     width: 100%;
@@ -219,7 +189,8 @@ body::before {
     object-fit: cover;
 }
 
-.scrolling-wrapper {
+.scrolling-wrapper,
+.scrolling-wrapper-flexbox {
     overflow-x: scroll;
     overflow-y: hidden;
     white-space: nowrap;
@@ -227,22 +198,10 @@ body::before {
     -webkit-overflow-scrolling: touch;
 }
 
-.scrolling-wrapper .card {
+.scrolling-wrapper .card,
+.scrolling-wrapper-flexbox .card {
     display: inline-block;
     margin-bottom: 10px;
-    width: 23rem;
-    height: 32rem;
-}
-
-.scrolling-wrapper-flexbox {
-    display: flex;
-    flex-wrap: nowrap;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-}
-
-.scrolling-wrapper-flexbox .card {
-    flex: 0 0 auto;
     width: 23rem;
     height: 32rem;
 }
@@ -257,68 +216,45 @@ body::before {
 
     .discover-img {
         height: 350px;
-        width: 100%;
-        object-fit: cover;
     }
 }
 
 /*** 
 ====================================================================
-	Featured Page
+  Featured Page
 ====================================================================
  ***/
-
 .featured-ts {
-    padding: 100px 0 50px 100px
+    padding: 100px 0 50px 100px;
 }
-
 
 /*** 
 ====================================================================
-	About Page
+  About Page
 ====================================================================
  ***/
-
 .about-content {
     text-align: justify;
 }
 
 /*** 
 ====================================================================
-	Services Page
+  Services Page
 ====================================================================
  ***/
-
-.service-container {
-    background: #F1F4FD;
-}
-
 .service-cards {
     margin: 100px;
-
-}
-
-.featured-cards .card,
-.service-cards .card {
-    transition: transform 0.2s ease;
-}
-
-.featured-cards .card:hover,
-.service-cards .card:hover {
-    transform: scale(1.05);
 }
 
 /*** 
 ====================================================================
-	Contact Page
+  Contact Page
 ====================================================================
  ***/
 
-
-
 /*** 
 ====================================================================
-	Footer Page
+  Footer Page
 ====================================================================
  ***/
 .text-muted {
@@ -326,12 +262,9 @@ body::before {
 }
 
 @media (max-width: 990px) {
-
     .card {
         width: 18rem;
-        /* Adjust the width for mobile screens */
         height: 25rem;
-        /* Adjust the height for mobile screens */
     }
 
     .navbar-brand {
@@ -349,23 +282,15 @@ body::before {
         color: #198754;
     }
 
-    .navbar-nav .nav-link {
+    .navbar-nav .nav-link,
+    .navbar-nav .btn-login {
         display: block;
-        color: #000 !important;
         width: 100%;
         margin: 0 !important;
         background: none !important;
         border: none !important;
         box-shadow: none !important;
-    }
-
-    .navbar-nav .btn-login {
-        display: block;
-        width: 100%;
-        margin-left: 0 !important;
-        background: none !important;
-        border: none !important;
-        box-shadow: none !important;
+        color: #000 !important;
     }
 
     .home-header {
@@ -382,10 +307,9 @@ body::before {
     }
 }
 
-
 /*** 
 ====================================================================
-	Carousel
+  Carousel
 ====================================================================
  ***/
 .collection {
@@ -401,8 +325,6 @@ body::before {
     background-color: #ffffff;
     border: .2rem solid rgba(255, 255, 255, .1);
     border-radius: .4rem;
-    /* border-bottom: .4rem solid #198754;
-    border-top: .4rem solid #198754; */
     overflow: hidden;
 }
 

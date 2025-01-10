@@ -121,7 +121,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                     <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-5 col-md-6 col-12">
-                                <img src="../img/homepage/waterfall.png" class="img-fluid object-fit-cover rounded shadow" alt="">
+                                <img src="../img/homepage/waterfall.webp" class="img-fluid object-fit-cover rounded shadow" alt="">
                             </div>
                             <div class="col-md-6 col-12  my-3 text-dark text-center py-3 d-flex flex-column justify-content-center align-items-center">
                                 <h1 class="fw-bold">Majayjay Waterfalls</h1>
