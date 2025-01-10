@@ -35,6 +35,36 @@ function validate_image($file)
   return true;
 }
 
+function compressAndConvertToWebP($file, $target_dir)
+{
+  $imageFileType = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
+  $webp_image_name = uniqid() . '-' . date('Ymd') . '.webp';
+  $webp_target_file = $target_dir . $webp_image_name;
+
+  switch ($imageFileType) {
+    case 'jpg':
+    case 'jpeg':
+      $image = imagecreatefromjpeg($file["tmp_name"]);
+      break;
+    case 'png':
+      $image = imagecreatefrompng($file["tmp_name"]);
+      break;
+    case 'gif':
+      $image = imagecreatefromgif($file["tmp_name"]);
+      break;
+    default:
+      $image = null;
+      break;
+  }
+
+  if ($image && imagewebp($image, $webp_target_file, 80)) {
+    imagedestroy($image);
+    return $webp_image_name;
+  } else {
+    return null;
+  }
+}
+
 function validate_content_length($content, $minWords, $maxWords, $context)
 {
   $wordCount = str_word_count($content);
@@ -43,6 +73,19 @@ function validate_content_length($content, $minWords, $maxWords, $context)
   }
   if ($wordCount > $maxWords) {
     throw new Exception("$context must not exceed $maxWords words.");
+  }
+}
+
+function deleteOldImage($pdo, $frontpageid, $columnName, $target_dir)
+{
+  $stmt = $pdo->prepare("SELECT $columnName FROM frontpagecontent WHERE frontpageid = :frontpageid");
+  $stmt->execute([':frontpageid' => $frontpageid]);
+  $oldImage = $stmt->fetchColumn();
+  if ($oldImage) {
+    $oldImagePath = $target_dir . $oldImage;
+    if (file_exists($oldImagePath)) {
+      unlink($oldImagePath);
+    }
   }
 }
 
@@ -66,20 +109,31 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $sliderImage2 = $_FILES['sliderimage2']['name'] ?? null;
     $sliderImage3 = $_FILES['sliderimage3']['name'] ?? null;
 
+    $target_dir = "../../admin/uploadannounce/";
+
     if ($sliderImage1) {
       validate_image($_FILES['sliderimage1']);
-      $targetFile1 = "../../admin/uploadannounce/" . basename($sliderImage1);
-      move_uploaded_file($_FILES['sliderimage1']['tmp_name'], $targetFile1);
+      deleteOldImage($pdo, $frontpageid, 'slider_image_1', $target_dir);
+      $sliderImage1 = compressAndConvertToWebP($_FILES['sliderimage1'], $target_dir);
+      if ($sliderImage1 === null) {
+        throw new Exception("Sorry, there was an error converting slider image 1 to WebP.");
+      }
     }
     if ($sliderImage2) {
       validate_image($_FILES['sliderimage2']);
-      $targetFile2 = "../../admin/uploadannounce/" . basename($sliderImage2);
-      move_uploaded_file($_FILES['sliderimage2']['tmp_name'], $targetFile2);
+      deleteOldImage($pdo, $frontpageid, 'slider_image_2', $target_dir);
+      $sliderImage2 = compressAndConvertToWebP($_FILES['sliderimage2'], $target_dir);
+      if ($sliderImage2 === null) {
+        throw new Exception("Sorry, there was an error converting slider image 2 to WebP.");
+      }
     }
     if ($sliderImage3) {
       validate_image($_FILES['sliderimage3']);
-      $targetFile3 = "../../admin/uploadannounce/" . basename($sliderImage3);
-      move_uploaded_file($_FILES['sliderimage3']['tmp_name'], $targetFile3);
+      deleteOldImage($pdo, $frontpageid, 'slider_image_3', $target_dir);
+      $sliderImage3 = compressAndConvertToWebP($_FILES['sliderimage3'], $target_dir);
+      if ($sliderImage3 === null) {
+        throw new Exception("Sorry, there was an error converting slider image 3 to WebP.");
+      }
     }
 
     $sql = "UPDATE frontpagecontent SET description = :description, slider_title_1 = :slider_title_1, slider_content_1 = :slider_content_1, 
@@ -102,9 +156,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ':slider_content_3' => $sliderContent3,
       ':frontpageid' => $frontpageid
     ];
-    if ($sliderImage1) $params[':slider_image_1'] = basename($sliderImage1);
-    if ($sliderImage2) $params[':slider_image_2'] = basename($sliderImage2);
-    if ($sliderImage3) $params[':slider_image_3'] = basename($sliderImage3);
+    if ($sliderImage1) $params[':slider_image_1'] = $sliderImage1;
+    if ($sliderImage2) $params[':slider_image_2'] = $sliderImage2;
+    if ($sliderImage3) $params[':slider_image_3'] = $sliderImage3;
 
     $stmt->execute($params);
 
@@ -118,9 +172,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       'slider_content_2' => $sliderContent2,
       'slider_title_3' => $sliderTitle3,
       'slider_content_3' => $sliderContent3,
-      'slider_image_1' => $sliderImage1 ? basename($sliderImage1) : null,
-      'slider_image_2' => $sliderImage2 ? basename($sliderImage2) : null,
-      'slider_image_3' => $sliderImage3 ? basename($sliderImage3) : null
+      'slider_image_1' => $sliderImage1,
+      'slider_image_2' => $sliderImage2,
+      'slider_image_3' => $sliderImage3
     ];
 
     echo json_encode($response);
