@@ -1,5 +1,6 @@
 <?php
 session_start();
+$formData = $_SESSION['form_data'] ?? [];
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     header('Location: ../login.php');
     exit;
@@ -71,9 +72,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                         <div class="row m-4 d-flex justify-content-evenly align-items-center">
                                             <div class="col-lg-4 col-md-6 col-sm-8 text-center">
                                                 <p>Thumbnail Image (2x2)</p>
-                                                <input name="thumbnail-image-1" type="file" id="thumbnail-image-input-1" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('thumbnail-image-input-1', 'thumbnail-image-1')" disabled>
+                                                <input name="thumbnail-image-1" type="file" id="thumbnail-image-input-1" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('thumbnail-image-input-1', 'thumbnail-image-1')">
                                                 <label for="thumbnail-image-input-1" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Thumbnail Image" id="thumbnail-image-1" height="200" width="200">
+                                                    <img src="<?php echo isset($formData['thumbnail-image-1']) ? '../../businessowner/businessmediacategory/tempUpload/' . $formData['thumbnail-image-1'] : '../img/general-img/insert.png'; ?>" class="rounded img-fluid shadow border" alt="Thumbnail Image" id="thumbnail-image-1" height="200" width="200">
                                                 </label>
                                             </div>
                                             <div class="col-lg-6 col-md-8">
@@ -81,7 +82,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     <div class="col-lg-12 mt-4">
                                                         <h5 class="fw-bold fs-6">Quotation</h5>
                                                         <div class="form-floating">
-                                                            <textarea name="quotation" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" disabled></textarea>
+                                                            <textarea name="quotation" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo isset($formData['quotation']) ? htmlspecialchars($formData['quotation']) : ''; ?></textarea>
                                                             <label for="floatingTextarea2">Simple Persuasive Sentences</label>
                                                             <p class="note-text text-secondary ms-2">(ex. "Come and visit this beautiful place!") (Maximum of 30 words)</p>
                                                         </div>
@@ -165,62 +166,23 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                     <div class="card-body">
                                         <p class="note-text">These images will appear when they visit your page.</p>
                                         <div class="row m-4">
-                                            <div class="col-lg-4 col-md-6 mb-3 text-center">
-                                                <p>Image 1</p>
-                                                <input name="business-image-1" type="file" id="business-image-input-1" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-1', 'business-image-1')" disabled>
-                                                <label for="business-image-input-1" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 1" id="business-image-1">
-                                                </label>
+                                            <?php for ($i = 1; $i <= 6; $i++): ?>
+                                                <div class="col-lg-4 col-md-6 mb-3 text-center">
+                                                    <p>Image <?php echo $i; ?></p>
+                                                    <input name="business-image-<?php echo $i; ?>" type="file" id="business-image-input-<?php echo $i; ?>" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-<?php echo $i; ?>', 'business-image-<?php echo $i; ?>')">
+                                                    <label for="business-image-input-<?php echo $i; ?>" class="image-container">
+                                                        <img src="<?php echo isset($formData['business-image-' . $i]) ? '../../businessowner/businessmediacategory/tempUpload/' . $formData['business-image-' . $i] : '../img/general-img/insert.png'; ?>" class="rounded img-fluid shadow border" alt="Business Image <?php echo $i; ?>" id="business-image-<?php echo $i; ?>">
+                                                    </label>
+                                                </div>
+                                            <?php endfor; ?>
+                                            <div class="col-lg-12 hstack mt-3">
+                                                <button type="submit" class="btn btn-success me-2 ms-auto" disabled>Save Changes</button>
+                                                <button type="reset" class="btn btn-secondary" disabled>Cancel</button>
                                             </div>
-
-                                            <div class="col-lg-4 col-md-6 mb-3 text-center">
-                                                <p>Image 2</p>
-                                                <input name="business-image-2" type="file" id="business-image-input-2" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-2', 'business-image-2')" disabled>
-                                                <label for="business-image-input-2" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 2" id="business-image-2">
-                                                </label>
-                                            </div>
-
-                                            <div class="col-lg-4 col-md-6 mb-3 text-center">
-                                                <p>Image 3</p>
-                                                <input name="business-image-3" type="file" id="business-image-input-3" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-3', 'business-image-3')" disabled>
-                                                <label for="business-image-input-3" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 3" id="business-image-3">
-                                                </label>
-                                            </div>
-
-                                            <div class="col-lg-4 col-md-6 mb-3 text-center">
-                                                <p>Image 4</p>
-                                                <input name="business-image-4" type="file" id="business-image-input-4" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-4', 'business-image-4')" disabled>
-                                                <label for="business-image-input-4" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 4" id="business-image-4">
-                                                </label>
-                                            </div>
-
-                                            <div class="col-lg-4 col-md-6 mb-3 text-center">
-                                                <p>Image 5</p>
-                                                <input name="business-image-5" type="file" id="business-image-input-5" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-5', 'business-image-5')" disabled>
-                                                <label for="business-image-input-5" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 5" id="business-image-5">
-                                                </label>
-                                            </div>
-
-                                            <div class="col-lg-4 col-md-6 mb-3 text-center">
-                                                <p>Image 6</p>
-                                                <input name="business-image-6" type="file" id="business-image-input-6" style="display: none;" accept="image/jpeg, image/jpg, image/png, image/webp" onchange="uploadImage('business-image-input-6', 'business-image-6')" disabled>
-                                                <label for="business-image-input-6" class="image-container">
-                                                    <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="Business Image 6" id="business-image-6">
-                                                </label>
-                                            </div>
-                                        </div>
-                                        <div class="col-lg-12 hstack mt-3">
-                                            <button type="submit" class="btn btn-success me-2 ms-auto" disabled>Save Changes</button>
-                                            <button type="reset" class="btn btn-secondary" disabled>Cancel</button>
                                         </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
                     </form>
                 </div>
             </main>
