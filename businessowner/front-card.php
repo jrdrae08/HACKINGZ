@@ -84,7 +84,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         <div class="form-floating">
                                                             <textarea name="quotation" class="form-control shadow" placeholder="Leave a comment here" id="floatingTextarea2" style="height: 100px" required><?php echo isset($formData['quotation']) ? htmlspecialchars($formData['quotation']) : ''; ?></textarea>
                                                             <label for="floatingTextarea2">Simple Persuasive Sentences</label>
-                                                            <p class="note-text text-secondary ms-2">(ex. "Come and visit this beautiful place!") (Maximum of 30 words)</p>
+                                                            <p class="note-text text-secondary ms-2">(ex. "Come and visit this beautiful place!") <span id="quotation-word-count" class="text-end text-muted"></span></p>
                                                         </div>
                                                     </div>
                                                     <div class="container mt-5">
@@ -577,7 +577,33 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     }
 </script>
 
+<script src="../wordcounter/jquery.word-and-character-counter.js"></script>
 
+<script>
+    $(document).ready(function() {
+        $('#floatingTextarea2').counter({
+            type: 'word',
+            count: 'up',
+            goal: 30,
+            target: '#quotation-word-count',
+            text: true,
+            translation: 'word left max',
+            onGoal: function() {
+                $('#floatingTextarea2').on('keydown', function(event) {
+                    const words = $(this).val().split(/\s+/).filter(word => word.length > 0);
+                    if (words.length >= 30 && event.key !== 'Backspace' && event.key !== 'Delete') {
+                        event.preventDefault();
+                    }
+                });
+            },
+            onCountChange: function(currentCount) {
+                if (currentCount < 30) {
+                    $('#floatingTextarea2').off('keydown');
+                }
+            }
+        });
+    });
+</script>
 <script>
     function uploadImage(inputId, imageId) {
         const input = document.getElementById(inputId);
