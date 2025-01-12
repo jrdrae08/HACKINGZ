@@ -97,7 +97,49 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
       // Move the uploaded file to the temp directory
       if (move_uploaded_file($_FILES[$imageKey]['tmp_name'], $tempFilePath)) {
-        $images[$imageKey] = $tempFilePath;
+        // Convert the image to WebP format
+        switch ($imageFileType) {
+          case 'jpg':
+          case 'jpeg':
+            $image_p = imagecreatefromjpeg($tempFilePath);
+            break;
+          case 'png':
+            $image_p = imagecreatefrompng($tempFilePath);
+            break;
+          case 'gif':
+            $image_p = imagecreatefromgif($tempFilePath);
+            break;
+          case 'webp':
+            // If the source is already a WebP file, no need to convert
+            $images[$imageKey] = $tempFilePath;
+            continue 2;
+          default:
+            $_SESSION['error'] = "Unsupported image format.";
+            header("Location: ../../businessowner/add-rooms.php");
+            exit;
+        }
+
+        $webpDestination = preg_replace('/\.[^.]+$/', '.webp', $tempFilePath);
+
+        // Convert to true color image if necessary
+        if (imageistruecolor($image_p) === false) {
+          $trueColorImage = imagecreatetruecolor(imagesx($image_p), imagesy($image_p));
+          imagecopy($trueColorImage, $image_p, 0, 0, 0, 0, imagesx($image_p), imagesy($image_p));
+          imagedestroy($image_p);
+          $image_p = $trueColorImage;
+        }
+
+        // Convert to WebP and save the image
+        imagewebp($image_p, $webpDestination, 80);
+
+        imagedestroy($image_p);
+
+        // Remove the original file if it exists
+        if (file_exists($tempFilePath)) {
+          unlink($tempFilePath);
+        }
+
+        $images[$imageKey] = $webpDestination;
       } else {
         $errors[] = ['field' => $imageKey, 'message' => "Failed to move uploaded file: " . $_FILES[$imageKey]['name']];
       }
@@ -110,23 +152,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   }
 
   // Check for errors before proceeding
-  if (!empty($errors)) {
-    $_SESSION['errors'] = $errors;
-    $_SESSION['form_data'] = $_POST;
-    $_SESSION['temp_images'] = $images;
-    header('Location: ../../businessowner/add-rooms.php');
-    exit();
-  }
-
-  // Resize images
-  foreach ($images as $key => $tempPath) {
-    $resizedImagePath = resizeImage($tempPath, $tempPath, 1920, 1080);
-    if (!$resizedImagePath) {
-      $errors[] = ['field' => $key, 'message' => "Failed to resize image: " . basename($tempPath)];
-    }
-  }
-
-  // Check for errors after resizing images
   if (!empty($errors)) {
     $_SESSION['errors'] = $errors;
     $_SESSION['form_data'] = $_POST;
@@ -237,65 +262,4 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     header('Location: ../../businessowner/add-rooms.php');
     exit();
   }
-}
-
-/**
- * Resize image to the specified width and height
- *
- * @param string $sourcePath Path to the source image
- * @param string $targetPath Path to save the resized image
- * @param int $width Desired width
- * @param int $height Desired height
- * @return string|false The path to the resized image on success, or false on failure
- */
-function resizeImage($sourcePath, $targetPath, $width, $height)
-{
-  list($originalWidth, $originalHeight, $imageType) = getimagesize($sourcePath);
-
-  if (!$originalWidth || !$originalHeight) {
-    return false;
-  }
-
-  $srcImage = null;
-  switch ($imageType) {
-    case IMAGETYPE_JPEG:
-      $srcImage = imagecreatefromjpeg($sourcePath);
-      break;
-    case IMAGETYPE_PNG:
-      $srcImage = imagecreatefrompng($sourcePath);
-      break;
-    case IMAGETYPE_GIF:
-      $srcImage = imagecreatefromgif($sourcePath);
-      break;
-    default:
-      return false;
-  }
-
-  if (!$srcImage) {
-    return false;
-  }
-
-  $dstImage = imagecreatetruecolor($width, $height);
-  $white = imagecolorallocate($dstImage, 255, 255, 255);
-  imagefill($dstImage, 0, 0, $white);
-
-  imagecopyresampled($dstImage, $srcImage, 0, 0, 0, 0, $width, $height, $originalWidth, $originalHeight);
-
-  $saved = false;
-  switch ($imageType) {
-    case IMAGETYPE_JPEG:
-      $saved = imagejpeg($dstImage, $targetPath);
-      break;
-    case IMAGETYPE_PNG:
-      $saved = imagepng($dstImage, $targetPath);
-      break;
-    case IMAGETYPE_GIF:
-      $saved = imagegif($dstImage, $targetPath);
-      break;
-  }
-
-  imagedestroy($srcImage);
-  imagedestroy($dstImage);
-
-  return $saved ? $targetPath : false;
 }
