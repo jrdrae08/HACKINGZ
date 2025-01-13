@@ -574,6 +574,9 @@ $roomID = $_GET['roomID'] ?? null;
 
                             if (result.status === 'success') {
                                 notyf.success(result.message);
+                                setTimeout(function() {
+                                    window.location.reload();
+                                }, 3000);
                             } else {
                                 notyf.error(result.message);
                             }

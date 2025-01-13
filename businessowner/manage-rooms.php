@@ -1,7 +1,5 @@
 <?php
-session_start();
 include '../backends/subadmin/fetch_manage_rooms.php';
-include '../backends/subadmin/fetch_roomfacilitiesandfeatures_details.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     header('Location: ../login.php');
