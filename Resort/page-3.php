@@ -1197,6 +1197,8 @@ try {
 <script>
     $(document).ready(function() {
         const roomID = <?php echo $roomID; ?>;
+        let allBlockedDates = [];
+
         const notyf = new Notyf({
             duration: 3000,
             position: {
@@ -1227,51 +1229,79 @@ try {
             });
         }
 
-        function disableReservedDates(reservedDates) {
+        function isDateRangeOverlapping(start, end) {
+            const startDate = moment(start);
+            const endDate = moment(end);
+
+            for (let date = startDate.clone(); date.isSameOrBefore(endDate); date.add(1, 'days')) {
+                if (allBlockedDates.includes(date.format('YYYY-MM-DD'))) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        function validateDateRange(start, end) {
+            if (start.isSameOrAfter(end)) {
+                notyf.error('End date must be after start date');
+                return false;
+            }
+            if (isDateRangeOverlapping(start, end)) {
+                notyf.error('Selected dates overlap with existing bookings');
+                return false;
+            }
+            return true;
+        }
+
+        function initializeDatePicker() {
             $('#daterange').daterangepicker({
                 locale: {
                     format: 'YYYY-MM-DD'
                 },
-                autoUpdateInput: false, // Prevents the input from being updated automatically
-                minDate: moment().startOf('day'), // Disable past dates
+                autoUpdateInput: false,
+                minDate: moment().startOf('day'),
                 isInvalidDate: function(date) {
                     const dateString = date.format('YYYY-MM-DD');
-                    return reservedDates.includes(dateString) || date.isBefore(moment(), 'day'); // Disable past dates and reserved dates
+                    return allBlockedDates.includes(dateString) || date.isBefore(moment(), 'day');
                 },
                 isCustomDate: function(date) {
                     const dateString = date.format('YYYY-MM-DD');
-                    if (reservedDates.includes(dateString)) {
-                        return 'booked-date'; // Apply custom class to reserved dates
-                    }
-                    return '';
+                    return allBlockedDates.includes(dateString) ? 'booked-date' : '';
                 }
             });
 
             $('#daterange').on('apply.daterangepicker', function(ev, picker) {
-                $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-                checkInputs(); // Check inputs after selecting date range
+                const start = picker.startDate;
+                const end = picker.endDate;
+
+                if (validateDateRange(start, end)) {
+                    $(this).val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
+                    checkInputs();
+                } else {
+                    $(this).val('');
+                }
             });
 
             $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
-                checkInputs(); // Check inputs after canceling date range
+                checkInputs();
             });
         }
 
-        fetchBookedDates(roomID).done(function(response) {
-            if (response.bookedDates) {
-                disableBookedDates(response.bookedDates);
-            }
-        });
+        // Initialize by fetching all dates
+        Promise.all([
+            fetchBookedDates(roomID),
+            fetchReservedDates(roomID)
+        ]).then(([bookedResponse, reservedResponse]) => {
+            const bookedDates = bookedResponse.bookedDates || [];
+            const reservedDates = (reservedResponse.status === 'success' ?
+                reservedResponse.reservedDates : []) || [];
 
-        fetchReservedDates(roomID).done(function(response) {
-            if (response.status === 'success' && response.reservedDates) {
-                disableReservedDates(response.reservedDates);
-            } else {
-                notyf.error('Failed to fetch reserved dates.');
-            }
-        }).fail(function() {
-            notyf.error('An error occurred while fetching reserved dates.');
+            allBlockedDates = [...new Set([...bookedDates, ...reservedDates])];
+            initializeDatePicker();
+        }).catch(error => {
+            notyf.error('Failed to initialize date picker');
+            console.error('Error:', error);
         });
     });
 </script>
