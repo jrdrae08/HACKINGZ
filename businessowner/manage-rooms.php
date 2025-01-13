@@ -1,6 +1,7 @@
 <?php
 session_start();
 include '../backends/subadmin/fetch_manage_rooms.php';
+include '../backends/subadmin/fetch_roomfacilitiesandfeatures_details.php';
 
 if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
     header('Location: ../login.php');
@@ -53,21 +54,17 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     <img src="<?php echo htmlspecialchars($room['image1']); ?>" class="img-fluid rounded" alt="room first image" style="object-fit: cover; min-height: 100%; width: 100%;">
                                                 </div>
                                                 <div class="col-xl-5 col-lg-5 col-sm-12">
-
                                                     <div class="col-md-12 d-flex justify-content-center">
                                                         <h2 class="text-success cormorant-text"><?php echo htmlspecialchars($room['roomName']); ?></h2>
                                                     </div>
-
                                                     <div class="col-md-12">
                                                         <p><strong>Price</strong></p>
                                                         <h6 class="">₱ <?php echo htmlspecialchars(number_format($room['roomPrice'], 2)); ?></h6>
                                                     </div>
-                                                    <?php foreach ($rooms as $room): ?>
-                                                        <div class="col-md-12">
-                                                            <p><strong>Time Schedule</strong></p>
-                                                            <h6 class=""><?php echo date("g:i A", strtotime($room['timeStart'])); ?> - <?php echo date("g:i A", strtotime($room['timeEnd'])); ?></h6>
-                                                        </div>
-                                                    <?php endforeach; ?>
+                                                    <div class="col-md-12">
+                                                        <p><strong>Time Schedule</strong></p>
+                                                        <h6 class=""><?php echo date("g:i A", strtotime($room['timeStart'])); ?> - <?php echo date("g:i A", strtotime($room['timeEnd'])); ?></h6>
+                                                    </div>
                                                     <div class="col-md-12">
                                                         <p><strong>Features</strong></p>
                                                         <div class="row g-2">
