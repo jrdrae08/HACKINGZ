@@ -253,7 +253,7 @@ try {
                         <nav aria-label="breadcrumb">
                             <ol class="breadcrumb">
                                 <li class="breadcrumb-item"><a href="../../resort/page-0.php">Destinations</a></li>
-                                <li class="breadcrumb-item"><a href="../../resort/page-1.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>">(Resort Name)</a></li>
+                                <li class="breadcrumb-item"><a href="../../resort/page-1.php?roomID=<?php echo $room['roomID']; ?>&businessInfoID=<?php echo $businessInfoID; ?>"><?php echo htmlspecialchars($businessInfo['BusinessName']); ?></a></li>
                                 <li class="breadcrumb-item active" aria-current="page"><?php echo htmlspecialchars($room['roomName']); ?></li>
                             </ol>
                         </nav>
