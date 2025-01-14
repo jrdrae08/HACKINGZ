@@ -267,6 +267,8 @@
               setTimeout(function() {
                 window.location.href = '../backends/user/success.php';
               }, 3000);
+              session_unset();
+              session_destroy();
             } else {
               notyf.error(res.message);
             }

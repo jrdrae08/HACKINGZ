@@ -522,6 +522,12 @@ try {
                                                     <div class="col-12">
                                                         <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="Select Checkin and Checkout Date" required readonly>
                                                         <label for="daterange" class="fw-bold dm-sans-text">Select Checkin and Checkout Date</label>
+                                                        <div class="col-12 mb-3">
+                                                            <label for="totalPrice" class="dm-sans-text">Total Price</label>
+                                                            <input type="text" id="totalPriceDisplay" class="form-control shadow" value="₱ 0.00" disabled>
+                                                            <input type="hidden" name="totalPrice" id="totalPrice" value="0">
+                                                        </div>
+
                                                         <script>
                                                             $(document).ready(function() {
                                                                 $('#daterange').daterangepicker({
@@ -1281,7 +1287,31 @@ try {
                     $(this).val('');
                 }
             });
+            // Declare the roomPrice
+            const roomPrice = <?php echo $room['roomPrice']; ?>;
 
+            // Function to calculate the total price
+            function calculateTotalPrice(startDate, endDate) {
+                const start = moment(startDate, 'YYYY-MM-DD');
+                const end = moment(endDate, 'YYYY-MM-DD');
+                const numberOfDays = end.diff(start, 'days');
+                return roomPrice * numberOfDays;
+            }
+
+            $('#daterange').on('apply.daterangepicker', function(ev, picker) {
+                const startDate = picker.startDate.format('YYYY-MM-DD');
+                const endDate = picker.endDate.format('YYYY-MM-DD');
+                const totalPrice = calculateTotalPrice(startDate, endDate);
+
+                // Update display field with formatted price
+                $('#totalPriceDisplay').val('₱ ' + totalPrice.toLocaleString());
+
+                // Update hidden field with raw number for database
+                $('#totalPrice').val(totalPrice);
+
+                console.log('Display Price:', $('#totalPriceDisplay').val());
+                console.log('Hidden Price:', $('#totalPrice').val());
+            });
             $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
                 checkInputs();

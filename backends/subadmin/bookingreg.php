@@ -84,6 +84,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Get the last inserted reservation ID
     $reservationID = $pdo->lastInsertId();
 
+    // Insert into reservation_payments
+    $totalPrice = filter_var($_POST['totalPrice'], FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION);
+    $query = "INSERT INTO reservation_payments (revID, totalPrice) VALUES (:revID, :totalPrice)";
+    $stmt = $pdo->prepare($query);
+    $stmt->execute([
+      ':revID' => $reservationID,
+      ':totalPrice' => $totalPrice
+    ]);
+
+
     // Insert into userPayment table only if payment details are provided
     if ($gcash_reference && $proofOfPaymentPath) {
       $query = "INSERT INTO userPayment (roomID, businessinfoID, userID, IsPaid, proofOfPayment, gcashReference) VALUES (:roomID, :businessinfoID, :userID, 0, :proofOfPayment, :gcashReference)";

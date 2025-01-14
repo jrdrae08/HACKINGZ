@@ -14,8 +14,7 @@ require PHPMAILER_PATH . 'SMTP.php';
 function compressAndConvertToWebP($file, $targetDir, $newFileName)
 {
   $imageFileType = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
-  $webp_image_name = $newFileName . '.webp';
-  $webp_target_file = $targetDir . $webp_image_name;
+  $webpTargetFile = $targetDir . $newFileName;
 
   switch ($imageFileType) {
     case 'jpg':
@@ -50,12 +49,23 @@ function compressAndConvertToWebP($file, $targetDir, $newFileName)
       break;
   }
 
-  if ($image && imagewebp($image, $webp_target_file, 80)) {
+  if ($image && imagewebp($image, $webpTargetFile, 80)) {
     imagedestroy($image);
-    return $webp_image_name;
+    return $webpTargetFile;
   } else {
-    return null;
+    return false;
   }
+}
+
+function uploadFile($file, $targetDir, $newFileName)
+{
+  // Ensure directory exists
+  if (!is_dir($targetDir)) {
+    mkdir($targetDir, 0755, true);
+  }
+
+  // Compress and convert to WebP
+  return compressAndConvertToWebP($file, $targetDir, $newFileName);
 }
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
@@ -100,20 +110,20 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $userId = $pdo->lastInsertId();
 
     // Create a directory for the user
-    $userDir = "../../user/userID/" . $lname . "/";
+    $userDir = "../../user/userID/" . $lname . "_" . $userId . "/";
     if (!is_dir($userDir)) {
       mkdir($userDir, 0755, true);
     }
 
     // Generate unique filenames for the uploaded files
-    $front_id_filename = $lname . "_" . $userId . "_front";
-    $back_id_filename = $lname . "_" . $userId . "_back";
+    $front_id_filename = $lname . "_" . $userId . "_front.webp";
+    $back_id_filename = $lname . "_" . $userId . "_back.webp";
 
-    // Upload and compress files
-    $front_id = compressAndConvertToWebP($_FILES['front_id'], $userDir, $front_id_filename);
-    $back_id = isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0 ? compressAndConvertToWebP($_FILES['back_id'], $userDir, $back_id_filename) : null;
+    // Upload files
+    $front_id = uploadFile($_FILES['front_id'], $userDir, $front_id_filename);
+    $back_id = isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0 ? uploadFile($_FILES['back_id'], $userDir, $back_id_filename) : null;
 
-    if ($front_id === null || ($back_id === null && isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0)) {
+    if ($front_id === false || ($back_id === false && isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0)) {
       echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
       exit();
     }
@@ -125,7 +135,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     // Insert into useraccount table
     $stmt = $pdo->prepare("INSERT INTO useraccount (userID, email, passcode, created_at, IsConfirm) VALUES (?, ?, ?, NOW(), 0)");
     $stmt->execute([$userId, $u_email, '']);
-
     // Send confirmation email
     $mail = new PHPMailer(true);
     $mail->isSMTP();
@@ -198,7 +207,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     ';
 
     $mail->send();
-
     echo json_encode(['status' => 'success', 'message' => 'Registration successful!']);
   } catch (PDOException $e) {
     echo json_encode(['status' => 'error', 'message' => 'Registration failed: ' . $e->getMessage()]);

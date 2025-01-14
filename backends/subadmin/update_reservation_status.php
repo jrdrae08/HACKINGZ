@@ -28,14 +28,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     // Fetch the reservation details along with the business name, address, check-in/check-out times, total number of attendees, and payment details
     $stmt = $pdo->prepare("
-      SELECT r.roomName, res.checkin, res.departure, res.fullname, res.regemail, res.referenceNum, b.BusinessName, b.BusinessAddress, r.timeStart, r.timeEnd, u.totalnumAttendees, p.IsPaid, p.gcashReference
-      FROM reservations AS res
-      JOIN roominfotable AS r ON res.roomID = r.roomID
-      JOIN businessinformationform AS b ON r.BusinessInfoID = b.BusinessInfoID
-      JOIN userdemographics AS u ON res.userID = u.userID AND res.roomID = u.roomID
-      LEFT JOIN userpayment AS p ON res.userID = p.userID AND res.roomID = p.roomID
-      WHERE res.revID = :revID
-    ");
+    SELECT r.roomName, res.checkin, res.departure, res.fullname, res.regemail, 
+           res.referenceNum, b.BusinessName, b.BusinessAddress, r.timeStart, 
+           r.timeEnd, u.totalnumAttendees, p.IsPaid, p.gcashReference,
+           rp.totalPrice
+    FROM reservations AS res
+    JOIN roominfotable AS r ON res.roomID = r.roomID
+    JOIN businessinformationform AS b ON r.BusinessInfoID = b.BusinessInfoID
+    JOIN userdemographics AS u ON res.userID = u.userID AND res.roomID = u.roomID
+    LEFT JOIN userpayment AS p ON res.userID = p.userID AND res.roomID = p.roomID
+    LEFT JOIN reservation_payments rp ON res.revID = rp.revID
+    WHERE res.revID = :revID
+");
     $stmt->execute(['revID' => $revID]);
     $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
 
@@ -100,6 +104,7 @@ function sendEmailNotification($reservation, $status, $formattedCheckin, $format
   if ($reservation['IsPaid']) {
     $referenceNumber = "<li><strong>Gcash Reference Number:</strong> {$reservation['gcashReference']}</li>";
   }
+  $formattedPrice = number_format($reservation['totalPrice'], 2);
 
   $mail->Body = "
     <html>
@@ -118,6 +123,7 @@ function sendEmailNotification($reservation, $status, $formattedCheckin, $format
             <li><strong>Time-in:</strong> {$formattedTimeStart}</li>
             <li><strong>Check-out Date:</strong> {$formattedDeparture}</li>
             <li><strong>Time-out:</strong> {$formattedTimeEnd}</li>
+            <li><strong>Total Price:</strong> ₱{$formattedPrice}</li>
         </ul>
         <p><strong>Location:</strong> {$reservation['BusinessAddress']}</p>
         <p>If you want more information regarding your reservation, you can check it on 'my booking' on our website.</p>
