@@ -43,9 +43,23 @@ function compressAndConvertToWebP($permit, $target_dir)
       break;
     case 'png':
       $image = imagecreatefrompng($permit["tmp_name"]);
+      // Convert palette-based image to true color
+      if (imageistruecolor($image) === false) {
+        $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $trueColorImage;
+      }
       break;
     case 'gif':
       $image = imagecreatefromgif($permit["tmp_name"]);
+      // Convert palette-based image to true color
+      if (imageistruecolor($image) === false) {
+        $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $trueColorImage;
+      }
       break;
     case 'webp':
       $image = imagecreatefromwebp($permit["tmp_name"]);
