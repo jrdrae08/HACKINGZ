@@ -11,6 +11,53 @@ function respond($status, $message)
   exit;
 }
 
+function compressAndConvertToWebP($permit, $target_dir)
+{
+  $imageFileType = strtolower(pathinfo($permit["name"], PATHINFO_EXTENSION));
+  $webp_image_name = uniqid() . '-' . date('Ymd') . '.webp';
+  $webp_target_file = $target_dir . $webp_image_name;
+
+  switch ($imageFileType) {
+    case 'jpg':
+    case 'jpeg':
+      $image = imagecreatefromjpeg($permit["tmp_name"]);
+      break;
+    case 'png':
+      $image = imagecreatefrompng($permit["tmp_name"]);
+      // Convert palette-based image to true color
+      if (imageistruecolor($image) === false) {
+        $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $trueColorImage;
+      }
+      break;
+    case 'gif':
+      $image = imagecreatefromgif($permit["tmp_name"]);
+      // Convert palette-based image to true color
+      if (imageistruecolor($image) === false) {
+        $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $trueColorImage;
+      }
+      break;
+    case 'webp':
+      $image = imagecreatefromwebp($permit["tmp_name"]);
+      break;
+    default:
+      $image = null;
+      break;
+  }
+
+  if ($image && imagewebp($image, $webp_target_file, 80)) {
+    imagedestroy($image);
+    return $webp_image_name;
+  } else {
+    return null;
+  }
+}
+
 try {
   if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     $applicationID = $_POST['applicationID'] ?? null;
@@ -36,25 +83,30 @@ try {
       // Handle file upload
       if (isset($_FILES['businessPermitImage']) && $_FILES['businessPermitImage']['error'] == 0) {
         $target_dir = "../../businessowner/uploadsapp/";
-        $image_name = uniqid() . '-' . basename($_FILES["businessPermitImage"]["name"]);
-        $target_file = $target_dir . $image_name;
-        $imageFileType = strtolower(pathinfo($target_file, PATHINFO_EXTENSION));
-
-        // Check if image file is an actual image or fake image
-        $check = getimagesize($_FILES["businessPermitImage"]["tmp_name"]);
-        if ($check !== false && $_FILES["businessPermitImage"]["size"] <= 5000000 && in_array($imageFileType, ['jpg', 'jpeg', 'png', 'gif'])) {
-          if (move_uploaded_file($_FILES["businessPermitImage"]["tmp_name"], $target_file)) {
-            $stmt = $pdo->prepare("UPDATE businessapplicationform SET BusinessPermitImage = :businessPermitImage, IsRead = 0 WHERE ApplicationID = :applicationID");
-            $stmt->execute([
-              ':businessPermitImage' => $image_name,
-              ':applicationID' => $applicationID
-            ]);
-          } else {
-            respond('error', 'Failed to move uploaded file.');
+        $image_name = compressAndConvertToWebP($_FILES["businessPermitImage"], $target_dir);
+        if ($image_name !== null) {
+          // Delete the old image
+          $stmt = $pdo->prepare("SELECT BusinessPermitImage FROM businessapplicationform WHERE ApplicationID = :applicationID");
+          $stmt->execute([':applicationID' => $applicationID]);
+          $oldImage = $stmt->fetchColumn();
+          if ($oldImage) {
+            $oldImagePath = $target_dir . $oldImage;
+            if (file_exists($oldImagePath)) {
+              unlink($oldImagePath);
+            }
           }
+
+          // Update the database with the new image
+          $stmt = $pdo->prepare("UPDATE businessapplicationform SET BusinessPermitImage = :businessPermitImage, IsRead = 0 WHERE ApplicationID = :applicationID");
+          $stmt->execute([
+            ':businessPermitImage' => $image_name,
+            ':applicationID' => $applicationID
+          ]);
         } else {
-          respond('error', 'Invalid file. Only JPG, JPEG, PNG, and GIF files are allowed.');
+          respond('error', 'Failed to convert and move uploaded file.');
         }
+      } else {
+        respond('error', 'Invalid file. Only JPG, JPEG, PNG, GIF, and WEBP files are allowed.');
       }
 
       respond('success', 'Data updated successfully');
