@@ -19,7 +19,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
   try {
     $stmt = $pdo->prepare("
             UPDATE reservations
-            SET status = 'Cancel', reasonCancel = :reasonCancel
+            SET status = 'Canceled', reasonCancel = :reasonCancel
             WHERE revID = :revID AND userID = :userID
         ");
     $stmt->execute([

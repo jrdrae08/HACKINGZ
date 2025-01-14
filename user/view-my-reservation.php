@@ -83,9 +83,9 @@ try {
                               <td><?php echo htmlspecialchars($reservation['roomName']); ?></td>
                               <td><?php echo htmlspecialchars($reservation['status']); ?></td>
                               <td>
-                                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom" onclick="fetchReservationDetails(<?php echo $reservation['revID']; ?>)"><i class="bi bi-eye"></i></button>
-                                <?php if ($reservation['status'] !== 'Cancel'): ?>
-                                  <button class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#cancelModal"><i class="bi bi-x-lg"></i></button>
+                                <button type="button" class="btn btn-primary m-1" data-bs-toggle="modal" data-bs-target="#viewroom" onclick="fetchReservationDetails(<?php echo $reservation['revID']; ?>)" title="View Reservation Details"><i class="bi bi-eye"></i></button>
+                                <?php if (!in_array($reservation['status'], ['Canceled', 'Ongoing', 'Rejected', 'Completed'])): ?>
+                                    <button class="btn btn-danger m-1" data-bs-toggle="modal" data-bs-target="#cancelModal" title="Cancel Reservation"><i class="bi bi-x-lg"></i></button>
                                 <?php endif; ?>
                               </td>
                             </tr>
@@ -296,7 +296,7 @@ try {
                     notyf.success('Reservation cancelled successfully.');
                     setTimeout(() => {
                       location.reload(); // Reload the page to reflect the changes
-                    }, 1000);
+                    }, 3000);
                   } else {
                     notyf.error(data.message);
                   }
