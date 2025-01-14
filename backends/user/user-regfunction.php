@@ -11,33 +11,50 @@ require PHPMAILER_PATH . 'Exception.php';
 require PHPMAILER_PATH . 'PHPMailer.php';
 require PHPMAILER_PATH . 'SMTP.php';
 
-function uploadFile($file, $targetDir, $newFileName)
+function compressAndConvertToWebP($file, $targetDir, $newFileName)
 {
-  $targetFile = $targetDir . $newFileName;
-  $uploadOk = 1;
   $imageFileType = strtolower(pathinfo($file["name"], PATHINFO_EXTENSION));
+  $webp_image_name = $newFileName . '.webp';
+  $webp_target_file = $targetDir . $webp_image_name;
 
-  // Check if file is an actual image
-  $check = getimagesize($file["tmp_name"]);
-  if ($check === false) {
-    return false;
+  switch ($imageFileType) {
+    case 'jpg':
+    case 'jpeg':
+      $image = imagecreatefromjpeg($file["tmp_name"]);
+      break;
+    case 'png':
+      $image = imagecreatefrompng($file["tmp_name"]);
+      // Convert palette-based image to true color
+      if (imageistruecolor($image) === false) {
+        $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $trueColorImage;
+      }
+      break;
+    case 'gif':
+      $image = imagecreatefromgif($file["tmp_name"]);
+      // Convert palette-based image to true color
+      if (imageistruecolor($image) === false) {
+        $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+        imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+        imagedestroy($image);
+        $image = $trueColorImage;
+      }
+      break;
+    case 'webp':
+      $image = imagecreatefromwebp($file["tmp_name"]);
+      break;
+    default:
+      $image = null;
+      break;
   }
 
-  // Check file size (limit to 5MB)
-  if ($file["size"] > 5000000) {
-    return false;
-  }
-
-  // Allow certain file formats
-  if ($imageFileType != "jpg" && $imageFileType != "png" && $imageFileType != "jpeg" && $imageFileType != "gif") {
-    return false;
-  }
-
-  // Try to upload file
-  if (move_uploaded_file($file["tmp_name"], $targetFile)) {
-    return $targetFile;
+  if ($image && imagewebp($image, $webp_target_file, 80)) {
+    imagedestroy($image);
+    return $webp_image_name;
   } else {
-    return false;
+    return null;
   }
 }
 
@@ -89,14 +106,14 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     }
 
     // Generate unique filenames for the uploaded files
-    $front_id_filename = $lname . "_" . $userId . "_front." . strtolower(pathinfo($_FILES['front_id']['name'], PATHINFO_EXTENSION));
-    $back_id_filename = $lname . "_" . $userId . "_back." . strtolower(pathinfo($_FILES['back_id']['name'], PATHINFO_EXTENSION));
+    $front_id_filename = $lname . "_" . $userId . "_front";
+    $back_id_filename = $lname . "_" . $userId . "_back";
 
-    // Upload files
-    $front_id = uploadFile($_FILES['front_id'], $userDir, $front_id_filename);
-    $back_id = isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0 ? uploadFile($_FILES['back_id'], $userDir, $back_id_filename) : null;
+    // Upload and compress files
+    $front_id = compressAndConvertToWebP($_FILES['front_id'], $userDir, $front_id_filename);
+    $back_id = isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0 ? compressAndConvertToWebP($_FILES['back_id'], $userDir, $back_id_filename) : null;
 
-    if ($front_id === false || ($back_id === false && isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0)) {
+    if ($front_id === null || ($back_id === null && isset($_FILES['back_id']) && $_FILES['back_id']['error'] == 0)) {
       echo json_encode(['status' => 'error', 'message' => 'File upload failed.']);
       exit();
     }
@@ -141,8 +158,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 <table role="presentation" style="background: #ffffff; border: 1px solid #eaebed; border-radius: 16px; width: 100%;">
                   <tr>
                     <td style="box-sizing: border-box; padding: 24px 50px;">
-                      <img src="../img/admin-img/majayjay-logo.webp" alt="" style="display: block; margin: auto;" height="80" width="80">
-                      <p style="font-size: 16px; color: #333; line-height: 1.4;">Hello ' . $full_name . ',</p>
+                      <img src="https://majayjaytourism.ngrok.io/../../img/general-img/majayjay-logo.webp" alt="" style="display: block; margin: auto;" height="80" width="80">
+                      <p style="font-size: 16px; color: #333; line-height: 1.4;">Mabuhay! ' . $full_name . ',</p>
                       <p style="font-size: 16px; color: #333; line-height: 1.4;">Click the Button below to verify your registration.</p>
                       <table role="presentation" style="width: 100%; max-width: 100%; margin-top: 16px;">
                         <tbody>
