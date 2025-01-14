@@ -20,7 +20,7 @@ try {
     JOIN users u ON r.userID = u.userId
     LEFT JOIN userdemographics ud ON r.userID = ud.userID AND r.roomID = ud.roomID AND ri.BusinessInfoID = ud.BusinessInfoID AND r.datetime = ud.created_at
     LEFT JOIN userpayment up ON r.roomID = up.roomID AND r.userID = up.userID AND ri.BusinessInfoID = up.businessinfoID
-    WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Cancel'
+    WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Canceled'
     ORDER BY r.datetime DESC
   ");
   $stmt->execute(['businessInfoID' => $businessInfoID]);
