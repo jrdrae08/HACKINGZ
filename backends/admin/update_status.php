@@ -134,11 +134,11 @@ try {
             <tr>
               <td style="padding: 24px;">
                 <img src="https://majayjaytourism.ngrok.io/login.php/img/general-img/majayjay-logo.webp" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
-                <p style="margin: 0 0 16px; font-size: 18px; color: #333;">Dear Business Owner,</p>
+                <p style="margin: 0 0 16px; font-size: 18px; color: #333;">Mabuhay! Dear Business Owner,</p>
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;">Congratulations! Your business application has been approved. You can now log in with the following details:</p>
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;"><strong>Email:</strong> <span style="color: #333;">' . $email . '</span></p>
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;"><strong>Password:</strong> <span style="color: #333;">' . $password . '</span></p>
-                <a href="your-login-page-link" style="display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px; border: 2px solid #007bff; text-align: center;">Log In</a>
+                <a href="https://majayjaytourism.ngrok.io/login.php" style="display: inline-block; padding: 12px 24px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px; border: 2px solid #007bff; text-align: center;">Log In</a>
 
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;">We encourage you to log in and start posting your amenities to attract more visitors. If you have any questions, feel free to contact our support team.</p>
                 <p style="margin: 0 0 16px; font-size: 16px; color: #333;">Here is the generated QR code of your establishment. The visitors will scan this and fill up the form in order to add their demographics to the database.</p>
@@ -202,8 +202,8 @@ try {
       <td>
         <div style="max-width: 600px; background-color: #ffffff; border: 1px solid #eaebed; border-radius: 16px; margin: 20px auto; padding: 24px;">
           <img src="https://majayjaytourism.ngrok.io/../../img/general-img/majayjay-logo.webp" alt="Majayjay Logo" style="display: block; margin: auto;" height="80" width="80">
-          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Dear Business Owner,</p>
-          <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">We regret to inform you that your business application has been rejected for the following reasons:</p>
+            <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Mabuhay! Dear Business Owner,</p>
+            <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">We regret to inform you that your business application has been rejected for the following reasons:</p>
           <ul style="font-size: 16px; color: #333; margin: 0 0 16px; padding-left: 20px;">';
         foreach ($rejectReasons as $reason) {
           $mail->Body .= '<li style="margin: 0 0 8px;">' . htmlspecialchars($reason) . '</li>';
@@ -211,7 +211,7 @@ try {
         $mail->Body .= '</ul>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">You can use the following reference number to re-apply your application:</p>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;"><strong>Reference Number:</strong> ' . htmlspecialchars($refNum) . '</p>
-          <a href="your-support-page-link" style="display: inline-block; padding: 12px 24px; margin-bottom: 20px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px; border: 2px solid #007bff; text-align: center;">Re-apply Now</a>
+          <a href="https://majayjaytourism.ngrok.io/businessowner/enter-code.php" style="display: inline-block; padding: 12px 24px; margin-bottom: 20px; font-size: 16px; font-weight: bold; color: #ffffff; background-color: #007bff; text-decoration: none; border-radius: 5px; border: 2px solid #007bff; text-align: center;">Re-apply Now</a>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">If you have any questions, feel free to contact our support team.</p>
           <p style="font-size: 16px; color: #333; line-height: 1.4; margin: 0 0 16px;">Best regards,<br><strong>Majayjay Tourist Admin</strong></p>
 
