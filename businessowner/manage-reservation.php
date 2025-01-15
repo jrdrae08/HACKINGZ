@@ -70,7 +70,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     <button class="nav-link pills btn me-2 mb-2" id="pills-cancel-tab" data-bs-toggle="pill" data-bs-target="#pills-cancel" type="button" role="tab" aria-controls="pills-profile" aria-selected="false">CANCELED</button>
                                                 </li>
                                             </ul>
-                                        </div>                   
+                                        </div>
 
                                     </div>
                                 </div>
@@ -977,6 +977,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     <div class="modal-body">
                                                         Are you sure you want to mark this reservation as complete?
                                                     </div>
+                                                    <div class="mb-3 p-3">
+                                                        <label for="processorName" name="namep" class="form-label">Name of the Processor</label>
+                                                        <input type="text" class="form-control" id="processorName" placeholder="Enter your name">
+                                                        <label for="needtoPaid" class="form-label">Total Amount need to Paid</label>
+                                                        <input type="text" class="form-control" id="needtoPaid" disabled>
+                                                    </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
                                                         <button type="button" class="btn btn-success" id="confirmComplete">Yes, Complete</button>
@@ -1030,36 +1036,37 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                                <tr>
-                                    <td>${reservation.roomName}</td>
-                                    <td>${formattedCheckin}</td>
-                                    <td>${formattedDeparture}</td>
-                                    <td>
-                                        <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                            data-name="${reservation.customerName}"
-                                            data-address="${reservation.address}"
-                                            data-contact="${reservation.contactNumber}"
-                                            data-id-type="${reservation.id_type}"
-                                            data-front-id="${reservation.front_id}"
-                                            data-back-id="${reservation.back_id}"
-                                            data-total-attendees="${reservation.totalnumAttendees}"
-                                            data-total-male="${reservation.totalmale}"
-                                            data-total-female="${reservation.totalfemale}"
-                                            data-this-city="${reservation.thisCity}"
-                                            data-other-city="${reservation.otherCity}"
-                                            data-other-province="${reservation.otherProvince}"
-                                            data-foreign-country="${reservation.foreignCountry}"
-                                            data-attendee-names="${reservation.attendeeNames}"
-                                            data-attendee-sexes="${reservation.attendeeSexes}"
-                                            data-attendee-locations="${reservation.attendeeLocations}"
-                                            data-proof-of-payment="${reservation.proofOfPayment}"
-                                            data-reference-number="${reservation.gcashReference}"
-                                        ><i class="bi bi-eye"></i></button>
-                                        <button class="btn btn-success m-1 ongoing-reservation" data-revid="${reservation.revID}" data-total-attendees="${reservation.totalnumAttendees}" data-attendee-names="${reservation.attendeeNames}" data-attendee-sexes="${reservation.attendeeSexes}" data-attendee-locations="${reservation.attendeeLocations}"><i class="bi bi-check-lg"></i></button>
-                                    </td>
-                                    <td>${reservation.status}</td>
-                                </tr>
-                            `;
+                            <tr>
+                                <td>${reservation.roomName}</td>
+                                <td>${formattedCheckin}</td>
+                                <td>${formattedDeparture}</td>
+                                <td>
+                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                        data-name="${reservation.customerName}"
+                                        data-address="${reservation.address}"
+                                        data-contact="${reservation.contactNumber}"
+                                        data-id-type="${reservation.id_type}"
+                                        data-front-id="${reservation.front_id}"
+                                        data-back-id="${reservation.back_id}"
+                                        data-total-attendees="${reservation.totalnumAttendees}"
+                                        data-total-male="${reservation.totalmale}"
+                                        data-total-female="${reservation.totalfemale}"
+                                        data-this-city="${reservation.thisCity}"
+                                        data-other-city="${reservation.otherCity}"
+                                        data-other-province="${reservation.otherProvince}"
+                                        data-foreign-country="${reservation.foreignCountry}"
+                                        data-attendee-names="${reservation.attendeeNames}"
+                                        data-attendee-sexes="${reservation.attendeeSexes}"
+                                        data-attendee-locations="${reservation.attendeeLocations}"
+                                        data-proof-of-payment="${reservation.proofOfPayment}"
+                                        data-reference-number="${reservation.gcashReference}"
+                                        data-amount-due="${reservation.amountDue}"
+                                    ><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-success m-1 ongoing-reservation" data-revid="${reservation.revID}" data-amount-due="${reservation.amountDue}"><i class="bi bi-check-lg"></i></button>
+                                </td>
+                                <td>${reservation.status}</td>
+                            </tr>
+                        `;
                                                                     tbody.append(row);
                                                                 });
 
@@ -1100,12 +1107,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                     for (let i = 0; i < attendeeNames.length; i++) {
                                                                         let row = `
-                                    <tr>
-                                        <td>${attendeeNames[i]}</td>
-                                        <td>${attendeeSexes[i]}</td>
-                                        <td>${attendeeLocations[i]}</td>
-                                    </tr>
-                                `;
+                                <tr>
+                                    <td>${attendeeNames[i]}</td>
+                                    <td>${attendeeSexes[i]}</td>
+                                    <td>${attendeeLocations[i]}</td>
+                                </tr>
+                            `;
                                                                         infoTableBody.append(row);
                                                                     }
 
@@ -1124,23 +1131,46 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     } else {
                                                                         $('#modal-reference-number').parent().hide();
                                                                     }
+
+                                                                    // Display the amount due
+                                                                    let amountDue = $(this).data('amount-due');
+                                                                    let formattedAmountDue = parseFloat(amountDue).toLocaleString('en-US', {
+                                                                        style: 'currency',
+                                                                        currency: 'PHP'
+                                                                    }).replace('PHP', '₱');
+                                                                    $('#modal-amount-due').text(formattedAmountDue); // Assuming you have an element with id 'modal-amount-due' to display the amount due
                                                                 });
 
                                                                 // Add event listener for ongoing-reservation buttons
                                                                 $('.ongoing-reservation').on('click', function() {
                                                                     let revID = $(this).data('revid');
+                                                                    let amountDue = $(this).data('amount-due');
+
+                                                                    console.log('Reservation ID:', revID); // Debugging statement
+                                                                    console.log('Amount Due:', amountDue); // Debugging statement
+
+                                                                    // Format the amountDue value with commas
+                                                                    let formattedAmountDue = parseFloat(amountDue).toLocaleString('en-US', {
+                                                                        style: 'currency',
+                                                                        currency: 'PHP'
+                                                                    }).replace('PHP', '₱');
+
+                                                                    $('#needtoPaid').val(formattedAmountDue);
                                                                     $('#confirmationModal').data('revid', revID).modal('show');
                                                                 });
 
                                                                 // Confirm complete action
                                                                 $('#confirmComplete').on('click', function() {
                                                                     let revID = $('#confirmationModal').data('revid');
+                                                                    let processorName = $('#processorName').val();
+
                                                                     $.ajax({
                                                                         url: '../../backends/subadmin/reservationdone.php', // Update the path as needed
                                                                         method: 'POST',
                                                                         contentType: 'application/json',
                                                                         data: JSON.stringify({
-                                                                            revID: revID
+                                                                            revID: revID,
+                                                                            whoProcessor: processorName
                                                                         }),
                                                                         dataType: 'json',
                                                                         success: function(response) {
