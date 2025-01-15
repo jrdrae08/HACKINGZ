@@ -57,12 +57,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if ($reservation) {
       // Calculate downPayment and amountDue
       $downPayment = 0;
-      $stmt = $pdo->prepare("SELECT amount FROM payment_methods WHERE roomID = :roomID");
-      $stmt->execute([':roomID' => $reservation['roomID']]);
-      $paymentMethod = $stmt->fetch(PDO::FETCH_ASSOC);
+      if ($userPayment) {
+        $stmt = $pdo->prepare("SELECT amount FROM payment_methods WHERE roomID = :roomID");
+        $stmt->execute([':roomID' => $reservation['roomID']]);
+        $paymentMethod = $stmt->fetch(PDO::FETCH_ASSOC);
 
-      if ($paymentMethod) {
-        $downPayment = $paymentMethod['amount'];
+        if ($paymentMethod) {
+          $downPayment = $paymentMethod['amount'];
+        }
       }
 
       $amountDue = $reservation['totalPrice'] - $downPayment;
@@ -94,7 +96,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($status === 'Rejected') {
         sendRejectionEmail($reservation, $reasons);
       } else {
-        sendEmailNotification($reservation, $status, $formattedCheckin, $formattedDeparture, $formattedTimeStart, $formattedTimeEnd);
+        sendEmailNotification($reservation, $status, $formattedCheckin, $formattedDeparture, $formattedTimeStart, $formattedTimeEnd, $downPayment, $amountDue);
       }
 
       $pdo->commit();
@@ -126,7 +128,7 @@ function initializeMailer()
   return $mail;
 }
 
-function sendEmailNotification($reservation, $status, $formattedCheckin, $formattedDeparture, $formattedTimeStart, $formattedTimeEnd)
+function sendEmailNotification($reservation, $status, $formattedCheckin, $formattedDeparture, $formattedTimeStart, $formattedTimeEnd, $downPayment, $amountDue)
 {
   $mail = initializeMailer();
   $mail->addAddress($reservation['regemail']);
@@ -138,6 +140,10 @@ function sendEmailNotification($reservation, $status, $formattedCheckin, $format
     $referenceNumber = "<li><strong>Gcash Reference Number:</strong> {$reservation['gcashReference']}</li>";
   }
   $formattedPrice = number_format($reservation['totalPrice'], 2);
+  $formattedDownPayment = number_format($downPayment, 2);
+  $formattedAmountDue = number_format($amountDue, 2);
+
+  $downPaymentMessage = $downPayment > 0 ? "<p>You have already made a down payment of ₱{$formattedDownPayment}. The total amount due is ₱{$formattedAmountDue}.</p>" : "";
 
   $mail->Body = "
     <html>
@@ -157,7 +163,10 @@ function sendEmailNotification($reservation, $status, $formattedCheckin, $format
             <li><strong>Check-out Date:</strong> {$formattedDeparture}</li>
             <li><strong>Time-out:</strong> {$formattedTimeEnd}</li>
             <li><strong>Total Price:</strong> ₱{$formattedPrice}</li>
+            <li><strong>Down Payment:</strong> ₱{$formattedDownPayment}</li>
+            <li><strong>Total Amount Due:</strong> ₱{$formattedAmountDue}</li>
         </ul>
+        {$downPaymentMessage}
         <p><strong>Location:</strong> {$reservation['BusinessAddress']}</p>
         <p>If you want more information regarding your reservation, you can check it on 'my booking' on our website.</p>
         <p>Please ensure that you check in on time. If you have any questions or need further assistance, feel free to contact us.</p>
