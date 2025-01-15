@@ -21,6 +21,7 @@ try {
     LEFT JOIN userdemographics ud ON r.userID = ud.userID AND r.roomID = ud.roomID AND ri.BusinessInfoID = ud.BusinessInfoID AND r.datetime = ud.created_at
     LEFT JOIN userpayment up ON r.roomID = up.roomID AND r.userID = up.userID AND ri.BusinessInfoID = up.businessinfoID
     WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Canceled'
+    GROUP BY r.revID, r.checkin, r.departure
     ORDER BY r.datetime DESC
   ");
   $stmt->execute(['businessInfoID' => $businessInfoID]);
@@ -28,7 +29,7 @@ try {
 
   if ($reservations) {
     echo json_encode(['status' => 'success', 'data' => $reservations]);
-  }else {
+  } else {
     echo json_encode(['status' => 'error', 'message' => 'No reservations found.']);
   }
 } catch (Exception $e) {
