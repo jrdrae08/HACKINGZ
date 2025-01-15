@@ -96,9 +96,10 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Insert into userPayment table only if payment details are provided
     if ($gcash_reference && $proofOfPaymentPath) {
-      $query = "INSERT INTO userPayment (roomID, businessinfoID, userID, IsPaid, proofOfPayment, gcashReference) VALUES (:roomID, :businessinfoID, :userID, 0, :proofOfPayment, :gcashReference)";
+      $query = "INSERT INTO userpayment (revID, roomID, businessinfoID, userID, IsPaid, proofOfPayment, gcashReference) VALUES (:revID, :roomID, :businessinfoID, :userID, 0, :proofOfPayment, :gcashReference)";
       $stmt = $pdo->prepare($query);
       $stmt->execute([
+        ':revID' => $reservationID,
         ':roomID' => $roomID,
         ':businessinfoID' => $businessInfoID,
         ':userID' => $userID,
@@ -106,7 +107,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ':gcashReference' => $gcash_reference
       ]);
     }
-
     // Insert into userdemographics table
     $names = filter_var_array($_POST['name'], FILTER_SANITIZE_STRING);
     $sexes = filter_var_array($_POST['sex'], FILTER_SANITIZE_STRING);

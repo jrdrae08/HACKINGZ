@@ -26,24 +26,57 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $stmt = $pdo->prepare("UPDATE reservations SET status = :status WHERE revID = :revID");
     $stmt->execute(['status' => $status, 'revID' => $revID]);
 
+    // Check if there is a userpayment entry for the given revID and roomID
+    $stmt = $pdo->prepare("SELECT userpayID FROM userpayment WHERE revID = :revID AND roomID = (SELECT roomID FROM reservations WHERE revID = :revID)");
+    $stmt->execute([':revID' => $revID]);
+    $userPayment = $stmt->fetch(PDO::FETCH_ASSOC);
+
+    if ($userPayment) {
+      // Update the IsPaid field to 1
+      $stmt = $pdo->prepare("UPDATE userpayment SET IsPaid = 1 WHERE revID = :revID AND roomID = (SELECT roomID FROM reservations WHERE revID = :revID)");
+      $stmt->execute([':revID' => $revID]);
+    }
+
     // Fetch the reservation details along with the business name, address, check-in/check-out times, total number of attendees, and payment details
     $stmt = $pdo->prepare("
     SELECT r.roomName, res.checkin, res.departure, res.fullname, res.regemail, 
            res.referenceNum, b.BusinessName, b.BusinessAddress, r.timeStart, 
            r.timeEnd, u.totalnumAttendees, p.IsPaid, p.gcashReference,
-           rp.totalPrice
+           rp.totalPrice, res.roomID
     FROM reservations AS res
     JOIN roominfotable AS r ON res.roomID = r.roomID
     JOIN businessinformationform AS b ON r.BusinessInfoID = b.BusinessInfoID
     JOIN userdemographics AS u ON res.userID = u.userID AND res.roomID = u.roomID
-    LEFT JOIN userpayment AS p ON res.userID = p.userID AND res.roomID = p.roomID
+    LEFT JOIN userpayment AS p ON res.revID = p.revID
     LEFT JOIN reservation_payments rp ON res.revID = rp.revID
     WHERE res.revID = :revID
-");
+    ");
     $stmt->execute(['revID' => $revID]);
     $reservation = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($reservation) {
+      // Calculate downPayment and amountDue
+      $downPayment = 0;
+      $stmt = $pdo->prepare("SELECT amount FROM payment_methods WHERE roomID = :roomID");
+      $stmt->execute([':roomID' => $reservation['roomID']]);
+      $paymentMethod = $stmt->fetch(PDO::FETCH_ASSOC);
+
+      if ($paymentMethod) {
+        $downPayment = $paymentMethod['amount'];
+      }
+
+      $amountDue = $reservation['totalPrice'] - $downPayment;
+
+      // Insert into final_payments
+      $query = "INSERT INTO final_payments (revID, totalPrice, downPayment, amountDue) VALUES (:revID, :totalPrice, :downPayment, :amountDue)";
+      $stmt = $pdo->prepare($query);
+      $stmt->execute([
+        ':revID' => $revID,
+        ':totalPrice' => $reservation['totalPrice'],
+        ':downPayment' => $downPayment,
+        ':amountDue' => $amountDue
+      ]);
+
       // Format the check-in and check-out dates
       $checkinDate = new DateTime($reservation['checkin']);
       $formattedCheckin = $checkinDate->format('F j, Y');
