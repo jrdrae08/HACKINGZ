@@ -16,12 +16,13 @@ try {
     SELECT DISTINCT r.revID, r.datetime AS timeBooked, ri.roomName, r.checkin, r.departure, r.fullname AS customerName, r.status,
            r.regadd AS address, r.regnum AS contactNumber, u.id_type, u.front_id, u.back_id,
            ud.totalnumAttendees, ud.totalmale, ud.totalfemale, ud.thisCity, ud.otherCity, ud.otherProvince, ud.foreignCountry, ud.name AS attendeeNames, ud.sex AS attendeeSexes, ud.location AS attendeeLocations,
-           up.proofOfPayment, up.gcashReference
+           up.proofOfPayment, up.gcashReference, fp.amountDue, fp.whoProcessor
     FROM reservations r
     JOIN roominfotable ri ON r.roomID = ri.roomID
     JOIN users u ON r.userID = u.userId
     LEFT JOIN userdemographics ud ON r.userID = ud.userID AND r.roomID = ud.roomID AND ri.BusinessInfoID = ud.BusinessInfoID AND r.datetime = ud.created_at
     LEFT JOIN userpayment up ON r.roomID = up.roomID AND r.userID = up.userID AND ri.BusinessInfoID = up.businessinfoID
+    LEFT JOIN final_payments fp ON r.revID = fp.revID
     WHERE ri.BusinessInfoID = :businessInfoID AND r.status = 'Completed'
     GROUP BY r.revID, r.checkin, r.departure
     ORDER BY r.datetime DESC

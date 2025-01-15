@@ -134,6 +134,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         </table>
                                                         <p><strong>Proof of Payment</strong> <img id="modal-proofof-payment" src="" alt="Proof of Payment" style="width: 100%;"></p>
                                                         <p><strong>Reference Number:</strong> <span id="modal-reference-number"></span></p>
+                                                        <p id="modal-amount-due-container" style="display: none;"><strong>Amount Due:</strong> <span id="modal-amount-due"></span></p> <!-- Added this line -->
+                                                        <p id="modal-who-processor-container" style="display: none;"><strong>Who Processor:</strong> <span id="modal-who-processor"></span></p> <!-- Added this line -->
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -1276,37 +1278,39 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                 });
 
                                                                 let row = `
-                            <tr>
-                                <td>${reservation.roomName}</td>
-                                <td>${formattedTimeBooked}</td>
-                                <td>${formattedCheckin}</td>
-                                <td>${formattedDeparture}</td>
-                                <td>${reservation.customerName}</td>
-                                <td>
-                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                        data-name="${reservation.customerName}"
-                                        data-address="${reservation.address}"
-                                        data-contact="${reservation.contactNumber}"
-                                        data-id-type="${reservation.id_type}"
-                                        data-front-id="${reservation.front_id}"
-                                        data-back-id="${reservation.back_id}"
-                                        data-total-attendees="${reservation.totalnumAttendees}"
-                                        data-total-male="${reservation.totalmale}"
-                                        data-total-female="${reservation.totalfemale}"
-                                        data-this-city="${reservation.thisCity}"
-                                        data-other-city="${reservation.otherCity}"
-                                        data-other-province="${reservation.otherProvince}"
-                                        data-foreign-country="${reservation.foreignCountry}"
-                                        data-attendee-names="${reservation.attendeeNames}"
-                                        data-attendee-sexes="${reservation.attendeeSexes}"
-                                        data-attendee-locations="${reservation.attendeeLocations}"
-                                        data-proof-of-payment="${reservation.proofOfPayment}"
-                                        data-reference-number="${reservation.gcashReference}"
-                                    ><i class="bi bi-eye"></i></button>
-                                </td>
-                                <td>${reservation.status}</td>
-                            </tr>
-                        `;
+                        <tr>
+                            <td>${reservation.roomName}</td>
+                            <td>${formattedTimeBooked}</td>
+                            <td>${formattedCheckin}</td>
+                            <td>${formattedDeparture}</td>
+                            <td>${reservation.customerName}</td>
+                            <td>
+                                <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                    data-name="${reservation.customerName}"
+                                    data-address="${reservation.address}"
+                                    data-contact="${reservation.contactNumber}"
+                                    data-id-type="${reservation.id_type}"
+                                    data-front-id="${reservation.front_id}"
+                                    data-back-id="${reservation.back_id}"
+                                    data-total-attendees="${reservation.totalnumAttendees}"
+                                    data-total-male="${reservation.totalmale}"
+                                    data-total-female="${reservation.totalfemale}"
+                                    data-this-city="${reservation.thisCity}"
+                                    data-other-city="${reservation.otherCity}"
+                                    data-other-province="${reservation.otherProvince}"
+                                    data-foreign-country="${reservation.foreignCountry}"
+                                    data-attendee-names="${reservation.attendeeNames}"
+                                    data-attendee-sexes="${reservation.attendeeSexes}"
+                                    data-attendee-locations="${reservation.attendeeLocations}"
+                                    data-proof-of-payment="${reservation.proofOfPayment}"
+                                    data-reference-number="${reservation.gcashReference}"
+                                    data-amount-due="${reservation.amountDue}"
+                                    data-who-processor="${reservation.whoProcessor}"
+                                ><i class="bi bi-eye"></i></button>
+                            </td>
+                            <td>${reservation.status}</td>
+                        </tr>
+                    `;
                                                                 tbody.append(row);
                                                             });
 
@@ -1347,12 +1351,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                 for (let i = 0; i < attendeeNames.length; i++) {
                                                                     let row = `
-                                <tr>
-                                    <td>${attendeeNames[i]}</td>
-                                    <td>${attendeeSexes[i]}</td>
-                                    <td>${attendeeLocations[i]}</td>
-                                </tr>
-                            `;
+            <tr>
+                <td>${attendeeNames[i]}</td>
+                <td>${attendeeSexes[i]}</td>
+                <td>${attendeeLocations[i]}</td>
+            </tr>
+        `;
                                                                     infoTableBody.append(row);
                                                                 }
 
@@ -1370,6 +1374,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     $('#modal-reference-number').text(referenceNumber).parent().show();
                                                                 } else {
                                                                     $('#modal-reference-number').parent().hide();
+                                                                }
+
+                                                                // Display the amount due and who processed if available
+                                                                let amountDue = $(this).data('amount-due');
+                                                                let whoProcessor = $(this).data('who-processor');
+
+                                                                if (amountDue && whoProcessor) {
+                                                                    let formattedAmountDue = parseFloat(amountDue).toLocaleString('en-US', {
+                                                                        style: 'currency',
+                                                                        currency: 'PHP'
+                                                                    }).replace('PHP', '₱');
+                                                                    $('#modal-amount-due').text(formattedAmountDue);
+                                                                    $('#modal-who-processor').text(whoProcessor);
+                                                                    $('#modal-amount-due-container').show();
+                                                                    $('#modal-who-processor-container').show();
+                                                                } else {
+                                                                    $('#modal-amount-due-container').hide();
+                                                                    $('#modal-who-processor-container').hide();
                                                                 }
                                                             });
                                                         } else {
