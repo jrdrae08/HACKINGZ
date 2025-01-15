@@ -134,8 +134,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         </table>
                                                         <p><strong>Proof of Payment</strong> <img id="modal-proofof-payment" src="" alt="Proof of Payment" style="width: 100%;"></p>
                                                         <p><strong>Reference Number:</strong> <span id="modal-reference-number"></span></p>
-                                                        <p id="modal-amount-due-container" style="display: none;"><strong>Amount Due:</strong> <span id="modal-amount-due"></span></p> <!-- Added this line -->
-                                                        <p id="modal-who-processor-container" style="display: none;"><strong>Who Processor:</strong> <span id="modal-who-processor"></span></p> <!-- Added this line -->
+                                                        <p id="modal-amount-due-container" style="display: none;"><strong>Total Amount:</strong> <span id="modal-amount-due"></span></p> <!-- Added this line -->
+                                                        <p id="modal-who-processor-container" style="display: none;"><strong>Processed by:</strong> <span id="modal-who-processor"></span></p> <!-- Added this line -->
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
@@ -980,8 +980,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                         Are you sure you want to mark this reservation as complete?
                                                     </div>
                                                     <div class="mb-3 p-3">
-                                                        <label for="processorName" name="namep" class="form-label">Name of the Processor</label>
+                                                        <label for="processorName" name="namep" class="form-label">Processed by (Name):</label>
                                                         <input type="text" class="form-control" id="processorName" placeholder="Enter your name">
+                                                        <label for="totalPrice" class="form-label">Total Price</label>
+                                                        <input type="text" class="form-control" id="totalPrice" disabled>
+                                                        <label for="downPayment" class="form-label">Downpayment</label>
+                                                        <input type="text" class="form-control" id="downPayment" disabled>
                                                         <label for="needtoPaid" class="form-label">Total Amount need to Paid</label>
                                                         <input type="text" class="form-control" id="needtoPaid" disabled>
                                                     </div>
@@ -1063,8 +1067,10 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                         data-proof-of-payment="${reservation.proofOfPayment}"
                                         data-reference-number="${reservation.gcashReference}"
                                         data-amount-due="${reservation.amountDue}"
+                                        data-total-price="${reservation.totalPrice}"
+                                        data-down-payment="${reservation.downPayment}"
                                     ><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success m-1 ongoing-reservation" data-revid="${reservation.revID}" data-amount-due="${reservation.amountDue}"><i class="bi bi-check-lg"></i></button>
+                                    <button class="btn btn-success m-1 ongoing-reservation" data-revid="${reservation.revID}" data-amount-due="${reservation.amountDue}" data-total-price="${reservation.totalPrice}" data-down-payment="${reservation.downPayment}"><i class="bi bi-check-lg"></i></button>
                                 </td>
                                 <td>${reservation.status}</td>
                             </tr>
@@ -1147,17 +1153,29 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                 $('.ongoing-reservation').on('click', function() {
                                                                     let revID = $(this).data('revid');
                                                                     let amountDue = $(this).data('amount-due');
+                                                                    let totalPrice = $(this).data('total-price');
+                                                                    let downPayment = $(this).data('down-payment');
 
                                                                     console.log('Reservation ID:', revID); // Debugging statement
                                                                     console.log('Amount Due:', amountDue); // Debugging statement
 
-                                                                    // Format the amountDue value with commas
+                                                                    // Format the amountDue, totalPrice, and downPayment values with commas
                                                                     let formattedAmountDue = parseFloat(amountDue).toLocaleString('en-US', {
+                                                                        style: 'currency',
+                                                                        currency: 'PHP'
+                                                                    }).replace('PHP', '₱');
+                                                                    let formattedTotalPrice = parseFloat(totalPrice).toLocaleString('en-US', {
+                                                                        style: 'currency',
+                                                                        currency: 'PHP'
+                                                                    }).replace('PHP', '₱');
+                                                                    let formattedDownPayment = parseFloat(downPayment).toLocaleString('en-US', {
                                                                         style: 'currency',
                                                                         currency: 'PHP'
                                                                     }).replace('PHP', '₱');
 
                                                                     $('#needtoPaid').val(formattedAmountDue);
+                                                                    $('#totalPrice').val(formattedTotalPrice);
+                                                                    $('#downPayment').val(formattedDownPayment);
                                                                     $('#confirmationModal').data('revid', revID).modal('show');
                                                                 });
 

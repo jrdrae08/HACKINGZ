@@ -16,7 +16,7 @@ try {
     SELECT DISTINCT r.revID, ri.roomName, r.checkin, r.departure, r.fullname AS customerName, ri.timeStart, ri.timeEnd,
            r.regadd AS address, r.regnum AS contactNumber, u.id_type, u.front_id, u.back_id,
            ud.totalnumAttendees, ud.totalmale, ud.totalfemale, ud.thisCity, ud.otherCity, ud.otherProvince, ud.foreignCountry, ud.name AS attendeeNames, ud.sex AS attendeeSexes, ud.location AS attendeeLocations,
-           up.proofOfPayment, up.gcashReference, r.status, fp.amountDue
+           up.proofOfPayment, up.gcashReference, r.status, fp.amountDue, fp.totalPrice, fp.downPayment
     FROM reservations r
     JOIN roominfotable ri ON r.roomID = ri.roomID
     JOIN users u ON r.userID = u.userId
