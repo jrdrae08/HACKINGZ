@@ -93,7 +93,6 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
       ':totalPrice' => $totalPrice
     ]);
 
-
     // Insert into userPayment table only if payment details are provided
     if ($gcash_reference && $proofOfPaymentPath) {
       $query = "INSERT INTO userpayment (revID, roomID, businessinfoID, userID, IsPaid, proofOfPayment, gcashReference) VALUES (:revID, :roomID, :businessinfoID, :userID, 0, :proofOfPayment, :gcashReference)";
@@ -107,10 +106,11 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         ':gcashReference' => $gcash_reference
       ]);
     }
+
     // Insert into userdemographics table
-    $names = filter_var_array($_POST['name'], FILTER_SANITIZE_STRING);
-    $sexes = filter_var_array($_POST['sex'], FILTER_SANITIZE_STRING);
-    $locations = filter_var_array($_POST['location'], FILTER_SANITIZE_STRING);
+    $names = isset($_POST['name']) ? filter_var_array($_POST['name'], FILTER_SANITIZE_STRING) : [$fullname];
+    $sexes = isset($_POST['sex']) ? filter_var_array((array)$_POST['sex'], FILTER_SANITIZE_STRING) : [$_POST['sex']];
+    $locations = isset($_POST['location']) ? filter_var_array((array)$_POST['location'], FILTER_SANITIZE_STRING) : [$_POST['locationType']];
     $totalnumAttendees = count($names);
     $totalmale = count(array_filter($sexes, fn($sex) => $sex === 'Male'));
     $totalfemale = count(array_filter($sexes, fn($sex) => $sex === 'Female'));

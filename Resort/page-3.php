@@ -517,8 +517,16 @@ try {
                                                         <input type="text" name="locationType_display" class="form-control shadow" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>" disabled>
                                                         <input type="hidden" name="locationType" value="<?php echo htmlspecialchars($userInfo['locationType']); ?>">
                                                     </div>
-                                                    <hr class="mt-5">
-                                                    <h5 class="fw-bold">Companions' Information</h5>
+                                                    <div class="col-12 mb-3 d-flex justify-content-end">
+                                                        <div class="form-check">
+                                                            <input class="form-check-input" type="checkbox" value="" id="additionalGuestCheckbox">
+                                                            <label class="form-check-label text-dark" for="additionalGuestCheckbox">
+                                                                Do you have another guest?
+                                                            </label>
+                                                        </div>
+                                                    </div>
+                                                    <hr class="mt-3">
+                                                    <h5 class="fw-bold">Select Checkin and Checkout Date</h5>
                                                     <div class="col-12">
                                                         <input type="text" class="form-control shadow" name="daterange" id="daterange" placeholder="Select Checkin and Checkout Date" required readonly>
                                                         <label for="daterange" class="fw-bold dm-sans-text">Select Checkin and Checkout Date</label>
@@ -527,7 +535,7 @@ try {
                                                             <input type="text" id="totalPriceDisplay" class="form-control shadow" value="₱ 0.00" disabled>
                                                             <input type="hidden" name="totalPrice" id="totalPrice" value="0">
                                                         </div>
-
+                                                        <div id="dateError" class="text-danger" style="display: none;">Please select checkin and checkout dates.</div>
                                                         <script>
                                                             $(document).ready(function() {
                                                                 $('#daterange').daterangepicker({
@@ -543,202 +551,192 @@ try {
 
                                                                 $('#daterange').on('apply.daterangepicker', function(ev, picker) {
                                                                     $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
-                                                                    checkInputs(); // Check inputs after selecting date range
+                                                                    $('#daterange').removeClass('is-invalid');
+                                                                    $('#dateError').hide();
+                                                                    validateForm();
                                                                 });
 
                                                                 $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
                                                                     $(this).val('');
-                                                                    checkInputs(); // Check inputs after canceling date range
+                                                                    validateForm();
+                                                                });
+
+                                                                $('#additionalGuestCheckbox').change(function() {
+                                                                    if ($(this).is(':checked')) {
+                                                                        $('#companionsInfo').show();
+                                                                    } else {
+                                                                        $('#companionsInfo').hide();
+                                                                        clearForm(); // Clear the form when the checkbox is unchecked
+                                                                    }
+                                                                    validateForm();
+                                                                });
+
+                                                                function clearForm() {
+                                                                    document.querySelector('input[name="total_adults"]').value = '';
+                                                                    document.querySelector('input[name="total_children"]').value = '';
+                                                                    document.getElementById('attendeesContainer').innerHTML = '';
+                                                                }
+
+                                                                // Initially hide the companions' information section
+                                                                $('#companionsInfo').hide();
+
+                                                                function validateForm() {
+                                                                    const daterangeValue = $('#daterange').val();
+                                                                    const isCheckboxChecked = $('#additionalGuestCheckbox').is(':checked');
+                                                                    const isTermsChecked = $('#flexCheckDefault').is(':checked');
+                                                                    const isFormValid = validateGeneratedForm();
+
+                                                                    if (daterangeValue && (!isCheckboxChecked || (isCheckboxChecked && isFormValid)) && isTermsChecked) {
+                                                                        $('#registerButton').prop('disabled', false);
+                                                                    } else {
+                                                                        $('#registerButton').prop('disabled', true);
+                                                                    }
+                                                                }
+
+                                                                function validateGeneratedForm() {
+                                                                    let isValid = true;
+                                                                    $('#attendeesContainer input[name="name[]"]').each(function() {
+                                                                        if (!$(this).val()) {
+                                                                            isValid = false;
+                                                                        }
+                                                                    });
+                                                                    $('#attendeesContainer select[name="sex[]"]').each(function() {
+                                                                        if (!$(this).val()) {
+                                                                            isValid = false;
+                                                                        }
+                                                                    });
+                                                                    $('#attendeesContainer select[name="location[]"]').each(function() {
+                                                                        if (!$(this).val()) {
+                                                                            isValid = false;
+                                                                        }
+                                                                    });
+                                                                    return isValid;
+                                                                }
+
+                                                                // Set an interval to check the inputs every 500ms
+                                                                setInterval(validateForm, 500);
+
+                                                                // Check if date range is selected before form submission
+                                                                $('#registerButton').on('click', function() {
+                                                                    if (!$('#daterange').val()) {
+                                                                        $('#daterange').addClass('is-invalid');
+                                                                        $('#dateError').show();
+                                                                    }
                                                                 });
                                                             });
                                                         </script>
-                                                    </div>
 
-                                                    <div class="col-12">
-                                                        <div class="row d-flex justify-content-evenly">
-                                                            <div class="col-lg-6 col-6 mb-3">
-                                                                <label class="dm-sans-text">Total Adults</label>
-                                                                <input type="number" name="total_adults" class="form-control shadow" placeholder="">
+                                                        <div class="col-12" id="companionsInfo">
+                                                            <hr class="mt-3">
+                                                            <h5 class="fw-bold">Companions' Information</h5>
+                                                            <div class="row d-flex justify-content-evenly">
+                                                                <div class="col-lg-6 col-6 mb-3">
+                                                                    <label class="dm-sans-text">Total Adults</label>
+                                                                    <input type="number" name="total_adults" class="form-control shadow" placeholder="">
+                                                                </div>
+                                                                <div class="col-lg-6 col-6 mb-3">
+                                                                    <label class="dm-sans-text">Total Children</label>
+                                                                    <input type="number" name="total_children" class="form-control shadow" placeholder="">
+                                                                </div>
+                                                                <div class="col-12 text-center">
+                                                                    <button type="button" class="btn btn-primary dm-sans-text" id="generateFormButton" onclick="generateForm()">Generate Form</button>
+                                                                </div>
                                                             </div>
-                                                            <div class="col-lg-6 col-6 mb-3">
-                                                                <label class="dm-sans-text">Total Children</label>
-                                                                <input type="number" name="total_children" class="form-control shadow" placeholder="">
-                                                            </div>
-                                                            <div class="col-12 text-center">
-                                                                <button type="button" class="btn btn-primary dm-sans-text" id="generateFormButton" onclick="generateForm()" disabled>Generate Form</button>
-                                                            </div>
-
                                                         </div>
-                                                    </div>
 
-                                                    <div class="col-12 mb-3" id="attendeesContainer" style="max-height: 400px; overflow-x:hidden; overflow-y: auto;">
-                                                        <!-- Attendees will be dynamically added here -->
-                                                        <script>
-                                                            // Initialize Notyf
-                                                            const notyf = new Notyf({
-                                                                duration: 5000,
-                                                                position: {
-                                                                    x: 'right',
-                                                                    y: 'top'
-                                                                }
-                                                            });
+                                                        <div class="col-12 mb-3" id="attendeesContainer" style="max-height: 400px; overflow-x:hidden; overflow-y: auto;">
+                                                            <!-- Attendees will be dynamically added here -->
+                                                            <script>
+                                                                function generateForm() {
+                                                                    const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
+                                                                    const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
+                                                                    const totalAttendees = totalAdults + totalChildren;
 
-                                                            function generateForm() {
-                                                                const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
-                                                                const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
-                                                                const totalAttendees = totalAdults + totalChildren;
+                                                                    if (totalAttendees === 0) {
+                                                                        alert('Please enter the number of adults or children.');
+                                                                        return;
+                                                                    }
 
-                                                                if (totalAttendees === 0) {
-                                                                    notyf.error('Please enter the number of adults or children.');
-                                                                    return;
-                                                                }
+                                                                    const attendeesContainer = document.getElementById('attendeesContainer');
+                                                                    attendeesContainer.innerHTML = ''; // Clear previous entries
 
-                                                                const attendeesContainer = document.getElementById('attendeesContainer');
-                                                                attendeesContainer.innerHTML = ''; // Clear previous entries
+                                                                    // Add the customer's information as the first attendee
+                                                                    const customerName = document.querySelector('input[name="fullname"]').value;
+                                                                    const customerSex = document.querySelector('input[name="sex"]').value;
+                                                                    const customerLocation = document.querySelector('input[name="locationType"]').value;
 
-                                                                // Add the user's information as the first attendee
-                                                                const userInfo = {
-                                                                    name: document.querySelector('input[name="fullname"]').value,
-                                                                    sex: document.querySelector('input[name="sex"]').value,
-                                                                    location: document.querySelector('input[name="locationType"]').value
-                                                                };
-
-                                                                const userAttendeeDiv = document.createElement('div');
-                                                                userAttendeeDiv.classList.add('col-lg-12', 'mb-3');
-                                                                userAttendeeDiv.innerHTML = `
-        <div class="row mb-3">
-            <p class="mb-0 dm-sans-text">Name of Attendee 1</p>
-            <div class="col-xl-6 col-12">
-                <input type="text" class="form-control shadow mb-2" name="name[]" value="${userInfo.name}" disabled>
-                <input type="hidden" name="name[]" value="${userInfo.name}">
-            </div>
-            <div class="col-xl-6 col-12">
-                <div class="row g-2">
-                    <div class="col-xl-12 col-6">
-                        <select name="sex[]" class="form-select shadow" disabled>
-                            <option value="Male" ${userInfo.sex === 'Male' ? 'selected' : ''}>Male</option>
-                            <option value="Female" ${userInfo.sex === 'Female' ? 'selected' : ''}>Female</option>
-                        </select>
-                        <input type="hidden" name="sex[]" value="${userInfo.sex}">
-                    </div>
-                    <div class="col-xl-12 col-6">
-                        <select name="location[]" class="form-select shadow" disabled>
-                            <option value="This City/Municipality" ${userInfo.location === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
-                            <option value="Other City/Municipality" ${userInfo.location === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
-                            <option value="Other Province" ${userInfo.location === 'Other Province' ? 'selected' : ''}>Other Province</option>
-                            <option value="Foreign Country" ${userInfo.location === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
-                        </select>
-                        <input type="hidden" name="location[]" value="${userInfo.location}">
-                    </div>
-                </div>
-            </div>
-        </div>
-    `;
-                                                                attendeesContainer.appendChild(userAttendeeDiv);
-
-                                                                // Add the remaining attendees
-                                                                for (let i = 2; i <= totalAttendees + 1; i++) {
-                                                                    const attendeeDiv = document.createElement('div');
-                                                                    attendeeDiv.classList.add('col-lg-12', 'mb-3');
-                                                                    attendeeDiv.innerHTML = `
+                                                                    const customerDiv = document.createElement('div');
+                                                                    customerDiv.classList.add('col-lg-12', 'mb-3', 'hidden-field');
+                                                                    customerDiv.innerHTML = `
             <div class="row mb-3">
-                <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                <p class="mb-0 dm-sans-text">Name of Attendee 0</p>
                 <div class="col-xl-6 col-12">
-                    <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                    <input type="text" class="form-control shadow mb-2" name="name[]" value="${customerName}" disabled>
+                    <input type="hidden" name="name[]" value="${customerName}">
                 </div>
                 <div class="col-xl-6 col-12">
                     <div class="row g-2">
                         <div class="col-xl-12 col-6">
-                            <select name="sex[]" class="form-select shadow" required>
-                                <option value="">Select Sex</option>
-                                <option value="Male">Male</option>
-                                <option value="Female">Female</option>
+                            <select name="sex[]" class="form-select shadow" disabled>
+                                <option value="Male" ${customerSex === 'Male' ? 'selected' : ''}>Male</option>
+                                <option value="Female" ${customerSex === 'Female' ? 'selected' : ''}>Female</option>
                             </select>
+                            <input type="hidden" name="sex[]" value="${customerSex}">
                         </div>
                         <div class="col-xl-12 col-6">
-                            <select name="location[]" class="form-select shadow" required>
-                                <option value="">Select Location</option>
-                                <option value="This City/Municipality">This City/Municipality</option>
-                                <option value="Other City/Municipality">Other City/Municipality</option>
-                                <option value="Other Province">Other Province</option>
-                                <option value="Foreign Country">Foreign Country</option>
+                            <select name="location[]" class="form-select shadow" disabled>
+                                <option value="This City/Municipality" ${customerLocation === 'This City/Municipality' ? 'selected' : ''}>This City/Municipality</option>
+                                <option value="Other City/Municipality" ${customerLocation === 'Other City/Municipality' ? 'selected' : ''}>Other City/Municipality</option>
+                                <option value="Other Province" ${customerLocation === 'Other Province' ? 'selected' : ''}>Other Province</option>
+                                <option value="Foreign Country" ${customerLocation === 'Foreign Country' ? 'selected' : ''}>Foreign Country</option>
                             </select>
+                            <input type="hidden" name="location[]" value="${customerLocation}">
                         </div>
                     </div>
                 </div>
             </div>
         `;
-                                                                    attendeesContainer.appendChild(attendeeDiv);
-                                                                }
+                                                                    attendeesContainer.appendChild(customerDiv);
 
-                                                                checkInputs(); // Check inputs after generating the form
-                                                            }
-
-                                                            function checkInputs() {
-                                                                const totalAdults = parseInt(document.querySelector('input[name="total_adults"]').value) || 0;
-                                                                const totalChildren = parseInt(document.querySelector('input[name="total_children"]').value) || 0;
-                                                                const daterange = document.querySelector('input[name="daterange"]').value;
-                                                                const attendeesContainer = document.getElementById('attendeesContainer');
-                                                                const generateFormButton = document.getElementById('generateFormButton');
-                                                                const nextStepButton = document.getElementById('nextStep');
-                                                                const registerButton = document.getElementById('registerButton');
-                                                                const checkbox = document.getElementById('flexCheckDefault');
-
-                                                                if ((totalAdults > 0 || totalChildren > 0) && daterange) {
-                                                                    generateFormButton.disabled = false;
-                                                                } else {
-                                                                    generateFormButton.disabled = true;
-                                                                }
-
-                                                                let allAttendeesValid = true;
-                                                                const attendees = attendeesContainer.querySelectorAll('.row.mb-3');
-                                                                attendees.forEach(attendee => {
-                                                                    const name = attendee.querySelector('input[name="name[]"]').value.trim();
-                                                                    const sex = attendee.querySelector('select[name="sex[]"]').value;
-                                                                    const location = attendee.querySelector('select[name="location[]"]').value;
-                                                                    if (!name || !sex || !location) {
-                                                                        allAttendeesValid = false;
+                                                                    // Add the remaining attendees
+                                                                    for (let i = 1; i <= totalAttendees; i++) {
+                                                                        const attendeeDiv = document.createElement('div');
+                                                                        attendeeDiv.classList.add('col-lg-12', 'mb-3');
+                                                                        attendeeDiv.innerHTML = `
+                <div class="row mb-3">
+                    <p class="mb-0 dm-sans-text">Name of Attendee ${i}</p>
+                    <div class="col-xl-6 col-12">
+                        <input type="text" class="form-control shadow mb-2" name="name[]" placeholder="ex. Juan Dela Cruz" required>
+                    </div>
+                    <div class="col-xl-6 col-12">
+                        <div class="row g-2">
+                            <div class="col-xl-12 col-6">
+                                <select name="sex[]" class="form-select shadow" required>
+                                    <option value="">Select Sex</option>
+                                    <option value="Male">Male</option>
+                                    <option value="Female">Female</option>
+                                </select>
+                            </div>
+                            <div class="col-xl-12 col-6">
+                                <select name="location[]" class="form-select shadow" required>
+                                    <option value="">Select Location</option>
+                                    <option value="This City/Municipality">This City/Municipality</option>
+                                    <option value="Other City/Municipality">Other City/Municipality</option>
+                                    <option value="Other Province">Other Province</option>
+                                    <option value="Foreign Country">Foreign Country</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+                                                                        attendeesContainer.appendChild(attendeeDiv);
                                                                     }
-                                                                });
 
-                                                                if (attendees.length > 0 && daterange && (totalAdults > 0 || totalChildren > 0) && allAttendeesValid) {
-                                                                    if (nextStepButton) {
-                                                                        nextStepButton.disabled = false;
-                                                                    }
-                                                                    if (!nextStepButton && checkbox.checked) {
-                                                                        registerButton.disabled = false;
-                                                                    }
-                                                                } else {
-                                                                    if (nextStepButton) {
-                                                                        nextStepButton.disabled = true;
-                                                                    }
-                                                                    if (!nextStepButton) {
-                                                                        registerButton.disabled = true;
-                                                                    }
+                                                                    validateForm(); // Validate form after generating attendees
                                                                 }
-                                                            }
-
-                                                            document.querySelector('input[name="total_adults"]').addEventListener('input', function() {
-                                                                const daterange = document.querySelector('input[name="daterange"]').value;
-                                                                if (!daterange && this.value > 0) {
-                                                                    notyf.error('Please select a check-in and check-out date.');
-                                                                }
-                                                                checkInputs();
-                                                            });
-
-                                                            document.querySelector('input[name="total_children"]').addEventListener('input', function() {
-                                                                const daterange = document.querySelector('input[name="daterange"]').value;
-                                                                if (!daterange && this.value > 0) {
-                                                                    notyf.error('Please select a check-in and check-out date before adding a adult and children.');
-                                                                }
-                                                                checkInputs();
-                                                            });
-
-                                                            document.querySelector('input[name="total_adults"]').addEventListener('input', checkInputs);
-                                                            document.querySelector('input[name="total_children"]').addEventListener('input', checkInputs);
-                                                            document.querySelector('input[name="daterange"]').addEventListener('input', checkInputs);
-                                                            document.getElementById('attendeesContainer').addEventListener('input', checkInputs);
-                                                        </script>
+                                                            </script>
+                                                        </div>
                                                     </div>
                                                     <div class="col-lg-12 d-grid">
                                                         <?php if (!$hasPaymentMethod): ?>
@@ -924,6 +922,102 @@ try {
                                                     </div>
                                                 </div>
                                             </div>
+
+                                            <script>
+                                                $(document).ready(function() {
+                                                    $('#daterange').daterangepicker({
+                                                        locale: {
+                                                            format: 'YYYY-MM-DD'
+                                                        },
+                                                        autoUpdateInput: false, // Prevents the input from being updated automatically
+                                                        minDate: moment().startOf('day'), // Disable past dates
+                                                        isInvalidDate: function(date) {
+                                                            return date.isBefore(moment(), 'day'); // Disable past dates
+                                                        }
+                                                    });
+
+                                                    $('#daterange').on('apply.daterangepicker', function(ev, picker) {
+                                                        $(this).val(picker.startDate.format('YYYY-MM-DD') + ' - ' + picker.endDate.format('YYYY-MM-DD'));
+                                                        $('#daterange').removeClass('is-invalid');
+                                                        $('#dateError').hide();
+                                                        validateForm();
+                                                    });
+
+                                                    $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
+                                                        $(this).val('');
+                                                        validateForm();
+                                                    });
+
+                                                    $('#additionalGuestCheckbox').change(function() {
+                                                        if ($(this).is(':checked')) {
+                                                            $('#companionsInfo').show();
+                                                        } else {
+                                                            $('#companionsInfo').hide();
+                                                            clearForm(); // Clear the form when the checkbox is unchecked
+                                                        }
+                                                        validateForm();
+                                                    });
+
+                                                    function clearForm() {
+                                                        document.querySelector('input[name="total_adults"]').value = '';
+                                                        document.querySelector('input[name="total_children"]').value = '';
+                                                        document.getElementById('attendeesContainer').innerHTML = '';
+                                                    }
+
+                                                    // Initially hide the companions' information section
+                                                    $('#companionsInfo').hide();
+
+                                                    function validateForm() {
+                                                        const daterangeValue = $('#daterange').val();
+                                                        const isCheckboxChecked = $('#additionalGuestCheckbox').is(':checked');
+                                                        const isFormValid = validateGeneratedForm();
+
+                                                        console.log('Date Range Value:', daterangeValue);
+                                                        console.log('Is Checkbox Checked:', isCheckboxChecked);
+                                                        console.log('Is Form Valid:', isFormValid);
+
+                                                        if (daterangeValue && (!isCheckboxChecked || (isCheckboxChecked && isFormValid))) {
+                                                            console.log('Enabling Proceed to Payment button');
+                                                            $('#nextStep').prop('disabled', false);
+                                                        } else {
+                                                            console.log('Disabling Proceed to Payment button');
+                                                            $('#nextStep').prop('disabled', true);
+                                                        }
+                                                    }
+
+                                                    function validateGeneratedForm() {
+                                                        let isValid = true;
+                                                        $('#attendeesContainer input[name="name[]"]').each(function() {
+                                                            if (!$(this).val()) {
+                                                                isValid = false;
+                                                            }
+                                                        });
+                                                        $('#attendeesContainer select[name="sex[]"]').each(function() {
+                                                            if (!$(this).val()) {
+                                                                isValid = false;
+                                                            }
+                                                        });
+                                                        $('#attendeesContainer select[name="location[]"]').each(function() {
+                                                            if (!$(this).val()) {
+                                                                isValid = false;
+                                                            }
+                                                        });
+                                                        console.log('Generated Form Valid:', isValid);
+                                                        return isValid;
+                                                    }
+
+                                                    // Set an interval to check the inputs every 500ms
+                                                    setInterval(validateForm, 500);
+
+                                                    // Check if date range is selected before form submission
+                                                    $('#registerButton').on('click', function() {
+                                                        if (!$('#daterange').val()) {
+                                                            $('#daterange').addClass('is-invalid');
+                                                            $('#dateError').show();
+                                                        }
+                                                    });
+                                                });
+                                            </script>
 
                                             <script>
                                                 document.addEventListener('DOMContentLoaded', () => {
@@ -1282,7 +1376,6 @@ try {
 
                 if (validateDateRange(start, end)) {
                     $(this).val(start.format('YYYY-MM-DD') + ' - ' + end.format('YYYY-MM-DD'));
-                    checkInputs();
                 } else {
                     $(this).val('');
                 }
@@ -1317,7 +1410,6 @@ try {
                 $(this).val('');
                 $('#totalPriceDisplay').val('₱ 0.00');
                 $('#totalPrice').val(0);
-                checkInputs();
             });
         }
 
