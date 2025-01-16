@@ -282,6 +282,9 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                 fetchNewReservations(); // Refresh the reservations list
                                                                 $('#confirmationModalReject').modal('hide');
                                                                 notyf.success('Reservation rejected successfully!');
+                                                                setTimeout(function() {
+                                                                    location.reload();
+                                                                }, 3000);
                                                             } else {
                                                                 notyf.error(response.message);
                                                             }
