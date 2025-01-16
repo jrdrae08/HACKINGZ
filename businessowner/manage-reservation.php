@@ -97,45 +97,80 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                         </div>
                                         <!-- Modal -->
                                         <div class="modal fade" id="viewroom" tabindex="-1" aria-labelledby="viewroomLabel" aria-hidden="true">
-                                            <div class="modal-dialog">
+                                            <div class="modal-dialog modal-dialog-centered modal-xl">
                                                 <div class="modal-content">
                                                     <div class="modal-header">
                                                         <h5 class="modal-title" id="viewroomLabel">Reservation Details</h5>
                                                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                                     </div>
                                                     <div class="modal-body">
-                                                        <p><strong>Name:</strong> <span id="modal-name"></span></p>
-                                                        <p><strong>Address:</strong> <span id="modal-address"></span></p>
-                                                        <p><strong>Contact Number:</strong> <span id="modal-contact"></span></p>
-                                                        <p><strong>Type of ID:</strong> <span id="modal-id-type"></span></p>
-                                                        <p><strong>ID Front:</strong> <img id="modal-front-id" src="" alt="Front ID" style="width: 100%;"></p>
-                                                        <p id="back-id-container"><strong>ID Back:</strong> <img id="modal-back-id" src="" alt="Back ID" style="width: 100%;"></p>
-                                                        <hr>
-                                                        <h5>User Demographics</h5>
-                                                        <p><strong>Total Number of Attendees:</strong> <span id="modal-total-attendees"></span></p>
-                                                        <p><strong>Total Male:</strong> <span id="modal-total-male"></span></p>
-                                                        <p><strong>Total Female:</strong> <span id="modal-total-female"></span></p>
-                                                        <p><strong>This City/Municipality:</strong> <span id="modal-this-city"></span></p>
-                                                        <p><strong>Other City/Municipality:</strong> <span id="modal-other-city"></span></p>
-                                                        <p><strong>Other Province:</strong> <span id="modal-other-province"></span></p>
-                                                        <p><strong>Foreign Country:</strong> <span id="modal-foreign-country"></span></p>
-                                                        <p class="text-center fw-bold">Information Table</p>
-                                                        <table class="table table-striped">
-                                                            <thead>
-                                                                <tr>
-                                                                    <th scope="col">Name</th>
-                                                                    <th>Sex</th>
-                                                                    <th>Location</th>
-                                                                </tr>
-                                                            </thead>
-                                                            <tbody id="infoTableBody">
-                                                                <!-- Attendees will be dynamically added here -->
-                                                            </tbody>
-                                                        </table>
-                                                        <p><strong>Proof of Payment</strong> <img id="modal-proofof-payment" src="" alt="Proof of Payment" style="width: 100%;"></p>
-                                                        <p><strong>Reference Number:</strong> <span id="modal-reference-number"></span></p>
-                                                        <p id="modal-amount-due-container" style="display: none;"><strong>Total Amount:</strong> <span id="modal-amount-due"></span></p> <!-- Added this line -->
-                                                        <p id="modal-who-processor-container" style="display: none;"><strong>Processed by:</strong> <span id="modal-who-processor"></span></p> <!-- Added this line -->
+                                                        <div class="row d-flex justify-content-center">
+                                                            <div class="col-lg-6 col-12">
+                                                                <h5>User Information</h5>
+                                                                <hr>
+                                                                <p><strong>Name:</strong> <span id="modal-name"></span></p>
+                                                                <p><strong>Address:</strong> <span id="modal-address"></span></p>
+                                                                <p><strong>Contact Number:</strong> <span id="modal-contact"></span></p>
+                                                                <p><strong>Type of ID:</strong> <span id="modal-id-type"></span></p>
+
+                                                                <div class="row">
+                                                                    <div class="col-lg-6 col-12">
+                                                                        <p><strong>ID Front:</strong> <img id="modal-front-id" src="" alt="Front ID" onclick="enlargeImage(this.src)" style="width: 100%;"></p>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-12">
+                                                                        <p id="back-id-container"><strong>ID Back:</strong> <img id="modal-back-id" src="" alt="Back ID" onclick="enlargeImage(this.src)" style="width: 100%;"></p>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <div class="col-lg-6 col-12">
+                                                                <h5>Tourist Demographics</h5>
+                                                                <hr>
+                                                                <div class="row mx-1">
+                                                                    <div class="col-12">
+                                                                        <p><strong>Total Number of Attendees:</strong> <span class="fs-4 fw-bold text-success" id="modal-total-attendees"></span></p>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-12 border">
+                                                                        <p><strong>Male:</strong> <span class="fs-4 fw-bold text-success" id="modal-total-male"></span></p>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-12 border">
+                                                                        <p><strong>Female:</strong> <span class="fs-4 fw-bold text-success" id="modal-total-female"></span></p>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                                <div class="row mx-1">
+                                                                    <div class="col-lg-6 col-12 border">
+                                                                        <p><strong>This City/Municipality:</strong> <span class="fs-4 fw-bold text-success" id="modal-this-city"></span></p>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-12  border">
+                                                                        <p><strong>Other City/Municipality:</strong> <span class="fs-4 fw-bold text-success" id="modal-other-city"></span></p>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-12  border">
+                                                                        <p><strong>Other Province:</strong> <span class="fs-4 fw-bold text-success" id="modal-other-province"></span></p>
+                                                                    </div>
+                                                                    <div class="col-lg-6 col-12  border">
+                                                                        <p><strong>Foreign Country:</strong> <span class="fs-4 fw-bold text-success" id="modal-foreign-country"></span></p>
+                                                                    </div>
+                                                                </div>
+                                                                <hr>
+                                                                <table class="table table-striped">
+                                                                    <thead>
+                                                                        <tr>
+                                                                            <th scope="col">Name</th>
+                                                                            <th>Sex</th>
+                                                                            <th>Location</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody id="infoTableBody">
+                                                                        <!-- Attendees will be dynamically added here -->
+                                                                    </tbody>
+                                                                </table>
+                                                                <p><strong>Proof of Payment</strong> <img id="modal-proofof-payment" src="" alt="Proof of Payment" onclick="enlargeImage(this.src)" style="width: 100%;"></p>
+                                                                <p><strong>Reference Number:</strong> <span id="modal-reference-number"></span></p>
+                                                                <p id="modal-amount-due-container" style="display: none;"><strong>Total Amount:</strong> <span id="modal-amount-due"></span></p> <!-- Added this line -->
+                                                                <p id="modal-who-processor-container" style="display: none;"><strong>Processed by:</strong> <span id="modal-who-processor"></span></p> <!-- Added this line -->
+
+                                                            </div>
+                                                        </div>
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
