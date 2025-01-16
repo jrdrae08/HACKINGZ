@@ -76,7 +76,7 @@ if ($isLoggedIn) {
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                 <a class="dropdown-item" href="../user/view-my-reservation.php<?php echo isset($userID) ? '?userID=' . htmlspecialchars($userID) : ''; ?>">My Booking</a>
-                <li><a class="dropdown-item" href="../../logout.php">Logout</a></li>
+                <li><a class="dropdown-item" href="../../logoutuser.php">Logout</a></li>
               </ul>
             </li>
           <?php else: ?>

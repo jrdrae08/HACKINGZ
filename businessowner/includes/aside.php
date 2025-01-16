@@ -78,6 +78,12 @@
                     Print Report
                 </a>
             </li>
+            <li class="sidebar-item">
+                <a href="../businessowner/gcash-payment.php" class="sidebar-link">
+                    <i class="bi bi-credit-card"></i>
+                    Setups Gcash Payment
+                </a>
+            </li>
         </ul>
     </div>
 </aside>
