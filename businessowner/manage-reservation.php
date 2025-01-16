@@ -981,7 +981,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     </div>
                                                     <div class="mb-3 p-3">
                                                         <label for="processorName" name="namep" class="form-label">Processed by (Name):</label>
-                                                        <input type="text" class="form-control" id="processorName" placeholder="Enter your name">
+                                                        <input type="text" class="form-control" id="processorName" placeholder="Enter your name" required>
                                                         <label for="totalPrice" class="form-label">Total Price</label>
                                                         <input type="text" class="form-control" id="totalPrice" disabled>
                                                         <label for="downPayment" class="form-label">Downpayment</label>
@@ -991,11 +991,22 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                     </div>
                                                     <div class="modal-footer">
                                                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                                                        <button type="button" class="btn btn-success" id="confirmComplete">Yes, Complete</button>
+                                                        <button type="button" class="btn btn-success" id="confirmComplete" disabled>Yes, Complete</button>
                                                     </div>
                                                 </div>
                                             </div>
                                         </div>
+                                        <script>
+                                            $(document).ready(function() {
+                                                $('#processorName').on('input', function() {
+                                                    if ($(this).val().trim() === '') {
+                                                        $('#confirmComplete').prop('disabled', true);
+                                                    } else {
+                                                        $('#confirmComplete').prop('disabled', false);
+                                                    }
+                                                });
+                                            });
+                                        </script>
 
                                         <script>
                                             $(document).ready(function() {
