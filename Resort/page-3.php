@@ -1312,8 +1312,11 @@ try {
                 console.log('Display Price:', $('#totalPriceDisplay').val());
                 console.log('Hidden Price:', $('#totalPrice').val());
             });
+
             $('#daterange').on('cancel.daterangepicker', function(ev, picker) {
                 $(this).val('');
+                $('#totalPriceDisplay').val('₱ 0.00');
+                $('#totalPrice').val(0);
                 checkInputs();
             });
         }
