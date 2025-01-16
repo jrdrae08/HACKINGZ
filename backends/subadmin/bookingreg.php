@@ -40,7 +40,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
 
     // Check if file is an image
     $check = getimagesize($proofofpayment['tmp_name']);
-    if ($check !== false && in_array($fileType, ['jpg', 'jpeg', 'png', 'gif'])) {
+    if ($check !== false && in_array($fileType, ['jpg', 'jpeg', 'png', 'webp'])) {
       if (!move_uploaded_file($proofofpayment['tmp_name'], $proofOfPaymentPath)) {
         // Handle file upload error
         echo json_encode(['message' => 'File upload failed.', 'type' => 'danger']);
