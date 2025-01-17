@@ -380,6 +380,10 @@ include '../backends/subadmin/dashboard-notif.php';
                                             }
                                         },
                                         plugins: {
+                                            title: {
+                                                display: true,
+                                                text: 'Gender Distribution'
+                                            },
                                             legend: {
                                                 display: false
                                             }
