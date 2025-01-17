@@ -245,7 +245,31 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
 <script>
     document.addEventListener('DOMContentLoaded', function() {
-        // Function to show the confirmation modal with dynamic content
+        // Function to enable/disable form elements
+        function setFormDisabled(disabled) {
+            // Get all form elements including buttons
+            const formElements = document.querySelectorAll('input, textarea, select, button.btn-success, button.btn-danger, button[type="submit"], button[type="reset"]');
+            formElements.forEach(element => {
+                if (element.id !== 'editButton') {
+                    element.disabled = disabled;
+                }
+            });
+
+            // Handle file input labels
+            const fileLabels = document.querySelectorAll('label[for^="thumbnail-image-input-"], label[for^="business-image-input-"]');
+            fileLabels.forEach(label => {
+                label.style.pointerEvents = disabled ? 'none' : 'auto';
+                label.style.opacity = disabled ? '0.6' : '1';
+            });
+
+            // Handle feature checkboxes
+            const featureCheckboxes = document.querySelectorAll('.form-check-input');
+            featureCheckboxes.forEach(checkbox => {
+                checkbox.disabled = disabled;
+            });
+        }
+
+        // Show confirmation modal
         function showConfirmationModal(actionType) {
             let modalBody = '';
             let confirmButtonText = 'Confirm';
@@ -255,13 +279,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                 case 'edit':
                     modalBody = 'Are you sure you want to enable editing?';
                     confirmButtonAction = () => {
-                        // Enable form fields
                         setFormDisabled(false);
-                        // Disable the "Edit" button itself to prevent re-click
-                        document.querySelector('.btn-warning').setAttribute('disabled', true);
-                        // Enable the "Save Changes" and "Cancel" buttons
-                        document.querySelector('button[type="submit"]').disabled = false;
-                        document.querySelector('button[type="reset"]').disabled = false;
+                        document.getElementById('editButton').disabled = true;
                     };
                     break;
 
@@ -269,27 +288,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                     modalBody = 'Are you sure you want to save the changes?';
                     confirmButtonText = 'Save';
                     confirmButtonAction = () => {
-                        // Submit the form
                         document.querySelector('form').submit();
-                    };
-                    break;
-
-                case 'delete':
-                    modalBody = 'Are you sure you want to delete this item?';
-                    confirmButtonAction = () => {
-                        // Handle delete action
-                    };
-                    break;
-
-                default:
-                    modalBody = 'Are you sure you want to perform this action?';
-                    confirmButtonAction = () => {
-                        // Default action or no action
                     };
                     break;
             }
 
-            // Set modal body text and button action
             document.getElementById('confirmationModalBody').textContent = modalBody;
             const confirmButton = document.getElementById('confirmationModalButton');
             confirmButton.textContent = confirmButtonText;
@@ -297,36 +300,24 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                 if (confirmButtonAction) {
                     confirmButtonAction();
                 }
-                // Hide the modal after action is taken
-                const myModal = bootstrap.Modal.getInstance(document.getElementById('confirmationModal'));
-                if (myModal) {
-                    myModal.hide();
-                }
+                bootstrap.Modal.getInstance(document.getElementById('confirmationModal')).hide();
             };
 
-            // Show the modal
-            const myModal = new bootstrap.Modal(document.getElementById('confirmationModal'));
-            myModal.show();
+            new bootstrap.Modal(document.getElementById('confirmationModal')).show();
         }
 
-        // Event listener for "Save Changes" button
+        // Event listeners
         document.querySelector('button[type="submit"]').addEventListener('click', function(event) {
-            event.preventDefault(); // Prevent default form submission
-            showConfirmationModal('saveChanges'); // Show save changes confirmation modal
+            event.preventDefault();
+            showConfirmationModal('saveChanges');
         });
 
-        // Event listener for "Edit" button
         document.getElementById('editButton').addEventListener('click', function() {
-            showConfirmationModal('edit'); // Show edit confirmation modal
+            showConfirmationModal('edit');
         });
 
-        // Function to enable or disable form fields
-        function setFormDisabled(disabled) {
-            const formElements = document.querySelectorAll('input, textarea, select');
-            formElements.forEach(element => {
-                element.disabled = disabled;
-            });
-        }
+        // Initialize - disable all form elements
+        setFormDisabled(true);
     });
 </script>
 

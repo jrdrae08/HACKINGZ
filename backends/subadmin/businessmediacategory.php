@@ -33,9 +33,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   $image5 = handleFileUpload('business-image-5', $existingMedia['Image5'] ?? null);
   $image6 = handleFileUpload('business-image-6', $existingMedia['Image6'] ?? null);
 
-
   // Validate that the thumbnail is uploaded
-  if ($thumbnail === $defaultImage) {
+  if (!$thumbnail) {
     $_SESSION['error'] = "Thumbnail image is required.";
     header("Location: ../../businessowner/front-card.php");
     exit;
@@ -52,41 +51,41 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
   if ($existingMedia) {
     // Update existing media
     $stmt = $pdo->prepare("UPDATE business_media SET 
-            Thumbnail = ?, 
-            Quotation = ?, 
-            Image1 = ?, 
-            Image2 = ?, 
-            Image3 = ?, 
-            Image4 = ?, 
-            Image5 = ?, 
-            Image6 = ? 
-            WHERE BusinessInfoID = ?");
+                Thumbnail = ?, 
+                Quotation = ?, 
+                Image1 = ?, 
+                Image2 = ?, 
+                Image3 = ?, 
+                Image4 = ?, 
+                Image5 = ?, 
+                Image6 = ? 
+                WHERE BusinessInfoID = ?");
     $success = $stmt->execute([
-      $thumbnail ?: null,
+      $thumbnail,
       $quotation,
-      $image1 ?: null,
-      $image2 ?: null,
-      $image3 ?: null,
-      $image4 ?: null,
-      $image5 ?: null,
-      $image6 ?: null,
+      $image1,
+      $image2,
+      $image3,
+      $image4,
+      $image5,
+      $image6,
       $businessInfoID
     ]);
   } else {
     // Insert new media
     $stmt = $pdo->prepare("INSERT INTO business_media 
-            (BusinessInfoID, Thumbnail, Quotation, Image1, Image2, Image3, Image4, Image5, Image6) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                (BusinessInfoID, Thumbnail, Quotation, Image1, Image2, Image3, Image4, Image5, Image6) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $success = $stmt->execute([
       $businessInfoID,
-      $thumbnail ?: null,
+      $thumbnail,
       $quotation,
-      $image1 ?: null,
-      $image2 ?: null,
-      $image3 ?: null,
-      $image4 ?: null,
-      $image5 ?: null,
-      $image6 ?: null
+      $image1,
+      $image2,
+      $image3,
+      $image4,
+      $image5,
+      $image6
     ]);
   }
 
@@ -104,7 +103,7 @@ function handleFileUpload($inputName, $existingFile = null)
 {
   // Check if the file input exists and a file was uploaded
   if (!isset($_FILES[$inputName]) || $_FILES[$inputName]['error'] == UPLOAD_ERR_NO_FILE) {
-    return null; // Return null if no file was uploaded
+    return $existingFile; // Return existing filename if no new file uploaded
   }
 
   $targetDir = "../../businessowner/businessmediacategory/";
@@ -121,21 +120,21 @@ function handleFileUpload($inputName, $existingFile = null)
     exit;
   }
 
-  // Delete the existing file if it exists
-  if ($existingFile && file_exists($targetDir . $existingFile)) {
-    unlink($targetDir . $existingFile);
-  }
-
+  // Only delete existing file if new upload is successful
   if (move_uploaded_file($_FILES[$inputName]["tmp_name"], $targetFile)) {
-    $webpFile = convertToWebP($targetFile, $fileExtension);  // Convert the image to WebP after moving
+    // Delete old file if exists
+    if ($existingFile && file_exists($targetDir . $existingFile)) {
+      unlink($targetDir . $existingFile);
+    }
+
+    // Convert to WebP
+    $webpFile = convertToWebP($targetFile, $fileExtension);
     return $webpFile;
-  } else {
-    $_SESSION['error'] = "Sorry, there was an error uploading your file.";
-    header("Location: ../../businessowner/front-card.php");
-    exit;
   }
 
-  return $uniqueName;
+  $_SESSION['error'] = "Error uploading file.";
+  header("Location: ../../businessowner/front-card.php");
+  exit;
 }
 
 function convertToWebP($source, $imageFileType)

@@ -23,15 +23,15 @@
                     <li class="sidebar-item">
                         <a href="../admin/manage-website-frontpage.php" class="sidebar-link">Front Page</a>
                     </li>
-                    <li class="sidebar-item">
+                    <!-- <li class="sidebar-item">
                         <a href="../admin/contact-page.php" class="sidebar-link">Contact Info Page</a>
                     </li>
                     <li class="sidebar-item">
                         <a href="../admin/about-page.php" class="sidebar-link">About Us Page</a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
-            <li class="sidebar-item">
+            <!-- <li class="sidebar-item">
                 <a href="#" class="sidebar-link collapsed" data-bs-target="#post" data-bs-toggle="collapse" aria-expanded="false">
                     <i class="fa-solid fa-file-lines pe-1"></i>
                     Post Announcements
@@ -41,7 +41,7 @@
                         <a href="#" class="sidebar-link">Post</a>
                     </li>
                 </ul>
-            </li>
+            </li> -->
 
             <li class="sidebar-item">
                 <a href="../admin/manage-business-account.php" class="sidebar-link">
@@ -68,12 +68,12 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
+            <!-- <li class="sidebar-item">
                 <a href="../admin/manage-tourist-account.php" class="sidebar-link">
                     <i class="bi bi-person-fill-gear"></i>
                     Manage Tourist Accounts
                 </a>
-            </li>
+            </li> -->
         </ul>
     </div>
 </aside>

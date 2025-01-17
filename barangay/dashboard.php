@@ -31,33 +31,49 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
   <div class="wrapper">
     <?php include '../barangay/includes/aside.php'; ?>
     <div class="main">
-      <?php include '../barangay/includes/navbar.php'; ?>
-      <main class="content px-3 py-2">
+
+      <main class="content py-2">
+        <?php include '../barangay/includes/navbar.php'; ?>
         <div class="container-fluid">
           <h1>Barangay Accounts</h1>
+
           <div class="row mt-3">
-            <div class="col-lg-8 col-12">
-              <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+            <h5>Data Analytics</h5>
+            <div class=" col-xl-3 col-lg-4 col-12 mb-3 d-flex">
+              <p class="me-2">Filter:</p>
+              <div id="reportrange" class="shadow rounded" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
                 <i class="fa fa-calendar"></i>&nbsp;
                 <span></span> <i class="fa fa-caret-down"></i>
               </div>
-              <div class="table-responsive">
-                <div class="chart-container bg-light rounded mt-3" style="position: relative; height:50vh; width:100vh">
-                  <canvas id="myLineChart"></canvas>
+            </div>
+            <div class="col-lg-12">
+              <div class="row">
+                <div class="col-lg-8 col-12 mb-3">
+                  <div class="table-responsive">
+                    <div class="chart-container p-2 bg-light d-flex justify-content-center rounded shadow" style="height: 50vh;">
+                      <canvas id="myLineChart"></canvas>
+                    </div>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-12 mb-2">
+                  <div class="chart-container d-flex justify-content-center bg-light rounded p-2 shadow mb-3">
+                    <canvas id="genderBarChart"></canvas>
+                  </div>
+                  <div class="chart-container d-flex justify-content-center bg-light rounded p-2 shadow">
+                    <canvas id="locationPieChart"></canvas>
+                  </div>
+                </div>
+                <div class="col-lg-4 col-12 mb-2">
+
                 </div>
               </div>
             </div>
-            <div class="col-lg-4 col-12">
-              <div class="chart-container bg-light rounded mt-3" style="position: relative;">
-                <canvas id="locationPieChart"></canvas>
-              </div>
-            </div>
-            <div class="col-lg-4 col-12 mt-3">
-              <div class="chart-container bg-light rounded" style="position: relative; height:30vh">
-                <canvas id="genderBarChart"></canvas>
-              </div>
-            </div>
+
+
+
           </div>
+
+         
           <script>
             $(function() {
               let lineChart = null;
@@ -217,6 +233,11 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
                       }
                     },
                     plugins: {
+
+                      title: {
+                        display: true,
+                        text: 'Gender Distribution'
+                      },
                       legend: {
                         display: false
                       }
@@ -241,14 +262,20 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'barangay') {
             });
           </script>
         </div>
+      </main>
+
+      <footer class="footer">
+        <?php include '../businessowner/includes/footer.php'; ?>
+      </footer>
     </div>
-    </main>
-    <a href="#" class="theme-toggle">
-      <i class="fa-regular fa-sun"></i>
-      <i class="fa-regular fa-moon"></i>
-    </a>
   </div>
-  </div>
+
+
+  <a href="#" class="theme-toggle">
+    <i class="bi bi-brightness-high-fill"></i>
+    <i class="bi bi-moon-fill"></i>
+  </a>
+
   <script src="../js/admin.js"></script>
 </body>
 

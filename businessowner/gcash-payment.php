@@ -33,13 +33,13 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
       <?php include '../businessowner/includes/navbar.php'; ?>
 
-      <main class="content px-3 py-2">
+      <main class="content">
         <div class="container-fluid">
           <div class="mb-3">
             <h3>Settings</h3>
           </div>
           <div class="row d-flex justify-content-center">
-            <div class="col-lg-8 col-11">
+            <div class="col-lg-8 col-12">
               <div class="card shadow">
                 <div class="card-header">
                   <h4 class="card-title">Set-up Business Payment Method</h4>
@@ -49,14 +49,14 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                   <input type="hidden" name="isUpdate" id="isUpdate" value="0">
                   <div class="card-body">
                     <div class="row d-flex justify-content-center">
-                      <div class="col-lg-6 col-8 text-center">
+                      <div class="col-lg-6 col-9 text-center">
                         <h5 class="">G-Cash QR Code</h5>
                         <input name="qrimage1" type="file" id="qr-image-input-1" style="display: none;" accept="image/*" onchange="uploadImage('qr-image-input-1', 'qr-image-1')">
                         <label for="qr-image-input-1" class="image-container">
                           <img src="../img/general-img/insert.png" class="rounded img-fluid shadow border" alt="QR Image 1" id="qr-image-1" width="300" height="300">
                         </label>
                       </div>
-                      <div class="col-lg-5 col-8 my-3">
+                      <div class="col-lg-5 col-9 my-3">
                         <div class="row">
                           <div class="col-12">
                             <p class="">Enter your registered G-Cash Number</p>
@@ -76,7 +76,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                       </div>
                       <div class="col-lg-12 hstack">
                         <button type="button" class="btn btn-success ms-auto px-4 me-2" id="saveButton" onclick="showConfirmationModal()">SAVE</button>
-                        <a href="../admin/dashboard.php" class="btn btn-secondary">CANCEL</a>
+                        <a href="./dashboard.php" class="btn btn-secondary">CANCEL</a>
                       </div>
                     </div>
                   </div>

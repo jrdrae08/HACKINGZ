@@ -20,3 +20,44 @@ $reminderSent = $application['ReminderSent'];
 $isRenew = $application['isRenew'];
 $reuploadDate = $application['reuploadDate'];
 $renewalReject = $application['renewalReject'];
+
+try {
+  $stmt = $pdo->prepare("
+      SELECT 
+          r.status, 
+          COUNT(*) as count 
+      FROM 
+          reservations r
+      JOIN 
+          roominfotable rt ON r.roomID = rt.roomID
+      WHERE 
+          rt.BusinessInfoID = :businessinfoID
+          AND r.status IN ('Pending', 'Accepted', 'Ongoing')
+      GROUP BY 
+          r.status
+  ");
+  $stmt->execute([':businessinfoID' => $businessinfoID]);
+  $reservations = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+  // Initialize counts
+  $pendingCount = 0;
+  $acceptedCount = 0;
+  $ongoingCount = 0;
+
+  // Assign counts based on status
+  foreach ($reservations as $reservation) {
+      switch ($reservation['status']) {
+          case 'Pending':
+              $pendingCount = $reservation['count'];
+              break;
+          case 'Accepted':
+              $acceptedCount = $reservation['count'];
+              break;
+          case 'Ongoing':
+              $ongoingCount = $reservation['count'];
+              break;
+      }
+  }
+} catch (PDOException $e) {
+  echo "Error: " . $e->getMessage();
+}

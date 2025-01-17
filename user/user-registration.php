@@ -124,7 +124,7 @@
                     </div>
                     <div class="col-lg-12 text-center">
                       <hr>
-                      <p>Already have an account? <a href="../user/user_login.php" class="btn btn-primary">LOG IN</a></p>
+                      <p>Already have an account? <a href="../login.php" class="btn btn-primary">LOG IN</a></p>
                     </div>
                   </div>
                 </div>
@@ -196,7 +196,7 @@
                     </div>
                     <div class="col-lg-12 text-center">
                       <hr>
-                      <p>Already have an account? <a href="../user/user_login.php" class="btn btn-primary">LOG IN</a></p>
+                      <p>Already have an account? <a href="../login.php" class="btn btn-primary">LOG IN</a></p>
                     </div>
                   </div>
                 </div>

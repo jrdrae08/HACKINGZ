@@ -63,10 +63,10 @@ if ($isLoggedIn) {
             </li>
           <?php endif; ?>
           <li class="nav-item me-3">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../services/services.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">Services</a>
+            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="#service<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">Services</a>
           </li>
           <li class="nav-item me-5">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../about/about.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">About</a>
+            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="#about<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">About</a>
           </li>
           <?php if ($isLoggedIn): ?>
             <li class="nav-item dropdown">
@@ -75,7 +75,7 @@ if ($isLoggedIn) {
                 <?= htmlspecialchars($userFullName) ?>
               </button>
               <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                <a class="dropdown-item" href="../user/view-my-reservation.php<?php echo isset($userID) ? '?userID=' . htmlspecialchars($userID) : ''; ?>">My Booking</a>
+                <a class="dropdown-item" href="../user/view-my-reservation.php<?php echo isset($userID) ? '?userID=' . htmlspecialchars($userID) : ''; ?>">My Reservation</a>
                 <li><a class="dropdown-item" href="../../logoutuser.php">Logout</a></li>
               </ul>
             </li>

@@ -18,3 +18,13 @@ Stack trace:
 #0 E:\HACKINGZ\backends\admin\update_status.php(65): PDOStatement->execute()
 #1 {main}
   thrown in E:\HACKINGZ\backends\admin\update_status.php on line 65
+[17-Jan-2025 03:11:16 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'yeviso4003@citdaca.com' for key 'Email' in E:\HACKINGZ\backends\admin\update_status.php:65
+Stack trace:
+#0 E:\HACKINGZ\backends\admin\update_status.php(65): PDOStatement->execute()
+#1 {main}
+  thrown in E:\HACKINGZ\backends\admin\update_status.php on line 65
+[17-Jan-2025 03:11:16 Europe/Berlin] PHP Fatal error:  Uncaught PDOException: SQLSTATE[23000]: Integrity constraint violation: 1062 Duplicate entry 'yeviso4003@citdaca.com' for key 'Email' in E:\HACKINGZ\backends\admin\update_status.php:65
+Stack trace:
+#0 E:\HACKINGZ\backends\admin\update_status.php(65): PDOStatement->execute()
+#1 {main}
+  thrown in E:\HACKINGZ\backends\admin\update_status.php on line 65

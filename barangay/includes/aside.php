@@ -23,12 +23,12 @@
                     <li class="sidebar-item">
                         <a href="../barangay/front-card.php" class="sidebar-link">Front Card Content</a>
                     </li>
-                    <li class="sidebar-item">
+                    <!-- <li class="sidebar-item">
                         <a href="" class="sidebar-link">Contact Info Page</a>
                     </li>
                     <li class="sidebar-item">
                         <a href="" class="sidebar-link">About Us Page</a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
 
@@ -38,12 +38,12 @@
                     Tourist Demographics
                 </a>
             </li>
-            <li class="sidebar-item">
+            <!-- <li class="sidebar-item">
                 <a href="#" class="sidebar-link">
                     <i class="bi bi-megaphone-fill pe-2"></i>
                     Announcements
                 </a>
-            </li>
+            </li> -->
             <li class="sidebar-item">
                 <a href="../barangay/qr-code.php" class="sidebar-link">
                     <i class="bi bi-qr-code pe-2"></i>

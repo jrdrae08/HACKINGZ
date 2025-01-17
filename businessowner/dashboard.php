@@ -8,10 +8,10 @@ include '../backends/subadmin/dashboard-notif.php';
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sub-admin Dashboard</title>
+    <title>Business Owner Dashboard</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
+    <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/jquery/latest/jquery.min.js"></script>
     <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -62,7 +62,15 @@ include '../backends/subadmin/dashboard-notif.php';
                             <div class="card flex-fill border-0 new shadow">
                                 <div class="card-body text-center">
                                     <h5>New</h5>
-                                    <h4> 2</h4>
+                                    <h4><?php echo $pendingCount; ?></h4>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12 col-md-4 d-flex s">
+                            <div class="card flex-fill border-0 upcoming shadow">
+                                <div class="card-body text-center">
+                                    <h5>Upcoming</h5>
+                                    <h4><?php echo $acceptedCount; ?></h4>
                                 </div>
                             </div>
                         </div>
@@ -70,15 +78,7 @@ include '../backends/subadmin/dashboard-notif.php';
                             <div class="card flex-fill border-0 ongoing shadow">
                                 <div class="card-body text-center">
                                     <h5>Ongoing</h5>
-                                    <h4> 6</h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12 col-md-4 d-flex s">
-                            <div class="card flex-fill border-0 available shadow">
-                                <div class="card-body text-center">
-                                    <h5> Available Rooms</h5>
-                                    <h4>5</h4>
+                                    <h4><?php echo $ongoingCount; ?></h4>
                                 </div>
                             </div>
                         </div>
@@ -108,27 +108,39 @@ include '../backends/subadmin/dashboard-notif.php';
                     <?php endif; ?>
 
                     <div class="row mt-3">
-                        <div class="col-lg-8 col-12">
-                            <div id="reportrange" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc; width: 100%">
+                        <h5>Data Analytics</h5>
+                        <div class=" col-xl-3 col-lg-4 col-12 mb-3 d-flex">
+                            <p class="me-2">Filter:</p>
+                            <div id="reportrange" class="shadow rounded" style="background: #fff; cursor: pointer; padding: 5px 10px; border: 1px solid #ccc;">
                                 <i class="fa fa-calendar"></i>&nbsp;
                                 <span></span> <i class="fa fa-caret-down"></i>
                             </div>
-                            <div class="table-responsive">
-                                <div class="chart-container bg-light rounded mt-3" style="position: relative; height:50vh; width:100vh">
-                                    <canvas id="myLineChart"></canvas>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="row">
+                                <div class="col-lg-8 col-12 mb-3">
+                                    <div class="table-responsive">
+                                        <div class="chart-container p-2 bg-light d-flex justify-content-center rounded shadow"  style="height: 50vh;">
+                                            <canvas id="myLineChart"></canvas>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-12 mb-2">
+                                    <div class="chart-container d-flex justify-content-center bg-light rounded p-2 shadow mb-3">
+                                        <canvas id="genderBarChart"></canvas>
+                                    </div>
+                                    <div class="chart-container d-flex justify-content-center bg-light rounded p-2 shadow">
+                                        <canvas id="locationPieChart"></canvas>
+                                    </div>
+                                </div>
+                                <div class="col-lg-4 col-12 mb-2">
+
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-4 col-12">
-                            <div class="chart-container bg-light rounded mt-3" style="position: relative;">
-                                <canvas id="locationPieChart"></canvas>
-                            </div>
-                        </div>
-                        <div class="col-lg-4 col-12 mt-3">
-                            <div class="chart-container bg-light rounded" style="position: relative; height:30vh">
-                                <canvas id="genderBarChart"></canvas>
-                            </div>
-                        </div>
+
+
+
                     </div>
                     <script>
                         $(function() {
@@ -384,8 +396,8 @@ include '../backends/subadmin/dashboard-notif.php';
                 </div>
             </main>
             <a href="#" class="theme-toggle">
-                <i class="fa-regular fa-sun"></i>
-                <i class="fa-regular fa-moon"></i>
+                <i class="bi bi-brightness-high-fill"></i>
+                <i class="bi bi-moon-fill"></i>
             </a>
             <footer class="footer">
                 <?php include '../businessowner/includes/footer.php'; ?>

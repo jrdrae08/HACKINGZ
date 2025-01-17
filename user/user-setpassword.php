@@ -161,7 +161,7 @@ if (isset($_SESSION['message'])) {
           setTimeout(() => {
             alertBox.remove();
           }, 1000); // Match the CSS transition duration
-        }, 5000); // Wait 5 seconds before starting the fade out
+        }, 3000); // Wait 5 seconds before starting the fade out
       }
     });
   </script>

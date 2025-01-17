@@ -36,7 +36,7 @@ try {
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Admin Dashboard</title>
+  <title>Business Owner</title>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha2/dist/css/bootstrap.min.css">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <script src="https://kit.fontawesome.com/ae360af17e.js" crossorigin="anonymous"></script>
@@ -52,10 +52,10 @@ try {
     <div class="main">
       <!-- navbar -->
       <?php include '../businessowner/includes/navbar.php'; ?>
-      <main class="content px-3 py-2">
+      <main class="content">
         <div class="container-fluid">
           <div class="row d-flex justify-content-center">
-            <div class="col-8">
+            <div class="col-lg-10 col-12">
               <div class="mb-3 mt-5">
                 <h4>Information Table</h4>
               </div>
@@ -67,43 +67,43 @@ try {
                   </h4>
                 </div>
                 <div class="card-body">
-                  <table id="demographicsTable" class="table table-striped">
-                    <thead>
-                      <tr>
-                        <th scope="col">ID</th>
-                        <th scope="col">Date and Time</th>
-                        <th scope="col">Number of Visitors</th>
-                        <th scope="col">Actions</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                      if ($demographics) {
-                        foreach ($demographics as $demog):
-                      ?>
-                          <tr>
-                            <th scope="row"><?php echo htmlspecialchars($demog['bOwnerId']); ?></th>
-                            <td>
-                              <?php
-                              $datetime = new DateTime($demog['created_at']);
-                              echo htmlspecialchars($datetime->format('m/d/Y h:iA'));
-                              ?>
-                            </td>
-                            <td><?php echo htmlspecialchars($demog['totalnumAttendees']); ?></td>
-                            <td>
-                              <button class="btn btn-primary m-1 view-info-btn" data-bs-toggle="modal" data-id="<?php echo htmlspecialchars($demog['bOwnerId']); ?>">
-                                <i class="bi bi-eye"></i>
-                              </button>
-                            </td>
-                          </tr>
-                      <?php
-                        endforeach;
-                      } else {
-                        echo "<tr><td colspan='4'>No demographic information found for this application.</td></tr>";
-                      }
-                      ?>
-                    </tbody>
-                  </table>
+                  <div class="table-responsive">
+                    <table id="demographicsTable" class="table table-striped">
+                      <thead>
+                        <tr>
+                          <th scope="col">Date and Time</th>
+                          <th scope="col">Number of Visitors</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                        if ($demographics) {
+                          foreach ($demographics as $demog):
+                        ?>
+                            <tr>
+                              <td>
+                                <?php
+                                $datetime = new DateTime($demog['created_at']);
+                                echo htmlspecialchars($datetime->format('m/d/Y h:iA'));
+                                ?>
+                              </td>
+                              <td><?php echo htmlspecialchars($demog['totalnumAttendees']); ?></td>
+                              <td>
+                                <button class="btn btn-primary m-1 view-info-btn" data-bs-toggle="modal" data-id="<?php echo htmlspecialchars($demog['bOwnerId']); ?>">
+                                  <i class="bi bi-eye"></i>
+                                </button>
+                              </td>
+                            </tr>
+                        <?php
+                          endforeach;
+                        } else {
+                          echo "<tr><td colspan='3'>No demographic information found for this application.</td></tr>";
+                        }
+                        ?>
+                      </tbody>
+                    </table>
+                  </div>
                 </div>
               </div>
             </div>
@@ -111,7 +111,7 @@ try {
         </div>
         <!-- view tourist info modal -->
         <div class="modal fade" id="viewaccountinfo" tabindex="-1" aria-labelledby="viewaccountinfo" aria-hidden="true">
-          <div class="modal-dialog modal-dialog-centered ">
+          <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
               <div class="modal-header">
                 <h2 class="modal-title fs-5" id="exampleModalLabel">Tourist Information</h2>
@@ -119,22 +119,30 @@ try {
               </div>
               <div class="modal-body">
                 <p class="mt-2 fs-6 fw-bold text-center">Tourists Information</p>
-                <ul id="demographics-details">
-                  <!-- Content will be injected by JavaScript -->
-                </ul>
-                <p class="mt-2 fs-6 fw-bold text-center">Information Table</p>
-                <table class="table">
-                  <thead>
-                    <tr>
-                      <th scope="col">Name</th>
-                      <th scope="col">Sex</th>
-                      <th scope="col">Location</th>
-                    </tr>
-                  </thead>
-                  <tbody id="modal-body-content">
-                    <!-- Content will be injected by JavaScript -->
-                  </tbody>
-                </table>
+
+                <div class="row">
+                  <div class="col-lg-6">
+                    <ul id="demographics-details">
+                      <!-- Content will be injected by JavaScript -->
+                    </ul>
+                  </div>
+                  <div class="col-lg-6">
+                    <div class="table-responsive">
+                      <table class="table">
+                        <thead>
+                          <tr>
+                            <th scope="col">Name</th>
+                            <th scope="col">Sex</th>
+                            <th scope="col">Location</th>
+                          </tr>
+                        </thead>
+                        <tbody id="modal-body-content">
+                          <!-- Content will be injected by JavaScript -->
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
@@ -185,17 +193,16 @@ try {
     $(document).ready(function() {
       $('#demographicsTable').DataTable({
         "columnDefs": [{
-            "orderable": false,
-            "targets": 3
-          } // Disable sorting on the Actions column
-        ],
+          "orderable": false,
+          "targets": 2 // Disable sorting on the Actions column
+        }],
         "pageLength": 10,
         "lengthMenu": [10, 25, 50, 75, 100],
         "paging": <?php echo count($demographics) > 10 ? 'true' : 'false'; ?>,
         "searching": false,
         "order": [
-          [1, 'desc']
-        ]
+          [0, 'desc']
+        ] // Sort by the 'Date and Time' column (index 0) in descending order
       });
 
       $('.view-info-btn').on('click', function() {
@@ -280,16 +287,6 @@ try {
 
     .modal-body table tr:nth-child(even) {
       background-color: #f8f9fa;
-    }
-
-    .btn-close {
-      background: none;
-      border: none;
-      font-size: 1.25rem;
-    }
-
-    .btn-close:hover {
-      color: #dc3545;
     }
   </style>
 </body>

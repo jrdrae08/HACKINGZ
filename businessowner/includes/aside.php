@@ -23,12 +23,12 @@
                     <li class="sidebar-item">
                         <a href="../businessowner/front-card.php" class="sidebar-link">Front Card Content</a>
                     </li>
-                    <li class="sidebar-item">
+                    <!-- <li class="sidebar-item">
                         <a href="" class="sidebar-link">Contact Info Page</a>
                     </li>
                     <li class="sidebar-item">
                         <a href="" class="sidebar-link">About Us Page</a>
-                    </li>
+                    </li> -->
                 </ul>
             </li>
             <li class="sidebar-item">
@@ -39,7 +39,7 @@
             </li>
             <li class="sidebar-item">
                 <a href="../businessowner/add_room_facilities.php" class="sidebar-link">
-                    <i class="bi bi-house-gear-fill pe-2"></i>
+                    <i class="bi bi-file-earmark-plus"></i>
                     Add Room Facilities and Features
                 </a>
             </li>
@@ -65,12 +65,12 @@
                 </a>
             </li>
 
-            <li class="sidebar-item">
+            <!-- <li class="sidebar-item">
                 <a href="#" class="sidebar-link">
                     <i class="bi bi-megaphone-fill pe-2"></i>
                     Announcements
                 </a>
-            </li>
+            </li> -->
 
             <li class="sidebar-item">
                 <a href="../businessowner/print-demographics-report.php" class="sidebar-link">

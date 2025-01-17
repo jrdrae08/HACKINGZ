@@ -164,7 +164,7 @@ function sendEmailNotification($reservation, $status, $formattedCheckin, $format
             <li><strong>Time-out:</strong> {$formattedTimeEnd}</li>
             <li><strong>Total Price:</strong> ₱{$formattedPrice}</li>
             <li><strong>Down Payment:</strong> ₱{$formattedDownPayment}</li>
-            <li><strong>Total Amount Due:</strong> ₱{$formattedAmountDue}</li>
+            <li><strong>Remaining Balance:</strong> ₱{$formattedAmountDue}</li>
         </ul>
         {$downPaymentMessage}
         <p><strong>Location:</strong> {$reservation['BusinessAddress']}</p>

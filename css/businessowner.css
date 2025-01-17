@@ -237,8 +237,8 @@ a.sidebar-link {
     color: var(--bs-emphasis-color);
 }
 
-.available {
-    background-color: var(--bs-danger);
+.upcoming {
+    background-color: var(--bs-warning);
     color: var(--bs-emphasis-color);
 }
 
@@ -288,8 +288,8 @@ a.sidebar-link {
     background-color: var(--bs-body-color);
 }
 
-html[data-bs-theme="light"] .theme-toggle .fa-moon,
-html[data-bs-theme="dark"] .theme-toggle .fa-sun {
+html[data-bs-theme="light"] .theme-toggle .bi-moon-fill,
+html[data-bs-theme="dark"] .theme-toggle .bi-brightness-high-fill {
     cursor: pointer;
     padding: 10px;
     display: block;
@@ -297,11 +297,11 @@ html[data-bs-theme="dark"] .theme-toggle .fa-sun {
     color: #FFF;
 }
 
-html[data-bs-theme="dark"] .theme-toggle .fa-moon {
+html[data-bs-theme="dark"] .theme-toggle .bi-moon-fill {
     display: none;
 }
 
-html[data-bs-theme="light"] .theme-toggle .fa-sun {
+html[data-bs-theme="light"] .theme-toggle .bi-brightness-high-fill {
     display: none;
 }
 

@@ -14,7 +14,7 @@
         <div class="card shadow" style="width: 500px;">
             <div class="card-body text-center">
                 <h4 class="card-title">Registration Successful</h4>
-                <p class="card-text">Your registration has been submitted successfully. Please wait for the approval of the admin.</p>
+                <p class="card-text">Please check your email for verification. Thank you!</p>
                 <a href="../../homepage/homepage.php" class="btn btn-success">Go to Homepage</a>
             </div>
         </div>

@@ -377,42 +377,51 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     });
 
                                                                     let row = `
-                                    <tr>
-                                        <td>${formattedTimeBooked}</td>
-                                        <td>${reservation.roomName}</td>
-                                        <td>${reservation.customerName}</td>
-                                        <td>
-                                            <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                                data-name="${reservation.customerName}"
-                                                data-address="${reservation.address}"
-                                                data-contact="${reservation.contactNumber}"
-                                                data-id-type="${reservation.id_type}"
-                                                data-front-id="${reservation.front_id}"
-                                                data-back-id="${reservation.back_id}"
-                                                data-total-attendees="${reservation.totalnumAttendees}"
-                                                data-total-male="${reservation.totalmale}"
-                                                data-total-female="${reservation.totalfemale}"
-                                                data-this-city="${reservation.thisCity}"
-                                                data-other-city="${reservation.otherCity}"
-                                                data-other-province="${reservation.otherProvince}"
-                                                data-foreign-country="${reservation.foreignCountry}"
-                                                data-attendee-names="${reservation.attendeeNames}"
-                                                data-attendee-sexes="${reservation.attendeeSexes}"
-                                                data-attendee-locations="${reservation.attendeeLocations}"
-                                                data-proof-of-payment="${reservation.proofOfPayment}"
-                                                data-reference-number="${reservation.gcashReference}"
-                                            ><i class="bi bi-eye"></i></button>
-                                            <button class="btn btn-success m-1 accept-reservation" data-revid="${reservation.revID}" data-status="Accepted"><i class="bi bi-check-lg"></i></button>
-                                            <button class="btn btn-danger m-1 cancel-reservation" data-revid="${reservation.revID}" data-status="Rejected"><i class="bi bi-x-lg"></i></button>
-                                        </td>
-                                        <td>New</td>
-                                    </tr>
-                                `;
+                            <tr>
+                                <td>${formattedTimeBooked}</td>
+                                <td>${reservation.roomName}</td>
+                                <td>${reservation.customerName}</td>
+                                <td>
+                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                        data-name="${reservation.customerName}"
+                                        data-address="${reservation.address}"
+                                        data-contact="${reservation.contactNumber}"
+                                        data-id-type="${reservation.id_type}"
+                                        data-front-id="${reservation.front_id}"
+                                        data-back-id="${reservation.back_id}"
+                                        data-total-attendees="${reservation.totalnumAttendees}"
+                                        data-total-male="${reservation.totalmale}"
+                                        data-total-female="${reservation.totalfemale}"
+                                        data-this-city="${reservation.thisCity}"
+                                        data-other-city="${reservation.otherCity}"
+                                        data-other-province="${reservation.otherProvince}"
+                                        data-foreign-country="${reservation.foreignCountry}"
+                                        data-attendee-names="${reservation.attendeeNames}"
+                                        data-attendee-sexes="${reservation.attendeeSexes}"
+                                        data-attendee-locations="${reservation.attendeeLocations}"
+                                        data-proof-of-payment="${reservation.proofOfPayment}"
+                                        data-reference-number="${reservation.gcashReference}"
+                                    ><i class="bi bi-eye"></i></button>
+                                    <button class="btn btn-success m-1 accept-reservation" data-revid="${reservation.revID}" data-status="Accepted"><i class="bi bi-check-lg"></i></button>
+                                    <button class="btn btn-danger m-1 cancel-reservation" data-revid="${reservation.revID}" data-status="Rejected"><i class="bi bi-x-lg"></i></button>
+                                </td>
+                                <td>New</td>
+                            </tr>
+                        `;
                                                                     tbody.append(row);
                                                                 });
 
-                                                                // Initialize DataTable
-                                                                $('#reservationsTable').DataTable();
+                                                                // Destroy existing DataTable instance if it exists
+                                                                if ($.fn.DataTable.isDataTable('#reservationsTable')) {
+                                                                    $('#reservationsTable').DataTable().destroy();
+                                                                }
+
+                                                                // Initialize DataTable with descending order
+                                                                $('#reservationsTable').DataTable({
+                                                                    "order": [
+                                                                        [0, "desc"]
+                                                                    ]
+                                                                });
 
                                                                 // Add event listener for view details buttons
                                                                 $('.view-details').on('click', function() {
@@ -448,12 +457,12 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
 
                                                                     for (let i = 0; i < attendeeNames.length; i++) {
                                                                         let row = `
-                                        <tr>
-                                            <td>${attendeeNames[i]}</td>
-                                            <td>${attendeeSexes[i]}</td>
-                                            <td>${attendeeLocations[i]}</td>
-                                        </tr>
-                                    `;
+                                <tr>
+                                    <td>${attendeeNames[i]}</td>
+                                    <td>${attendeeSexes[i]}</td>
+                                    <td>${attendeeLocations[i]}</td>
+                                </tr>
+                            `;
                                                                         infoTableBody.append(row);
                                                                     }
 
@@ -1068,62 +1077,64 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                 tbody.empty(); // Clear existing rows
 
                                                                 reservations.forEach(function(reservation) {
+                                                                    function formatTimeTo12Hour(time) {
+                                                                        let [hours, minutes] = time.split(':').map(Number); // Split the time into hours and minutes
+                                                                        let period = hours >= 12 ? 'PM' : 'AM'; // Determine if it's AM or PM
+                                                                        hours = hours % 12 || 12; // Convert 0 hour to 12 for 12-hour format
+                                                                        return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
+                                                                    }
+
                                                                     let checkin = new Date(reservation.checkin);
-                                                                    let formattedCheckin = checkin.toLocaleString('en-US', {
-                                                                        hour: 'numeric',
-                                                                        minute: 'numeric',
-                                                                        hour12: true
-                                                                    }) + ' ' + checkin.toLocaleString('en-US', {
-                                                                        month: 'long',
-                                                                        day: 'numeric',
-                                                                        year: 'numeric'
-                                                                    });
+                                                                    let formattedCheckin = `${formatTimeTo12Hour(reservation.timeStart)} ${checkin.toLocaleString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+})}`;
 
                                                                     let departure = new Date(reservation.departure);
-                                                                    let formattedDeparture = departure.toLocaleString('en-US', {
-                                                                        hour: 'numeric',
-                                                                        minute: 'numeric',
-                                                                        hour12: true
-                                                                    }) + ' ' + departure.toLocaleString('en-US', {
-                                                                        month: 'long',
-                                                                        day: 'numeric',
-                                                                        year: 'numeric'
-                                                                    });
+                                                                    let formattedDeparture = `${formatTimeTo12Hour(reservation.timeEnd)} ${departure.toLocaleString('en-US', {
+    month: 'long',
+    day: 'numeric',
+    year: 'numeric'
+})}`;
+
 
                                                                     let row = `
-                            <tr>
-                                <td>${reservation.roomName}</td>
-                                <td>${formattedCheckin}</td>
-                                <td>${formattedDeparture}</td>
-                                <td>
-                                    <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
-                                        data-name="${reservation.customerName}"
-                                        data-address="${reservation.address}"
-                                        data-contact="${reservation.contactNumber}"
-                                        data-id-type="${reservation.id_type}"
-                                        data-front-id="${reservation.front_id}"
-                                        data-back-id="${reservation.back_id}"
-                                        data-total-attendees="${reservation.totalnumAttendees}"
-                                        data-total-male="${reservation.totalmale}"
-                                        data-total-female="${reservation.totalfemale}"
-                                        data-this-city="${reservation.thisCity}"
-                                        data-other-city="${reservation.otherCity}"
-                                        data-other-province="${reservation.otherProvince}"
-                                        data-foreign-country="${reservation.foreignCountry}"
-                                        data-attendee-names="${reservation.attendeeNames}"
-                                        data-attendee-sexes="${reservation.attendeeSexes}"
-                                        data-attendee-locations="${reservation.attendeeLocations}"
-                                        data-proof-of-payment="${reservation.proofOfPayment}"
-                                        data-reference-number="${reservation.gcashReference}"
-                                        data-amount-due="${reservation.amountDue}"
-                                        data-total-price="${reservation.totalPrice}"
-                                        data-down-payment="${reservation.downPayment}"
-                                    ><i class="bi bi-eye"></i></button>
-                                    <button class="btn btn-success m-1 ongoing-reservation" data-revid="${reservation.revID}" data-amount-due="${reservation.amountDue}" data-total-price="${reservation.totalPrice}" data-down-payment="${reservation.downPayment}"><i class="bi bi-check-lg"></i></button>
-                                </td>
-                                <td>${reservation.status}</td>
-                            </tr>
-                        `;
+                        <tr>
+                            <td>${reservation.roomName}</td>
+                            <td>${formattedCheckin}</td>
+                            <td>${formattedDeparture}</td>
+                            <td>
+                                <button class="btn btn-primary m-1 view-details" data-bs-toggle="modal" data-bs-target="#viewroom"
+                                    data-name="${reservation.customerName}"
+                                    data-address="${reservation.address}"
+                                    data-contact="${reservation.contactNumber}"
+                                    data-id-type="${reservation.id_type}"
+                                    data-front-id="${reservation.front_id}"
+                                    data-back-id="${reservation.back_id}"
+                                    data-total-attendees="${reservation.totalnumAttendees}"
+                                    data-total-male="${reservation.totalmale}"
+                                    data-total-female="${reservation.totalfemale}"
+                                    data-this-city="${reservation.thisCity}"
+                                    data-other-city="${reservation.otherCity}"
+                                    data-other-province="${reservation.otherProvince}"
+                                    data-foreign-country="${reservation.foreignCountry}"
+                                    data-attendee-names="${reservation.attendeeNames}"
+                                    data-attendee-sexes="${reservation.attendeeSexes}"
+                                    data-attendee-locations="${reservation.attendeeLocations}"
+                                    data-proof-of-payment="${reservation.proofOfPayment}"
+                                    data-reference-number="${reservation.gcashReference}"
+                                    data-amount-due="${reservation.amountDue}"
+                                    data-total-price="${reservation.totalPrice}"
+                                    data-down-payment="${reservation.downPayment}"
+                                    data-time-start="${reservation.timeStart}"
+                                    data-time-end="${reservation.timeEnd}"
+                                ><i class="bi bi-eye"></i></button>
+                                <button class="btn btn-success m-1 ongoing-reservation" data-revid="${reservation.revID}" data-amount-due="${reservation.amountDue}" data-total-price="${reservation.totalPrice}" data-down-payment="${reservation.downPayment}"><i class="bi bi-check-lg"></i></button>
+                            </td>
+                            <td>${reservation.status}</td>
+                        </tr>
+                    `;
                                                                     tbody.append(row);
                                                                 });
 
@@ -1322,27 +1333,26 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'businessowner') {
                                                                     year: 'numeric'
                                                                 });
 
+                                                                function formatTimeTo12Hour(time) {
+                                                                    let [hours, minutes] = time.split(':').map(Number); // Split the time into hours and minutes
+                                                                    let period = hours >= 12 ? 'PM' : 'AM'; // Determine if it's AM or PM
+                                                                    hours = hours % 12 || 12; // Convert 0 hour to 12 for 12-hour format
+                                                                    return `${hours}:${minutes.toString().padStart(2, '0')} ${period}`;
+                                                                }
+
                                                                 let checkin = new Date(reservation.checkin);
-                                                                let formattedCheckin = checkin.toLocaleString('en-US', {
-                                                                    hour: 'numeric',
-                                                                    minute: 'numeric',
-                                                                    hour12: true
-                                                                }) + ' ' + checkin.toLocaleString('en-US', {
+                                                                let formattedCheckin = `${formatTimeTo12Hour(reservation.timeStart)} ${checkin.toLocaleString('en-US', {
                                                                     month: 'long',
                                                                     day: 'numeric',
                                                                     year: 'numeric'
-                                                                });
+                                                                })}`;
 
                                                                 let departure = new Date(reservation.departure);
-                                                                let formattedDeparture = departure.toLocaleString('en-US', {
-                                                                    hour: 'numeric',
-                                                                    minute: 'numeric',
-                                                                    hour12: true
-                                                                }) + ' ' + departure.toLocaleString('en-US', {
+                                                                let formattedDeparture = `${formatTimeTo12Hour(reservation.timeEnd)} ${departure.toLocaleString('en-US', {
                                                                     month: 'long',
                                                                     day: 'numeric',
                                                                     year: 'numeric'
-                                                                });
+                                                                })}`;
 
                                                                 let row = `
                         <tr>

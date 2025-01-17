@@ -347,8 +347,8 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                 </div>
             </main>
             <a href="#" class="theme-toggle">
-                <i class="fa-regular fa-sun"></i>
-                <i class="fa-regular fa-moon"></i>
+                <i class="bi bi-brightness-high-fill"></i>
+                <i class="bi bi-moon-fill"></i>
             </a>
             <footer class="footer">
                 <div class="container-fluid">

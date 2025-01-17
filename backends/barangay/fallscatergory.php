@@ -62,6 +62,14 @@ function uploadFile($inputName, $existingFile = null)
     exit;
   }
 
+  // Convert palette-based images to true color
+  if (!imageistruecolor($image)) {
+    $trueColorImage = imagecreatetruecolor(imagesx($image), imagesy($image));
+    imagecopy($trueColorImage, $image, 0, 0, 0, 0, imagesx($image), imagesy($image));
+    imagedestroy($image);
+    $image = $trueColorImage;
+  }
+
   if (imagewebp($image, $targetFile, 80)) { // 80 is the quality for WebP
     imagedestroy($image);
     // Delete the old file if it exists
@@ -121,21 +129,21 @@ try {
   if ($existingMedia) {
     // Update existing media
     $stmt = $pdo->prepare("UPDATE business_media SET 
-            Thumbnail = ?, 
-            Quotation = ?, 
-            Image1 = ?, 
-            Image2 = ?, 
-            Image3 = ?, 
-            Image4 = ?, 
-            Image5 = ?, 
-            Image6 = ? 
-            WHERE barangayId = ?");
+                Thumbnail = ?, 
+                Quotation = ?, 
+                Image1 = ?, 
+                Image2 = ?, 
+                Image3 = ?, 
+                Image4 = ?, 
+                Image5 = ?, 
+                Image6 = ? 
+                WHERE barangayId = ?");
     $success = $stmt->execute([$thumbnail, $quotation, $image1, $image2, $image3, $image4, $image5, $image6, $barangayId]);
   } else {
     // Insert new media
     $stmt = $pdo->prepare("INSERT INTO business_media 
-            (barangayId, Thumbnail, Quotation, Image1, Image2, Image3, Image4, Image5, Image6) 
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
+                (barangayId, Thumbnail, Quotation, Image1, Image2, Image3, Image4, Image5, Image6) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");
     $success = $stmt->execute([$barangayId, $thumbnail, $quotation, $image1, $image2, $image3, $image4, $image5, $image6]);
   }
 
