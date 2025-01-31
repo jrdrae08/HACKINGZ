@@ -47,7 +47,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                     <div class="mb-3">
                         <h3>Dashboard</h3>
                     </div>
-                    <div class="row">
+                    <!-- <div class="row">
                         <h5>Totals</h5>
                         <div class="col-12 col-md-4 mb-2 d-flex">
                             <div class="card flex-fill border-0 new shadow">
@@ -73,7 +73,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['role'] !== 'admin') {
                                 </div>
                             </div>
                         </div>
-                    </div>
+                    </div> -->
                     <hr>
 
                     <div class="row mt-3">

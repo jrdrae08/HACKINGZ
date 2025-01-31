@@ -55,12 +55,12 @@
                     Add Barangay Account
                 </a>
             </li>
-            <li class="sidebar-item">
+            <!-- <li class="sidebar-item">
                 <a href="../admin/add-business-type.php" class="sidebar-link">
                     <i class="bi bi-plus-circle-fill"></i>
                     Add Business Types
                 </a>
-            </li>
+            </li> -->
 
             <li class="sidebar-item">
                 <a href="../admin/view-barangay-accounts.php" class="sidebar-link">
