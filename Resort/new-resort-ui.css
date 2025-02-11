@@ -242,17 +242,13 @@ body {
 
 
 .nav-link.active {
-    background-color: #74c69d !important;
-    /* background-color: #456122 !important; */
-    border-color: rgb(205, 218, 187) !important;
-    border: #fff8d8 solid;
-    border-radius: 3rem;
+    background-color: #18754a !important;
     padding: 10px 40px;
 }
 
 .nav-link:not(.active) {
     color: var(--bs-light);
-    padding: 7px 30px;
+    padding: 10px 40px;
 }
 
 .tab-content .tab-pane .col .card {

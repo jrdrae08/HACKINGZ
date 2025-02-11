@@ -32,13 +32,13 @@ if ($isLoggedIn) {
   }
 </style>
 
-<nav class="navbar navbar-expand-lg fixed-top custom-navbar border-0">
+<nav class="navbar navbar-expand-lg  custom-navbar border-0">
   <div class="container-fluid">
-    <a class="navbar-brand" href="#">
+    <a class="navbar-brand ms-5" href="#">
       <img src="../img/general-img/majayjay-logo.webp" alt="Majayjay Logo" height="50">
-      <!-- <span class="dm-sans-text text-light">Majayjay, Laguna</span> -->
+      <span class="dm-sans-text text-light">Majayjay, Laguna</span>
     </a>
-    <button class="navbar-toggler bg-success-subtle shadow" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
+    <button class="navbar-toggler bg-success" type="button" data-bs-toggle="offcanvas" data-bs-target="#offcanvasNavbar" aria-controls="offcanvasNavbar" aria-label="Toggle navigation">
       <span class="navbar-toggler-icon"></span>
     </button>
 
@@ -62,12 +62,6 @@ if ($isLoggedIn) {
               <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="../businessowner/business-registration.php">Businesses</a>
             </li>
           <?php endif; ?>
-          <li class="nav-item me-3">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="#service<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">Services</a>
-          </li>
-          <li class="nav-item me-5">
-            <a class="nav-link dm-sans-text text-light btn btn-nav btn-success shadow" href="#about<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>">About</a>
-          </li>
           <?php if ($isLoggedIn): ?>
             <li class="nav-item dropdown">
               <button class="nav-link dm-sans-text btn-nav text-light shadow dropdown-toggle no-caret" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -80,7 +74,7 @@ if ($isLoggedIn) {
               </ul>
             </li>
           <?php else: ?>
-            <li class="nav-item">
+            <li class="nav-item me-5">
               <a class="nav-link text-light btn btn-nav shadow" href="../../login.php">Sign In</a>
             </li>
           <?php endif; ?>

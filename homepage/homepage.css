@@ -2,6 +2,7 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:ital,wght@0,300;0,400;0,500;1,500&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
 @import url('https://fonts.googleapis.com/css2?family=Cormorant:ital,wght@0,300..700;1,300..700&family=DM+Sans:ital,opsz,wght@0,9..40,100..1000;1,9..40,100..1000&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+Hentaigana:wght@200..900&display=swap');
 
 * {
     margin: 0;
@@ -46,6 +47,13 @@
     color: white;
     text-shadow: 2px 2px 4px #000000;
 }
+
+.noto-serif-hentaigana {
+    font-family: "Noto Serif Hentaigana", serif;
+    font-optical-sizing: auto;
+    font-weight: 800;
+    font-style: normal;
+  }
 
 body {
     overflow-x: hidden;

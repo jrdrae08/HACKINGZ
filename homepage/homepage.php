@@ -39,14 +39,14 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
 
         <section id="home" class="homepage-container">
             <div class="container-fluid">
-                <div class="row d-flex justify-content-center align-items-center" style="margin-top: 75px;">
-                    <div class="col-lg-5">
+                <div class="row d-flex justify-content-evenly align-items-center" style="margin-top: 75px;">
+                    <div class="col-xl-5 col-lg-6 col-md-12 ">
                         <div class="home-header text-center mx-4">
-                            <h1 class="display-1 jaro-font">WELCOME TO <br><span class="element poetsen-one-regular"></span></h1>
-                            <p class="main-text dm-sans-text text-light" style=" text-align: center;"><?= htmlspecialchars($content['description']) ?></p>
+                            <h1 class="display-5 noto-serif-hentaigana">Visit the Beautiful Place of<br><span class="element poetsen-one-regular"></span></h1>
+                            <p class="main-text dm-sans-text text-light" style=" text-align: center; font-size: 20px;"><?= htmlspecialchars($content['description']) ?></p>
                         </div>
                     </div>
-                    <div class="col-lg-6 collection m-0 p-0">
+                    <div class="col-xl-5 col-lg-6 col-md-12 collection m-0 p-0">
                         <div class="swiper mySwiper">
                             <div class="swiper-wrapper">
                                 <div class="content swiper-slide">
@@ -54,7 +54,8 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <div class="text-content">
                                         <h3 class="poetsen-one-regular text-success"><?= htmlspecialchars($content['slider_title_1']) ?></h3>
                                         <p class="mx-2"><?= htmlspecialchars($content['slider_content_1']) ?></p>
-                                        <button class="btn btn-visit px-4 text-light shadow">VISIT</button>
+                                        <a href="../Resort/page-0.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>" class="text-decoration-none text-success">Discover more ></a>
+
                                     </div>
                                 </div>
                                 <div class="content swiper-slide">
@@ -62,7 +63,8 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <div class="text-content">
                                         <h3 class="poetsen-one-regular text-success"><?= htmlspecialchars($content['slider_title_2']) ?></h3>
                                         <p class="mx-2"><?= htmlspecialchars($content['slider_content_2']) ?></p>
-                                        <button class="btn btn-visit px-4 text-light shadow">VISIT</button>
+                                        <a href="../Resort/page-0.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>" class="text-decoration-none text-success">Discover more ></a>
+
                                     </div>
                                 </div>
                                 <div class="content swiper-slide">
@@ -70,7 +72,7 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                                     <div class="text-content">
                                         <h3 class="poetsen-one-regular text-success"><?= htmlspecialchars($content['slider_title_3']) ?></h3>
                                         <p class="mx-2"><?= htmlspecialchars($content['slider_content_3']) ?></p>
-                                        <button class="btn btn-visit px-4 text-light shadow">VISIT</button>
+                                        <a href="../Resort/page-0.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>" class="text-decoration-none text-success">Discover more ></a>
                                     </div>
                                 </div>
                             </div>
@@ -85,77 +87,76 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                 <div class="row d-flex d-flex justify-content-center py-4 g-3">
                     <div class="col-12">
                         <div class="text-center">
-                            <h2 class="text-success fw-bold">DISCOVER</h2>
+                            <h4 class="text-success fw-bold">DISCOVER</h4>
                             <h4 class="text-dark">Our Tourist Destinations</h4>
                             <p class="text-secondary">Explore Majayjay&apos;s rich history, scenic beauty, and cultural attractions, offering a perfect mix of adventure and relaxation for every traveler.</p>
-                            <a href="../Resort/page-0.php" class="btn text-light btn-success shadow text-center">View More</a>
+
                         </div>
                     </div>
-                    <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
+                    <div class="col-lg-9 col-11 discover-content py-3 d-flex justify-content-center align-items-center">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-5 col-md-6 col-12">
-                                <img src="../img/homepage/resort.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
+                                <img src="../img/homepage/resort.jpg" class="img-fluid object-fit-cover rounded shadow" alt="" style="max-height: 400px; width: auto;">
                             </div>
                             <div class="col-md-6 col-12 my-3 text-dark text-center d-flex flex-column justify-content-center align-items-center">
-                                <h1 class="fw-bold">Delux Resorts</h1>
-                                <p>Delux Resorts offers a luxurious and relaxing vacation experience with premium accommodations, fine dining, and a variety of recreational activities. It caters to all types of travelers, including couples, families, and corporate groups, promising a memorable stay in a beautiful setting with top-notch service.</p>
-                                <a href="../Resort/page-0.php?tab=resort" class="btn text-light btn-success shadow">View More</a>
+                                <h1 class="fw-bold">Relaxing Resorts</h1>
+                                <p>A luxurious and relaxing vacation experience awaits those seeking the perfect blend of comfort, elegance, and adventure. This destination offers premium accommodations designed to provide the utmost relaxation, featuring spacious suites, private villas, and beautifully appointed rooms with breathtaking views of the surrounding landscape. Whether overlooking pristine beaches, lush gardens, or majestic mountains, every guest is treated to a serene atmosphere that enhances their stay.
+
+                                    The resort boasts world-class amenities, including infinity pools, rejuvenating spas, and private cabanas where guests can unwind while enjoying personalized service. Fine dining is an essential part of the experience, with a variety of gourmet restaurants offering exquisite cuisine prepared by top chefs. From lavish breakfast buffets to candlelit dinners by the sea, every meal is a culinary delight, featuring fresh, locally sourced ingredients and flavors from around the world.</p>
+                                <a href="../Resort/page-0.php?tab=resort" class="text-decoration-none text-success fw-bold">Discover more ></a>
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center">
+                    <div class="col-lg-9 col-11 discover-content py-3 d-flex justify-content-center align-items-center">
                         <div class="row d-flex justify-content-center">
                             <div class="col-md-6 col-12 my-3 text-dark text-center d-flex flex-column justify-content-center align-items-center">
                                 <h1 class="fw-bold">Beautiful Farms</h1>
-                                <p>Beautiful Farms offers a peaceful rural escape with scenic landscapes, farm tours, and hands-on experiences like produce picking. It’s perfect for nature lovers and those seeking a relaxing, farm-to-table experience.</p>
-                                <a href="../Resort/page-0.php?tab=farms" class="btn text-light btn-success shadow">View More</a>
+                                <p>A peaceful rural escape, this destination offers a perfect retreat for those looking to reconnect with nature and experience the simple joys of countryside living. Surrounded by breathtaking scenic landscapes, rolling hills, and lush greenery, visitors can immerse themselves in a tranquil environment far from the noise and stress of urban life. The area is well-known for its immersive farm tours, where guests can explore working farms, learn about sustainable agriculture, and engage in hands-on experiences such as planting crops, feeding animals, and harvesting fresh produce.</p>
+                                <a href="../Resort/page-0.php?tab=farms" class="text-decoration-none text-success fw-bold">Discover more ></a>
                             </div>
 
-                            <div class="col-lg-5 col-md-6 col-12 pb-5">
-                                <img src="../img/homepage/farm.jpg" class="img-fluid object-fit-cover rounded shadow" alt="">
+                            <div class="col-lg-5 col-md-6 col-12 pb-3">
+                                <img src="../img/homepage/farm.jpg" class="img-fluid object-fit-cover rounded shadow" alt="" style="max-height: 400px; width: auto;">
                             </div>
                         </div>
                     </div>
 
-                    <div class="col-lg-9 col-11 discover-content py-5 d-flex justify-content-center align-items-center" height="500px">
+                    <div class="col-lg-9 col-11 discover-content py-3 d-flex justify-content-center align-items-center">
                         <div class="row d-flex justify-content-center">
                             <div class="col-lg-5 col-md-6 col-12">
-                                <img src="../img/homepage/waterfall.webp" class="img-fluid object-fit-cover rounded shadow" alt="">
+                                <img src="../img/homepage/waterfall.webp" class="img-fluid object-fit-cover rounded shadow" alt="" style="max-height: 400px; width: auto;">
                             </div>
                             <div class="col-md-6 col-12  my-3 text-dark text-center py-3 d-flex flex-column justify-content-center align-items-center">
-                                <h1 class="fw-bold">Majayjay Waterfalls</h1>
-                                <p>Majayjay Waterfalls is a beautiful natural site in Majayjay, known for its lush surroundings and clear, cool waters. It’s a popular spot for hiking, swimming, and enjoying nature, offering a peaceful retreat for adventure seekers and relaxation.</p>
-                                <a href="../Resort/page-0.php?tab=falls" class="btn text-light btn-success shadow">View More</a>
+                                <h1 class="fw-bold">Amazing Waterfalls</h1>
+                                <p>Majayjay is a picturesque town known for its breathtaking natural beauty, lush greenery, and crystal-clear, cool waters that provide a refreshing escape from the hustle and bustle of city life. Nestled at the foot of Mount Banahaw, this charming destination is a favorite among nature lovers, adventure seekers, and those looking for a serene retreat. The area boasts scenic hiking trails that lead through dense forests, offering stunning views of cascading waterfalls and vibrant flora. Visitors can take a dip in the invigoratingly cold waters of its famous streams and falls, perfect for relaxation and rejuvenation. Whether exploring its hidden trails, enjoying a peaceful picnic by the riverside, or simply breathing in the fresh mountain air, Majayjay offers an unforgettable experience for those seeking both adventure and tranquility in the heart of nature.</p>
+                                <a href="../Resort/page-0.php?tab=falls" class="text-decoration-none text-success fw-bold">Discover more ></a>
                             </div>
                         </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-center">
+                        <a href="../Resort/page-0.php" class="btn text-light btn-success shadow text-center mb-3">See More</a>
                     </div>
                 </div>
         </section>
 
         <section id="about" class="about-container">
-            <div class="container-fluid py-5 bg-secondary-subtle">
+            <div class="container-fluid py-5 bg-success-subtle">
                 <div class="row d-flex justify-content-center">
                     <div class="col-lg-4 col-md-5 col-12 mb-5 mb-lg-0" style="min-height: 500px;">
                         <div class=" h-100 text-center">
-                            <img class="w-100 h-100 shadow" src="../img/general-img/majayjay-church.jpg" style="object-fit: cover;">
+                            <img class="w-100 h-100" src="../img/general-img/majayjay-church.jpg" style="object-fit: cover;">
                         </div>
                     </div>
                     <div class="col-lg-5 col-md-6 col-11 d-flex align-items-center">
                         <div class="row">
                             <div class="col-12">
-                                <h5 class="text-success fw-bold text-start">ABOUT US</h5>
+                                <h4 class="text-success fw-bold text-start">ABOUT US</h4>
                             </div>
                             <div class="col-12">
                                 <p class="about-content text-dark">Ayon sa matandang kasaysayan ang pangalang Majayjay Barangay ay napalitan ng pangalang Mahayhay o Majayjay nang dumating ang mga Kastila sa ating bansa. Ang mga nagtutungo sa Majayjay ay inilululan sa duyan o hamaka dahol sa lubhang mataas ang inaahong mga bundok na kinalalagyan ng lugar na iyon. Dahil nga sa mahabang pag-ahon at mabigat ang kanilang dala ang mga naglalakbay ay nagpatuloy sa pagtaghoy ng hay , hay, hay, na nagpapakilalang sila ay hirap na hirap sa kanilang pag lalakad
-
                                     Nang ang mga kastila ay kasalukuyang nagpapalaganap ng pananakop sa bayan ng Majayjay, sila ay hindi lamang sa inaahong mga bundok nahihirapan kundi gayon din sa madawas at maliliit na daan, gayon din sa mga baku-bakong sapa at ilog at maliit na tinatawid. Dahil nga sa hirap na kanilang dinaranas ay napilitan silang magpahinga at inaalis ang pagod sa paghinga ng malalim at pagtaghoy ng hay, hay. hay.
-
-                                    Kapag tinatanong noon ang isang tagapag-buhat kung anong masasabi tungkol sa pook ng iyon, nga ang isinasagot ay maraming hay, hay muna bago dumating doon. At dito nagsimula ang pangalan ng bayan ng Majayjay.
-
-                                    Nang mga panahon iyon ang Majayjay ay isa sa pinakamalaking bayan sa Laguna. Ang mamayan ay umaabot sa 15,323 at nasasakupan nito ang nayon mga bayan ng Luisiana at Magdalena.
-
-                                    Nang taong 1880 ang nayon ng Ambling ng Munti ay naging bayan ng Magdalena at nang taong 1888 ang nayon ng Nasunog ay binigyan ng karapatang makapagsarili at bayan ng Luisiana. Sa pagiging bayan ng dalawang nayon, ang Majayjayay lumiit at nabawasan ang bilang ng mamamayan. Nagkaroon din ng paghahabulan sa hangganan ng bayan ng Liliw at Majayjay na tumagal mula noong 1917 hanggang 1925. Noong Oktobre 13, 1925, sa pamamagitan ng Kagawaran ng Interyor ay natapos ang usapin ng dalawang bayan at ang mga nayon ng Banaan, Tui, Silangang Bukal, Ibaba at Ilayang San Roque ay nananatiling sakop ng Majayjay</p>
+                                    Kapag tinatanong noon ang isang tagapag-buhat kung anong masasabi tungkol sa pook ng iyon, nga ang isinasagot ay maraming hay, hay muna bago dumating doon. At dito nagsimula ang pangalan ng bayan ng Majayjay. </p>
                             </div>
                             <div class="col-12 text-center ">
                                 <a href="#contact" class="btn btn-success text-light shadow">Get in Touch</a>
@@ -166,9 +167,54 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
             </div>
         </section>
 
-        <section id="service" class="service-container py-4">
+        <section class="carousel-container bg-light py-2">
+            <style>
+                .carousel-item img {
+                    height: 900px;
+                    /* Set a fixed height */
+                    object-fit: cover;
+                    /* Ensures the image covers the area */
+                    width: 100%;
+                    /* Ensures full width */
+                }
+
+                @media screen and (max-width: 768px) {
+                    .carousel-item img {
+                        height: 300px;
+                    }
+
+                }
+            </style>
+
+            <div id="carouselExampleAutoplaying" class="carousel slide" data-bs-ride="carousel">
+                <div class="carousel-inner">
+                    <div class="carousel-item active">
+                        <img src="../img/general-img/image-1.jpg" class="d-block w-100" alt="Image 1">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="../img/general-img/image-5.jpg" class="d-block w-100" alt="Image 2">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="../img/general-img/image-3.jpg" class="d-block w-100" alt="Image 3">
+                    </div>
+                    <div class="carousel-item">
+                        <img src="../img/general-img/image-6.jpg" class="d-block w-100" alt="Image 4">
+                    </div>
+                </div>
+                <button class="carousel-control-prev" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="prev">
+                    <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Previous</span>
+                </button>
+                <button class="carousel-control-next" type="button" data-bs-target="#carouselExampleAutoplaying" data-bs-slide="next">
+                    <span class="carousel-control-next-icon" aria-hidden="true"></span>
+                    <span class="visually-hidden">Next</span>
+                </button>
+            </div>
+        </section>
+
+        <!-- <section id="service" class="service-container py-4">
             <div class="container-fluid">
-                <h5 class="text-center text-success fw-bold">OUR SERVICES</h5>
+                <h4 class="text-center text-success fw-bold">OUR SERVICES</h4>
                 <div class="service-cards">
                     <div class="row d-flex justify-content-center">
                         <div class="col-lg-3 d-flex justify-content-center">
@@ -197,93 +243,125 @@ $content = $stmt->fetch(PDO::FETCH_ASSOC);
                     </div>
                 </div>
             </div>
-        </section>
+        </section> -->
 
         <section id="contact" class="contact-container">
             <div class="container-fluid p-5 bg-success-subtle">
                 <div class="row justify-content-evenly">
-                    <div class="col-lg-4 col-sm-12 gx-5 mb-4">
-                        <div class="col-12">
-                            <h5 class="text-start text-success fw-bold">CONTACT US</h5>
-                        </div>
-                        <div class="col-12">
-                            <h3 class="text-start text-dark">Get in touch with us</h3>
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="text" class="form-label text-start text-dark ms-2">Name</label>
-                            <input type="text" class="form-control shadow" name="" placeholder="Juan Dela Cruz">
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="email" class="form-label text-start text-dark ms-2">Email address</label>
-                            <input type="email" class="form-control shadow" name="" placeholder="name@example.com">
-                        </div>
-                        <div class="col-12 mb-3">
-                            <label for="contact" class="form-label text-start text-dark ms-2">Phone number</label>
-                            <input type="number" class="form-control shadow" name="" placeholder="09123456789">
-                        </div>
-                        <div class="col-12 mb-5">
-                            <label for="message" class="form-label text-start text-dark ms-2">Message</label>
-                            <textarea class="form-control shadow" name="" rows="3"></textarea>
-                        </div>
-                        <div class="col-12 mb-1 d-grid">
-                            <button class="btn btn-success text-light shadow">Submit</button>
-                        </div>
+
+
+                    <div class="col-lg-3 col-sm-12 mb-4">
+                        <h5 class="text-start text-success fw-bold">NAVIGATIONS</h5>
+
+                        <ul class="text-decoration-none" style="list-style: none; padding: 0; margin: 0;">
+                            <li>
+                                <a href="../homepage/homepage.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-house-fill fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Home</p>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="../Resort/page-0.php<?= $isLoggedIn ? '?userID=' . htmlspecialchars($userID) : '' ?>" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-signpost-2-fill fs-3 me-3"></i>
+                                    <p class="text-dark m-0">View Destinations</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="../businessowner/business-registration.php" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-briefcase-fill fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Register your Business</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-person-circle fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Sign In</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-3 col-sm-12 mb-4">
+                        <h5 class="text-start text-success fw-bold">KEEP CONNECTED</h5>
+
+                        <ul class="text-decoration-none" style="list-style: none; padding: 0; margin: 0;">
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-facebook fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Like us on Facebook</p>
+                                </a>
+                            </li>
+
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-twitter fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Follow us on Twitter</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-instagram fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Follow us on Instagram</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-youtube fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Subscribe us on Youtube</p>
+                                </a>
+                            </li>
+                        </ul>
                     </div>
 
-                    <div class="col-lg-4 col-sm-12 bg-light">
-                        <div id="googleMap" style="width:100%;height:400px;"></div>
-                        <script>
-                            function myMap() {
-                                var mapProp = {
-                                    center: new google.maps.LatLng(14.1591, 121.4709), // Majayjay, Laguna coordinates
-                                    zoom: 12, // Adjust zoom level as needed
-                                };
-                                var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
-                            }
-                        </script>
+                    <div class="col-lg-3 col-sm-12 mb-4">
+                        <h5 class="text-start text-success fw-bold">CONTACT INFORMATION</h5>
+                        <ul class="text-decoration-none" style="list-style: none; padding: 0; margin: 0;">
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-geo-alt-fill fs-3 me-3"></i>
+                                    <p class="text-dark m-0">Plaza Rizal Street, Majayjay, Philippines</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-telephone-fill fs-3 me-3"></i>
+                                    <p class="text-dark m-0">0917 548 0086</p>
+                                </a>
+                            </li>
+                            <li>
+                                <a href="" class="text-decoration-none text-dark me-2 d-flex align-items-center">
+                                    <i class="bi bi-envelope-at-fill fs-3 me-3"></i>
+                                    <p class="text-dark m-0">majayjaytourism1571@gmail.com</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
 
-                        <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&callback=myMap"></script>
-                        <!-- <img src="../homepage/majayjaymap.PNG" class="mt-4 w-100 h-50 shadow" alt="" style="object-fit: cover;"> -->
-                        <div class="row">
-                            <div class="col-12">
-                                <p class="text-start text-dark fw-bold mt-3">Contact us</p>
-                                <p><i class="bi bi-envelope-at text-dark me-2"></i><a href="" class="text-dark">majayjaylaguna@gmail.com</a></p>
-                            </div>
-                            <div class="col-12 ">
-                                <p class="text-start text-dark fw-bold mt-2">Location</p>
-                                <p><i class="bi bi-geo-alt text-dark me-2"></i><a href="" class="text-dark">Majayjay, Laguna, Philippines</a></p>
-                            </div>
+                    <div class="col-lg-3 col-sm-12 bg-light">
+                        <div class="row p-2">
+                            <div class="col-12" id="googleMap" style="width:100%;height:300px;"></div>
+                            <script>
+                                function myMap() {
+                                    var mapProp = {
+                                        center: new google.maps.LatLng(14.1591, 121.4709), // Majayjay, Laguna coordinates
+                                        zoom: 12, // Adjust zoom level as needed
+                                    };
+                                    var map = new google.maps.Map(document.getElementById("googleMap"), mapProp);
+                                }
+                            </script>
+                            <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyAOVYRIgupAurZup5y1PRh8Ismb1A3lLao&callback=myMap"></script>
                         </div>
                     </div>
                 </div>
+
             </div>
         </section>
 
         <section class="footer-container bg-success">
-            <div class="container-fluid ">
-                <div class="row ">
-                    <div class="col-6 text-start mt-2">
-                        <p class="mb-0">
-                            <a href="#" class="text-muted">
-                                <strong>HaKingz</strong>
-                            </a>
-                        </p>
-                    </div>
-                    <div class="col-6 text-end mt-2">
-                        <ul class="list-inline">
-                            <li class="list-inline-item">
-                                <a href="#" class="text-muted">Contact</a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="text-muted">About Us</a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="text-muted">Terms</a>
-                            </li>
-                            <li class="list-inline-item">
-                                <a href="#" class="text-muted">Booking</a>
-                            </li>
-                        </ul>
+            <div class="container-fluid">
+                <div class="row">
+                    <div class="col-12 d-flex justify-content-center mt-2">
+                        <p>Copyright &copy; Tourism Office of Majayjay, Laguna. 2025 All Rights Reserved.</p>
                     </div>
                 </div>
             </div>
